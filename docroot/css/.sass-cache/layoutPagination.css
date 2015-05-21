@@ -1,0 +1,55 @@
+.showpageArea {
+  font-family: verdana,arial,helvetica;
+  color: #000;
+  font-size: 11px;
+  margin-bottom: 10px;
+  padding-top: 8px;
+  background-color: #DCDCDC;
+  padding-bottom: 8px;
+  border: 1px solid; }
+
+.showMoreResurces {
+  font-family: verdana,arial,helvetica;
+  color: red;
+  font-size: 15px;
+  cursor: pointer; }
+
+.showpageArea a {
+  color: #000;
+  text-shadow: 0 1px 2px #fff;
+  font-weight: 700; }
+
+.showpageNum a {
+  padding: 3px 5px;
+  margin: 0 1px;
+  text-decoration: none;
+  border: 1px solid #999;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  background: #dddddd url(http://4.bp.blogspot.com/_McxL-_3YYuM/TBG_a0U9fJI/AAAAAAAAAAU/qcqAF8aqWME/s1600/wp1.jpg) 0 -50px repeat-x; }
+
+.showpageNum a:hover {
+  border: 1px solid #888;
+  background: #cccccc url(http://4.bp.blogspot.com/_McxL-_3YYuM/TBG_a0U9fJI/AAAAAAAAAAU/qcqAF8aqWME/s1600/wp1.jpg) 0 -25px repeat-x; }
+
+.showpageOf {
+  margin: 0 8px 0 0; }
+
+.showpagePoint {
+  color: #fff;
+  text-shadow: 0 1px 2px #333;
+  padding: 3px 5px;
+  margin: 2px;
+  font-weight: 700;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border: 1px solid #999;
+  background: #666666 url(http://4.bp.blogspot.com/_McxL-_3YYuM/TBG_a0U9fJI/AAAAAAAAAAU/qcqAF8aqWME/s1600/wp1.jpg) 0 0 repeat-x;
+  text-decoration: none; }
+
+.sizeNumPage {
+  font-size: 8px;
+  float: right;
+  display: inline;
+  padding-right: 20px; }
+

@@ -1,0 +1,41 @@
+A {
+  text-decoration: none; }
+
+#conteinerRecord {
+  width: 800px;
+  /*    height:700px;*/
+  /* text-align: center;*/
+  margin: 0 auto;
+  background-color: #DCDCDC;
+  border: 1px solid #4B0082;
+  overflow-y: auto; }
+
+.fieldsetInformations {
+  width: 700px;
+  text-align: left;
+  margin: 0 auto;
+  border: 1px solid #00008B; }
+
+.legendFieldset {
+  border: 1px solid #00008B;
+  color: #00008B; }
+
+.klios_p {
+  line-height: 1em; }
+
+.Link {
+  color: #00008B;
+  text-align: left;
+  margin: 0 auto;
+  padding-left: 40px;
+  font-weight: bold; }
+
+a.Link:visited {
+  color: #00008B; }
+
+#Title {
+  text-align: center; }
+
+.ImageAnimation {
+  width: 13px; }
+

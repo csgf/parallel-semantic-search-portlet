@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+
+<portlet-app
+	version="2.0"
+	xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
+>
+	<portlet>
+		<portlet-name>ParallelSemanticSearch-portlet</portlet-name>
+		<display-name>ParallelSemanticSearch-portlet</display-name>
+		<portlet-class>it.infn.ct.ParallelSemanticSearch_portlet</portlet-class>
+		<init-param>    
+			<name>portletVersion</name>
+			<value>1.0</value>
+		</init-param> 
+		<init-param>
+			<name>logLevel</name>
+			<value>info</value>
+		</init-param>
+                
+                <init-param>    
+			<name>OpenAgris</name>
+			<value>false</value>
+		</init-param>
+                <init-param>    
+			<name>OpenAgrisEndPoint</name>
+                        <value>http://202.45.139.84:10035/catalogs/fao/repositories/agris#query</value>
+			  <!--<value>http://202.45.139.84:10035/catalogs/fao/repositories/agrovoc#query</value>-->
+		</init-param>
+                
+                  <init-param>    
+			<name>Europeana</name>
+			<value>false</value>
+		</init-param>
+                <init-param>    
+			<name>EuropeanaEndPoint</name>
+			<value>http://europeana.ontotext.com/sparql</value>
+		</init-param>
+                  <init-param>    
+			<name>CulturaItalia</name>
+			<value>false</value>
+		</init-param>
+                <init-param>    
+			<name>CulturaItaliaEndPoint</name>
+			<value>http://dati.culturaitalia.it/sparql</value>
+		</init-param>
+                 <init-param>    
+			<name>Isidore</name>
+			<value>false</value>
+		</init-param>
+                <init-param>    
+			<name>IsidoreEndPoint</name>
+			<value>http://rechercheisidore.fr/sparql/</value>
+		</init-param>
+                <init-param>    
+			<name>Pubmed</name>
+			<value>false</value>
+		</init-param>
+                <init-param>    
+			<name>PubmedEndPoint</name>
+			<value>http://pubmed.bio2rdf.org/sparql</value>
+		</init-param>
+                <init-param>    
+			<name>Engage</name>
+			<value>false</value>
+		</init-param>
+                <init-param>    
+			<name>EngageEndPoint</name>
+			<value>http://engagesrv.epu.ntua.gr:8890/sparql</value>
+		</init-param>
+                
+                
+                <init-param>    
+			<name>NumberRecordsForPage</name>
+			<value>10</value>
+		</init-param>
+		
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>view</portlet-mode>
+			<portlet-mode>edit</portlet-mode>
+			<portlet-mode>help</portlet-mode>
+		</supports>
+		<portlet-info>
+			<title>ParallelSemanticSearch-portlet</title>
+			<short-title>ParallelSemanticSearch-portlet</short-title>
+			<keywords>ParallelSemanticSearch-portlet</keywords>
+		</portlet-info>
+		<security-role-ref>
+			<role-name>administrator</role-name>
+		</security-role-ref>
+		<security-role-ref>
+			<role-name>guest</role-name>
+		</security-role-ref>
+		<security-role-ref>
+			<role-name>power-user</role-name>
+		</security-role-ref>
+		<security-role-ref>
+			<role-name>user</role-name>
+		</security-role-ref>
+	</portlet>
+</portlet-app>

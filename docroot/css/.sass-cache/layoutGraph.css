@@ -1,0 +1,35 @@
+.multiselect {
+  width: 40em;
+  height: 10em;
+  border: solid 2px #c0c0c0;
+  overflow: auto; }
+
+.multiselect label {
+  display: block; }
+
+.multiselect-on {
+  color: black;
+  background-color: #CCC; }
+
+.multiselect label:hover {
+  color: #000;
+  background-color: #EEE; }
+
+multiselect label.selected {
+  color: #FFF;
+  background-color: #CCC; }
+
+.fieldsetGraphAll {
+  width: 700 px;
+  margin: 0 auto; }
+
+.filterGraphAll {
+  float: left;
+  margin: 5px;
+  padding: 0.4em; }
+
+#multiselecteAll {
+  float: left;
+  margin: 5px;
+  padding: 0.4em; }
+

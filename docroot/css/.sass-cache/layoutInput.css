@@ -1,0 +1,233 @@
+.root:hover .sub {
+  display: block;
+  width: 400px;
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
+  left: 0;
+  right: 0;
+  /* left:50%;
+   margin-left:-100px;
+   position:absolute;
+   float:left;*/ }
+
+div.root {
+  margin-left: 0;
+  margin-right: 0;
+  cursor: pointer;
+  width: 200px; }
+
+.sub {
+  display: none;
+  padding: 10px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  background: white;
+  position: static; }
+
+.sub ul {
+  display: inline-block;
+  margin: 0 10px 0 0;
+  list-style: none; }
+
+.sub ul a:hover {
+  background-color: #7E7D8C;
+  color: #fff;
+  border: 1px solid #ccc;
+  cursor: pointer; }
+
+.sub ul li a {
+  text-transform: none;
+  white-space: nowrap; }
+
+.selected {
+  width: 100 px;
+  position: static; }
+
+.rounded {
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px; }
+
+body {
+  padding: 50px; }
+
+.sub {
+  display: none;
+  padding: 10px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.3); }
+
+.sub ul {
+  display: inline-block;
+  margin: 0 10px 0 0; }
+
+#divContainer {
+  width: 900px; }
+
+#divResultSearch {
+  /*   height: 805px;*/
+  /*   overflow-y: scroll;*/
+  width: 100%; }
+
+#divResultSearchSubject {
+  overflow-y: scroll;
+  width: 100%; }
+
+#divLeft {
+  float: left;
+  width: 27%;
+  height: 800px;
+  text-align: left;
+  font-size: small;
+  overflow-y: scroll; }
+
+#divRigth {
+  float: left;
+  text-align: left;
+  width: 70%;
+  font-size: small;
+  margin-left: 10px;
+  font-size: 12px;
+  /*     overflow-y: scroll;*/ }
+
+.klios {
+  font-size: 12px; }
+
+#tabMenuResult {
+  width: 100%; }
+
+.klios_list {
+  list-style: none; }
+
+/*--------------------------------------------------
+  REQUIRED to hide the non-active tab content.
+  But do not hide them in the print stylesheet!
+  --------------------------------------------------*/
+.tabberlive .tabbertabhide {
+  display: none; }
+
+/*--------------------------------------------------
+  .tabber = before the tabber interface is set up
+  .tabberlive = after the tabber interface is set up
+  --------------------------------------------------*/
+.tabberlive {
+  margin-top: 0.7em; }
+
+/*--------------------------------------------------
+  ul.tabbernav = the tab navigation list
+  li.tabberactive = the active tab
+  --------------------------------------------------*/
+ul.tabbernav {
+  margin: 0;
+  padding: 3px 0;
+  border-bottom: 1px solid orange #778; }
+
+ul.tabbernav li {
+  list-style: none;
+  margin: 0;
+  display: inline; }
+
+ul.tabbernav li a {
+  padding: 3px 0.5em;
+  margin-left: 3px;
+  border: 1px solid #778;
+  border-bottom: none;
+  background: #DEDEDE;
+  text-decoration: none; }
+
+ul.tabbernav li a:link {
+  color: black; }
+
+ul.tabbernav li a:visited {
+  color: #667; }
+
+ul.tabbernav li a:hover {
+  color: #000;
+  background: coral;
+  border-color: orange; }
+
+ul.tabbernav li.tabberactive a {
+  background-color: orange;
+  border-bottom: 1px solid orange; }
+
+ul.tabbernav li.tabberactive a:hover {
+  color: black;
+  background: white;
+  border-bottom: 1px solid #778; }
+
+/*--------------------------------------------------
+  .tabbertab = the tab content
+  Add style only after the tabber interface is set up (.tabberlive)
+  --------------------------------------------------*/
+.tabberlive .tabbertab {
+  padding: 10px;
+  border: 1px solid #aaa;
+  border-top: 1px solid #778;
+  /* If you don't want the tab size changing whenever a tab is changed
+     you can set a fixed height */
+  /* height:200px; */
+  /* If you set a fix height set overflow to auto and you will get a
+     scrollbar when necessary */
+  /* overflow:auto; */ }
+
+/* If desired, hide the heading since a heading is provided by the tab */
+.tabberlive .tabbertab h2 {
+  display: none; }
+
+.tabberlive .tabbertab h3 {
+  display: none; }
+
+/* Example of using an ID to set different styles for the tabs on the page */
+.tabberlive#tab2 .tabbertab {
+  height: 200px;
+  overflow: auto; }
+
+table.resultSearch {
+  padding-top: 10px;
+  width: 878px; }
+
+table.resultSearchSubject {
+  padding-top: 10px;
+  width: 600px; }
+
+hr.endRecordSubject {
+  border-color: orange;
+  border-style: 1px;
+  width: 600px; }
+
+hr.endRecordAll {
+  border-color: orange;
+  border-style: 1px;
+  width: 878px; }
+
+.p_noMargin {
+  margin: 0px; }
+
+/*a:hover{
+    left:inherit;
+    background-color:#EEE;
+    display:block;
+    cursor: pointer;
+
+}*/
+#tableExample td {
+  font-size: small;
+  padding-right: 10px;
+  border-right-style: double;
+  padding-left: 10px;
+  cursor: pointer; }
+
+#tableExample td:hover {
+  background-color: #EEE; }
+
+#tableExample tr {
+  padding-top: 10px; }
+
+#tableExample th {
+  text-align: center;
+  font-size: small; }
+
+#firstColumn {
+  border-left-style: double; }
+
