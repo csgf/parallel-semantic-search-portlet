@@ -46,7 +46,7 @@ The search can be performed:
 
 - .. line-block:: Using search filters. Inserting in textbox search string, for example, "author: G. Smith" and clicking "Search" will be launched a SPARQL query that will return only the resources of CHAIN-REDS  that have at least one author who matches "Smith G.". The possible filters (according to the Dublin Core Standard) are : dc: author, dc: subject dc: type and dc: publisher. Clicking the "Examples" button are show examples of search filters in 4 of the 110 languages supported by the system.
 
-.. image:: images/PSS_filterExample.png
+.. image:: images/PSS_filterExamples.png
       :align: center
 
 .. line-block:: In both cases, assuming that the endpoints selected from the portlet preference are Europena, Cultura Italia and Isidore, the system executes four query in parallel mode and the results for each repository are subdivide by tabs, as shown in the following figures
