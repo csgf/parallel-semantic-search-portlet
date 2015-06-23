@@ -98,9 +98,9 @@ References
 
 
 
-============
-Contact
-============
+=============
+Contributors
+=============
 Please feel free to contact us any time if you have any questions or comments.
 
 .. _INFN: http://www.ct.infn.it/
