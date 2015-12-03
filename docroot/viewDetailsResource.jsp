@@ -38,6 +38,9 @@
 
         <div id="conteinerRecord" style="">
             <%
+                            
+                String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");
+                
                 SemanticQueryMoreInfo moreInfo = new SemanticQueryMoreInfo();
                 //idResource = "http://openDocuments/resource/oai:eprints.bbk.ac.uk.oai2:244";
                 
@@ -47,9 +50,6 @@
                 
                  String numResource = renderRequest.getParameter("numResource");
                  String searched_word = renderRequest.getParameter("search_word");
-                 
-                 
-                 
                  
                 
                 System.out.println("L'idresource e "+idResource+" numResource--->"+numResource+" search_word: "+searched_word);
@@ -90,7 +90,7 @@
                 ArrayList audience=moreInfo.getAudience(idResource);
                 ArrayList bCitation=moreInfo.getBibliographicCitation(idResource);
                 ArrayList extent=moreInfo.getExtent(idResource);
-                ArrayList medium=moreInfo.getMedium(idResource);
+                ArrayList medium=moreInfo.getMedium(idResource);                                
                 
               //  System.out.println("AUTHOR="+authors+" Datastamp="+datestamp+" Description="+description+" Publisher= "+publisher+" Id= "+identifiers);
                // System.out.println("sources="+sources+" subject="+subject+" language="+language+" date="+date+" contributor="+contributor);
@@ -293,7 +293,7 @@
             </fieldset>
             
             <br>
-            <a id="LinkedData" class="Link" href="http://www.chain-project.eu/LodLiveGraph/?<%=idResource%>" target="_blank">Linked Data </a>
+            <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=idResource%>" target="_blank">Linked Data </a>
            
             <br>    
             <br>

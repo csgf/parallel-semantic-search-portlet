@@ -241,6 +241,7 @@ public class SemanticQueryMoreInfo {
 
 
             }
+            result.close();
 
 
         } catch (QueryEvaluationException ex) {
@@ -274,6 +275,7 @@ public class SemanticQueryMoreInfo {
                listTitles.add(titleFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -333,6 +335,7 @@ public class SemanticQueryMoreInfo {
                 listDescriptions.add(descFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -410,6 +413,7 @@ public class SemanticQueryMoreInfo {
                 listSources.add(sourceFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -532,7 +536,7 @@ public class SemanticQueryMoreInfo {
             } else {
                 authors = null;
             }
-
+            result_author.close();
 
 
 
@@ -592,7 +596,8 @@ public class SemanticQueryMoreInfo {
 
                 }
                 
-            } 
+            }
+            result.close();
 
 
 
@@ -638,6 +643,7 @@ public class SemanticQueryMoreInfo {
                 listIdentifiers.add(outIdentifiers);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -678,6 +684,7 @@ public class SemanticQueryMoreInfo {
                 listPublishers.add(publiFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -714,6 +721,7 @@ public class SemanticQueryMoreInfo {
                 listSubject.add(subFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -755,6 +763,7 @@ public class SemanticQueryMoreInfo {
                 
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -791,6 +800,7 @@ public class SemanticQueryMoreInfo {
                 listDate.add(date.stringValue());
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -827,6 +837,7 @@ public class SemanticQueryMoreInfo {
                 listContributor.add(contributorFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -864,6 +875,7 @@ public class SemanticQueryMoreInfo {
                 listCoverage.add(coverageFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -901,6 +913,7 @@ public class SemanticQueryMoreInfo {
                 listRight.add(rightsFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -939,6 +952,7 @@ public class SemanticQueryMoreInfo {
                 listRelations.add(relationFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -977,6 +991,7 @@ public class SemanticQueryMoreInfo {
                 listFormats.add(formatFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1015,6 +1030,7 @@ public class SemanticQueryMoreInfo {
                 listType.add(typeFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1051,6 +1067,7 @@ public class SemanticQueryMoreInfo {
                 listIdentifier.add(id.stringValue());
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1139,6 +1156,7 @@ public class SemanticQueryMoreInfo {
 
             }
         }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1178,7 +1196,7 @@ public class SemanticQueryMoreInfo {
                 listRight.add(rightsFinale);
 
             }
-
+            result.close();
         } catch (RepositoryException e) {
             e.printStackTrace();
         } catch (MalformedQueryException ex) {
@@ -1215,6 +1233,7 @@ public class SemanticQueryMoreInfo {
                 list.add(valueFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1252,6 +1271,7 @@ public class SemanticQueryMoreInfo {
                 list.add(valueFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1289,6 +1309,7 @@ public class SemanticQueryMoreInfo {
                 list.add(valueFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1326,6 +1347,7 @@ public class SemanticQueryMoreInfo {
                 list.add(valueFinale);
 
             }
+            result.close();
 
         } catch (RepositoryException e) {
             e.printStackTrace();
@@ -1362,7 +1384,7 @@ public class SemanticQueryMoreInfo {
                 list.add(valueFinale);
 
             }
-
+            result.close();
         } catch (RepositoryException e) {
             e.printStackTrace();
         } catch (MalformedQueryException ex) {
@@ -1469,6 +1491,7 @@ public class SemanticQueryMoreInfo {
                     
                 }
             }
+            result_repository.close();
 
  
             

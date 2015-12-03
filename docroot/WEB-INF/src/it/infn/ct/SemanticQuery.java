@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openrdf.model.Value;
 import org.openrdf.query.*;
+import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -54,9 +55,10 @@ public class SemanticQuery {
         // String endpointURL ="http://virtuoso.ct.infn.it:8896/chain-reds-kb/sparql";
 
 
-        Repository myRepository = new HTTPRepository(endpointURL, "");
+        HTTPRepository myRepository = new HTTPRepository(endpointURL, "");
 
-        myRepository.initialize();
+        myRepository.initialize(); 
+        myRepository.setPreferredTupleQueryResultFormat(TupleQueryResultFormat.SPARQL);
         RepositoryConnection virtuosoConnection = myRepository.getConnection();
 
         return virtuosoConnection;
@@ -95,9 +97,6 @@ public class SemanticQuery {
         String word = "' " + search_word + " '";
         ArrayList numRecConn = new ArrayList();
 
-
-
-
         String queryString = ""
                 + "SELECT  count(distinct(?s)) as ?num FROM <" + graph + "> WHERE {"
                 + "?s dc:title ?title."
@@ -108,34 +107,23 @@ public class SemanticQuery {
 
         System.out.println("QUERY: " + queryString);
 
-
-
         TupleQuery tupleQuery = virtuosoConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
         System.out.println("Valutazione Query");
 
-
-
-
         TupleQueryResult result = tupleQuery.evaluate();
-
-
 
         System.out.println("VIRTUOSO GET NUM RECORDS query has next? " + result.hasNext() + "   " + queryString);
         int countTitle0 = 0;
         if (result.hasNext()) {
             while (result.hasNext()) {
 
-
                 BindingSet bindingSet = result.next();
                 numRecords = Integer.parseInt(bindingSet.getValue("num").stringValue());
-
             }
 
-
             System.out.println("NUMERO RECORDS: " + numRecords);
-
         }
-
+        result.close();
         return numRecords;
 
     }
@@ -167,7 +155,7 @@ public class SemanticQuery {
             }
 
         }
-
+        result.close();
         System.out.println("NUMEROOOOOOOOOO " + numTotRecords);
 
 
@@ -177,40 +165,38 @@ public class SemanticQuery {
 
     }
 
-    public ArrayList queryVirtuosoResource(String search_word, String numPage, int numberRecords) {
+    public ArrayList queryVirtuosoResource(String search_word, String numPage, int numberRecords) 
+    {
         try {
             ArrayList arrayVirtuosoResourceDupl = new ArrayList();
             arrayVirtuosoResource = new ArrayList();
 
             int statusCode = testEndPoint();
 
-            if (statusCode != -1) {
-                try {
+            if (statusCode != -1) 
+            {
+                try 
+                {
                     virtuosoConnection = ConnectionToVirtuoso();
 
                     //String bif_word = " \"' " + search_word + " '\"";
-
-
-
-
                     String bif_word = "";
 
-
                     String test_word = "";
-                    if (search_word.contains(" ")) {
+                    if (search_word.contains(" ")) 
+                    {
                         //  String newSearch_word=search_word.replace("  ", " ");
 
                         String[] word_split = search_word.split(" ");
-                        if (word_split.length > 1) {
-                            for (int i = 0; i < word_split.length; i++) {
+                        if (word_split.length > 1) 
+                        {
+                            for (int i = 0; i < word_split.length; i++) 
+                            {
 
                                 // se facendo lo split tra le parole, la singola parola non è uguale alla stringa vuota
                                 // e quindi non ha lunghezza pari a zero
-                                if (word_split[i].length() != 0) {
-
-
-
-
+                                if (word_split[i].length() != 0) 
+                                {
                                     // System.out.println("PAROLA:--->"+word_split[i]);
 
                                     String singleWord = word_split[i];
@@ -224,41 +210,42 @@ public class SemanticQuery {
                                     if (i == word_split.length - 1) {
                                         test_word += singleWord;
                                     } else {
-                                        test_word += singleWord + " AND ";
+                                        // 30102015 - Giuseppe La Rocca
+                                        //test_word += singleWord + " AND ";
+                                        test_word += singleWord + " ";
                                     }
                                 }
                             }
-                            bif_word = "\"" + test_word + "\"";
+                            // 30102015 - Giuseppe La Rocca
+                            //bif_word = "\"" + test_word + "\"";
+                            bif_word = "\"'" + search_word + "'\"";
                         }
                     } else {
                         bif_word = "\"'" + search_word + "'\"";
                     }
 
-
                     System.out.println("PAROLA 2 PER BIFCONTAINS: " + bif_word);
-
-
 
                     //String word = "' " + search_word.toUpperCase() + " '";
 
                     int page = Integer.parseInt(numPage);
-
-
-
-
                     int numOffset = (page - 1) * numberRecords;
                     int numberFinal = numberRecords * page;
 
                     String queryString = "";
 
-                    if (search_word.contains(":")) {
-
+                    if (search_word.contains(":")) 
+                    {
 
                         String[] splitSword = search_word.split(":");
                         String field = splitSword[0];
 
-
-                        if (field.equals(search_filter.author.toString()) || field.equals(search_filter.format.toString()) || field.equals(search_filter.type.toString()) || field.equals(search_filter.publisher.toString()) || field.equals(search_filter.subject.toString())) {
+                        if (field.equals(search_filter.author.toString()) || 
+                            field.equals(search_filter.format.toString()) || 
+                            field.equals(search_filter.type.toString()) || 
+                            field.equals(search_filter.publisher.toString()) || 
+                            field.equals(search_filter.subject.toString())) 
+                        {
 
                             search_filter wordFilter = search_filter.valueOf(field);
 
@@ -268,11 +255,9 @@ public class SemanticQuery {
                             String search = "'" + s + "'";
                             String search_uppercase = "' " + s.toUpperCase() + " '";
 
-
-
-                            switch (wordFilter) {
+                            switch (wordFilter) 
+                            {
                                 case author:
-
 
                                     System.out.println("STRINGA AUTOREEEE" + search.replace("", " "));
 //                                    queryString = ""
@@ -355,7 +340,6 @@ public class SemanticQuery {
 //                                            + " ?rep <http://www.semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#rank> ?rank. \n"
 //                                            + " }limit " + numberFinal;
 
-
                                     queryString = ""
                                             + " SELECT distinct ?s FROM <" + graph + ">  \n"
                                             + "WHERE {\n"
@@ -384,73 +368,65 @@ public class SemanticQuery {
                                             + "?s <http://semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#isResourceOf> ?rep.\n"
                                             + " ?rep <http://www.semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#rank> ?rank. "
                                             + "}ORDER BY ASC(?rank) limit " + numberFinal;
+                                    break;
 
                                 default:
 
                                     break;
 
-                            }
+                            } // end switch
                         } else {
                             queryString = ""
-                                    + "SELECT distinct ?s  FROM <" + graph + "> WHERE {"
-                                    + "?s dc:title ?title."
-                                    + "?title bif:contains " + bif_word + "."
-                                    + " ?s <http://semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#isResourceOf> ?rep."
-                                    + " ?rep <http://www.semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#rank> ?rank. "
-                                    + "}ORDER BY ASC(?rank) limit " + numberFinal;
+                                    + "select distinct ?s from <" + graph + ">\n"
+                                    + " where {\n"
+                                    + " ?s dc:title ?title.\n"
+                                    + " ?title bif:contains \"" + bif_word + "\".\n"
+                                    + " ?s <http://semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#isResourceOf> ?rep.\n"
+                                    + " ?rep <http://www.semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#rank> ?rank.\n"
+                                    + " }order by asc(?rank) limit " + numberFinal;
                         }
-
-
-
 
                     } else {
                         queryString = ""
-                                + "SELECT distinct ?s  FROM <" + graph + "> WHERE {"
-                                + "?s dc:title ?title."
-                                + "?title bif:contains " + bif_word + "."
-                                + " ?s <http://semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#isResourceOf> ?rep."
-                                + " ?rep <http://www.semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#rank> ?rank. "
-                                + "}ORDER BY ASC(?rank) limit " + numberFinal;
+                                + "select distinct ?s from <" + graph + ">\n"
+                                + " where {\n"
+                                + " ?s dc:title ?title.\n"
+                                + " ?title bif:contains " + bif_word + ".\n"
+                                + " ?s <http://semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#isResourceOf> ?rep.\n"
+                                + " ?rep <http://www.semanticweb.org/ontologies/2013/2/7/RepositoryOntology.owl#rank> ?rank.\n"
+                                + " }order by asc(?rank) limit " + numberFinal;                        
                     }
 
-
+                    System.out.println("BIF_WORD: " + bif_word);
                     System.out.println("QUERY CHAIN: " + queryString);
 
-                    TupleQuery tupleQuery = virtuosoConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-
-
-
+                    TupleQuery tupleQuery = virtuosoConnection
+                            .prepareTupleQuery(QueryLanguage.SPARQL, queryString);                    
+                    
                     TupleQueryResult result = tupleQuery.evaluate();
-
-
-
 
                     if (result.hasNext()) {
                         while (result.hasNext()) {
-
-
                             BindingSet bindingSet = result.next();
                             String resource = bindingSet.getValue("s").stringValue();
-
                             arrayVirtuosoResourceDupl.add(resource);
                         }
-
                     }
+                    result.close();
 
-
-                    arrayVirtuosoResource = getListNotDuplicate(arrayVirtuosoResourceDupl);
+                    arrayVirtuosoResource = getListNotDuplicate(arrayVirtuosoResourceDupl);                    
 
                 } catch (QueryEvaluationException ex) {
-                    Logger.getLogger(SemanticQuery.class.getName()).log(Level.SEVERE, null, ex);
-
+                    //Logger.getLogger(SemanticQuery.class.getName()).log(Level.SEVERE, null, ex);
                     //arrayVirtuosoResource.add("Exception");
+                    System.out.println("CHAIN QueryEvaluationException = " + ex.getLocalizedMessage());
+                    System.out.println("StackTrace");
+                    ex.printStackTrace(System.out);
 
-                    System.out.println("CHAIN QueryEvaluationException" + ex.getLocalizedMessage());
-
-                } catch (MalformedQueryException ex) {
+                } catch (MalformedQueryException ex) {                    
                     Logger.getLogger(SemanticQuery.class.getName()).log(Level.SEVERE, null, ex);
                     arrayVirtuosoResource.add("Exception");
-                    System.out.println(" CHAIN MalformedQueryException");
+                    System.out.println(" CHAIN MalformedQueryException "+ex.getMessage());                    
 
                 } catch (RepositoryException ex) {
                     Logger.getLogger(SemanticQuery.class.getName()).log(Level.SEVERE, null, ex);
@@ -469,6 +445,7 @@ public class SemanticQuery {
         } catch (MalformedURLException ex) {
             Logger.getLogger(SemanticQuery.class.getName()).log(Level.SEVERE, null, ex);
         }
+                
         return arrayVirtuosoResource;
     }
 
@@ -647,7 +624,7 @@ public class SemanticQuery {
             } else {
                 authors = null;
             }
-
+            result_author.close();
 
 
             //con.close();
@@ -789,7 +766,7 @@ public class SemanticQuery {
             } else {
                 authors = "---";
             }
-
+            result_author.close();
 
 
 
@@ -851,7 +828,7 @@ public class SemanticQuery {
                 
             } 
 
-
+            result.close();
 
 
 
@@ -918,6 +895,7 @@ public class SemanticQuery {
 
 
             }
+            result_desc.close();
 
 
 
@@ -1116,7 +1094,7 @@ public class SemanticQuery {
                 }
             }
 
-
+            result_identifier.close();
             //con.close();
 
 
@@ -1171,7 +1149,7 @@ public class SemanticQuery {
                     arrayVirtuosoSubjects.add(outSubjet);
                 }
             }
-
+            result_subject.close();
 
             //  con.close();
 
@@ -1231,7 +1209,7 @@ public class SemanticQuery {
                     arrayVirtuosoSource.add(outSources);
                 }
             }
-
+            result_source.close();
 
 
             // con.close();
@@ -1319,7 +1297,7 @@ public class SemanticQuery {
                     //  arraySubjectsFromLanguage.add(subjects + "#" + count_source);
 
                 }
-
+                result_SubjectLanguage.close();
                 // System.out.println("COUNT_FINALE: "+countTotale);
 
             }
@@ -1437,6 +1415,7 @@ public class SemanticQuery {
                 }
 
             }
+            result_Subject.close();
 //            for (int i = 0; i < arrayVirtuosoSubjects.size(); i++) {
 //                System.out.println("arrayVirtuosoSubjects " + arrayVirtuosoSubjects.get(i).toString());
 //            }
@@ -1497,7 +1476,7 @@ public class SemanticQuery {
                     arrayVirtuosoPublisher.add(outPublishers);
                 }
             }
-
+            result_publisher.close();
 
             // con.close();
 
@@ -1565,6 +1544,7 @@ public class SemanticQuery {
                 }
 
             }
+            result_ResFromSubj.close();
         }
 //            for (int i = 0; i < arrayResourceFromSubject.size(); i++) {
 //                System.out.println("arrayVirtuosoSubjects " + arrayResourceFromSubject.get(i).toString());
@@ -1860,6 +1840,7 @@ public class SemanticQuery {
 
                 }
             }
+            result_repository.close();
 
 
             //System.out.println("DIM DI REP "+arrayRepositoryInfo.size());
@@ -1934,7 +1915,7 @@ public class SemanticQuery {
             } else {
                 sRep = "---";
             }
-
+            result_repository.close();
             if (arrayRepositoryInfo.size() > 0) {
                 sRep = arrayRepositoryInfo.get(0).toString() + "##" + arrayRepositoryInfo.get(1).toString();
             }

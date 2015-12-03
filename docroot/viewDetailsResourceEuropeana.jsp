@@ -3,41 +3,26 @@
 <%@page import="it.infn.ct.QueryEuropeana"%>
 <%@page import="it.infn.ct.SemanticQuery"%>
 
-
-
 <portlet:defineObjects />
-<%//
-    // Application Submission page
-    //
-    //
-    // The portlet code assigns the jobIdentifier as input parameter for this jsp file
-    //
-%>
-
-<%
-// Below the submission web form
-//
-// It only have a button that will show the input form again for a new job submission
-%>
-
-
 
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-
-
-
     </head>
+    
     <body link="BLACK" vlink="red">
 
         <div id="conteinerRecord" style="">
             <%
+                String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");      
+                String TimeOut = renderRequest.getParameter("TimeOut");      
                 String idResourceEuropeana = renderRequest.getParameter("idResourceEuropeana");
                 String numResourceEuropeana = renderRequest.getParameter("numResourceEuropeana");
                 String searched_word = renderRequest.getParameter("search_word");
-                String sEuropeanaTitle = QueryEuropeana.getEuropeanaTitle(idResourceEuropeana);
-                String sEuropeanaID = QueryEuropeana.getEuropeanaIdentifier(idResourceEuropeana);
+                String sEuropeanaTitle = 
+			QueryEuropeana.getEuropeanaTitle(idResourceEuropeana);
+                String sEuropeanaID = 
+			QueryEuropeana.getEuropeanaIdentifier(idResourceEuropeana);
                 ArrayList id_httpEuropeana = new ArrayList();
                 String id_DOI = "";
                 String link_img="";
@@ -89,7 +74,6 @@
                 String sEuropeanaType = QueryEuropeana.getEuropeanaType(idResourceEuropeana);
                 ArrayList arrayEuropeanaFormat = QueryEuropeana.getEuropeanaFormat(idResourceEuropeana);
                 ArrayList arrayEuropeanaRelation = QueryEuropeana.getEuropeanaRelation(idResourceEuropeana);
-
             %>
 
 
@@ -303,7 +287,7 @@
                 </fieldset>
             </div>
                          <br>
-            <a id="LinkedData" class="Link" href="http://www.chain-project.eu/LodLiveGraph/?<%=idResourceEuropeana%>" target="_blank">Linked Data </a>
+            <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=idResourceEuropeana%>" target="_blank">Linked Data </a>
            
             <br> 
             <br>    
@@ -376,8 +360,6 @@
                     <p class="klios_p"><b>URL : </b> <a href="http://www.europeana.eu/" target="_blank" title="http://www.europeana.eu/"><u>http://www.europeana.eu/</u> </a></p>
                     <p class="klios_p"><b>SPARQL endpoint : </b><a href="http://europeana.ontotext.com/sparql" target="_blank"><u>http://europeana.ontotext.com/sparql</u></a></p>
                     <p class="klios_p"><b>Domain : </b>Cultural Heritage</p>
-
-
                 </fieldset>
             </div>
             <br>

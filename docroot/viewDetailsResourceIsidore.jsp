@@ -37,9 +37,10 @@
 
         <div id="conteinerRecord" style="">
             <%
-                 String idResourceIsidore = renderRequest.getParameter("idResourceIsidore");
-                 String numResourceIsidore = renderRequest.getParameter("numResourceIsidore");
-                 String searched_word = renderRequest.getParameter("search_word");
+                String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");
+                String idResourceIsidore = renderRequest.getParameter("idResourceIsidore");
+                String numResourceIsidore = renderRequest.getParameter("numResourceIsidore");
+                String searched_word = renderRequest.getParameter("search_word");
                 String sIsidoreTitle = QueryIsidore.getIsidoreTitle(idResourceIsidore);
                 String sIsidoreID = QueryIsidore.getIsidoreIdentifier(idResourceIsidore);
                 ArrayList id_httpIsidore = new ArrayList();
@@ -292,7 +293,7 @@
                 </fieldset>
             </div>
               <br>
-            <a id="LinkedData" class="Link" href="http://www.chain-project.eu/LodLiveGraph/?<%=idResourceIsidore%>" target="_blank">Linked Data </a>
+            <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=idResourceIsidore%>" target="_blank">Linked Data </a>
            
             <br>        
             <br>    

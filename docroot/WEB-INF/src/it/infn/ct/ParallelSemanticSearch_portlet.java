@@ -37,6 +37,8 @@ import javax.portlet.*;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.User;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 
 // Importing Apache libraries
@@ -49,8 +51,7 @@ import org.apache.commons.fileupload.portlet.PortletFileUpload;
 // Importing GridEngine Job libraries 
 //import it.infn.ct.GridEngine.Job.*;
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
@@ -138,6 +139,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     break;
                 default:
                     logLevel = AppLogger.UNKNOWN_LEVEL;
+                    break;
             }
         }
 
@@ -147,46 +149,35 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
         public void trace(String s) {
             if (_log.isTraceEnabled()
-                    && logLevel >= AppLogger.TRACE_LEVEL) {
-                _log.trace(s);
-            }
+              && logLevel >= AppLogger.TRACE_LEVEL) _log.trace(s);            
         }
 
         public void debug(String s) {
             if (_log.isDebugEnabled()
-                    && logLevel >= AppLogger.DEBUG_LEVEL) {
-                _log.trace(s);
-            }
+              && logLevel >= AppLogger.DEBUG_LEVEL) _log.trace(s);            
         }
 
         public void info(String s) {
             if (_log.isInfoEnabled()
-                    && logLevel >= AppLogger.INFO_LEVEL) {
-                _log.info(s);
-            }
+              && logLevel >= AppLogger.INFO_LEVEL) _log.info(s);            
         }
 
         public void warn(String s) {
             if (_log.isWarnEnabled()
-                    && logLevel >= AppLogger.WARN_LEVEL) {
-                _log.warn(s);
-            }
+              && logLevel >= AppLogger.WARN_LEVEL) _log.warn(s);            
         }
 
         public void error(String s) {
             if (_log.isErrorEnabled()
-                    && logLevel >= AppLogger.ERROR_LEVEL) {
-                _log.error(s);
-            }
+              && logLevel >= AppLogger.ERROR_LEVEL) _log.error(s);            
         }
 
         public void fatal(String s) {
             if (_log.isFatalEnabled()
-                    && logLevel >= AppLogger.FATAL_LEVEL) {
-                _log.fatal(s);
-            }
+              && logLevel >= AppLogger.FATAL_LEVEL) _log.fatal(s);            
         }
     } // AppLogger
+    
     // Instantiate the logger object
     public AppLogger _log = new AppLogger(ParallelSemanticSearch_portlet.class);
 
@@ -236,6 +227,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         String default_Engage;
         String default_EngageEndPoint;
         String default_NumberRecordsForPage;
+        String default_LodLive;
+        String default_LodLiveEndPoint;
+        String default_TimeOut;
 
         public App_Init() {
             default_OpenAgris = "";
@@ -250,6 +244,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             default_Engage = "";
             default_EngageEndPoint = "";
             default_NumberRecordsForPage = "";
+            default_LodLive = "";
+            default_LodLiveEndPoint = "";
+            default_TimeOut = "";
 
         }
     } // App_Init
@@ -275,11 +272,15 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         String Engage;
         String EngageEndPoint;
         String NumberRecordsForPage;
+        String LodLive;
+        String LodLiveEndPoint;
+        String TimeOut;
 
         public App_Preferences() {
             OpenAgris = OpenAgrisEndPoint = Europeana = EuropeanaEndPoint = 
             CulturaItalia = CulturaItaliaEndPoint = Isidore = IsidoreEndPoint =
-            Pubmed = PubmedEndPoint = Engage = EngageEndPoint = NumberRecordsForPage = "";
+            Pubmed = PubmedEndPoint = Engage = EngageEndPoint = NumberRecordsForPage = 
+            LodLive = LodLiveEndPoint = TimeOut = "";
         }
     } // App_Preferences
     // Instanciate the App_Preferences object
@@ -293,6 +294,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
         String search_word;
         String numRecordsForPage;
+        String LodLiveEndPoint;
+        String TimeOut;
         String selected_language;
         String jobIdentifier;
         String nameSubject;
@@ -353,6 +356,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
         public App_Input() {
             search_word = selected_language = nameSubject = idResouce = numberPage = numRecordsForPage = jobIdentifier = username = timestamp = "";
+            LodLiveEndPoint = TimeOut = "";
+            
             numberPageOpenAgris = "";
             moreResourceCHAIN = "";
             moreResourceOpenAgris = "";
@@ -481,7 +486,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
     String[] sArrayPubmedTitle;
     String[] sArrayPubmedAuthor;
     String[] sArrayPubmedDescription;
-    String[] sArrayPubmedIdentifier;
+    String[] sArrayPubmedURL;
+    String [] sArrayPubmedURI;
     //VARIABILI GLOBALI ENGAGE
     String[] sArrayEngage;
     String[] sArrayEngageTitle;
@@ -528,6 +534,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
     private ThreadPoolExecutor tp;
     
     protected Boolean init_Preferences=true;
+    
+    
+    public static int PID;
     //
     // Portlet Methods
     // 
@@ -558,15 +567,14 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         appInit.default_Engage = "" + getInitParameter("Engage");
         appInit.default_EngageEndPoint = "" + getInitParameter("EngageEndPoint");
         appInit.default_NumberRecordsForPage = "" + getInitParameter("NumberRecordsForPage");
-
-        
-        
+        appInit.default_LodLive = "" + getInitParameter("LodLive");
+        appInit.default_LodLiveEndPoint = "" + getInitParameter("LodLiveEndPoint");
+        appInit.default_TimeOut = "" + getInitParameter("TimeOut");
         
         // WARNING: Although the pilot script field is considered here it is not
         // Possible to specify a bash script code inside thie init_pilotScript
         // xml field. The content of pilot script must be inserted manually upon
         // the portlet installation through its configuration pane.        
-
 
         // Show loaded values into log
         _log.info(
@@ -585,6 +593,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 + LS + " Engage DEFAULT: " + appInit.default_Engage
                 + LS + " EngageEndPoint DEFAULT: " + appInit.default_EngageEndPoint
                 + LS + " NumberRecordsForPage DEFAULT: " + appInit.default_NumberRecordsForPage
+                + LS + " LodLive DEFAULT: " + appInit.default_LodLive
+                + LS + " LodLiveEndPoint DEFAULT: " + appInit.default_LodLiveEndPoint
+                + LS + " TimeOut (in minutes) DEFAULT: " + appInit.default_TimeOut
                 + LS);
     } // init
 
@@ -605,18 +616,14 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         username = user.getScreenName();
         _log.info("User: '" + user + "'");
 
-
         // int numRecords = 0;
         //   String[] sArray=null;
-
-
 
         // Determine the application pathname                
         portletSession = request.getPortletSession();
         portletContext = portletSession.getPortletContext();
         appServerPath = portletContext.getRealPath("/");
         _log.info("Web Application path: '" + appServerPath + "'");
-
 
         p_session = portletSession.getId();
         _log.info("portlet session: '" + p_session + "'");
@@ -659,23 +666,15 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Create the appInput object
                     App_Input appInput = new App_Input();
 
-
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_INPUT);
                     break;
-
-
-
-
 
                 case ACTION_SEMANTIC_SEARCH_ALL_LANGUAGE:
                     _log.info("Got action: 'ACTION_SEMANTIC_SEARCH_ALL_LANGUAGE'");
 
                     // Get current preference values
                     // getPreferences(request, null);
-
                     // Create the appInput object
-
-
                     appInput = new App_Input();
 
                     // Stores the user submitting the job
@@ -686,26 +685,16 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     String timestamp = dateFormat.format(Calendar.getInstance().getTime());
                     appInput.timestamp = timestamp;
 
-
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
                     setNotNullInputParameter(appInput);
 
-
-
-
-
                     PortletPreferences portletPreferences = request.getPreferences();
 
-
                     int numberRecordsForAll = Integer.parseInt(portletPreferences.getValue("NumberRecordsForPage",""));
-
-                    // int numberRecordsForAll = Integer.parseInt(appPreferences.NumberRecordsForPage);
-
-
-
-                    doGet(request, response, appInput, numberRecordsForAll,portletPreferences);
-
+                    int TimeOut = Integer.parseInt(portletPreferences.getValue("TimeOut","1"));
+                    // int numberRecordsForAll = Integer.parseInt(appPreferences.NumberRecordsForPage);                    
+                    doGet(request, response, appInput, numberRecordsForAll, portletPreferences, TimeOut);
                     //------------ CHAIN KB ----------------------
 
 
@@ -761,11 +750,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 //                        }
 //
 
-
                     //appInput.moreInfo = "NO";
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_SEMANTIC_SEARCH_ALL_LANGUAGE);
-
-
                     break;
 
 //                  
@@ -786,22 +772,15 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
                     portletPreferences = request.getPreferences();
 
-
                     response.setRenderParameter("title_GS", appInput.title_GS);
                     _log.info("Got action: 'ACTION_GET_MORE_INFO TITLEEEEEEEEEEEEE'" + appInput.title_GS);
 
                     String[] info_GS = executeCommand(appInput.title_GS);
-
-
                     response.setRenderParameter("info_GS", info_GS);
-
                     response.setRenderParameter("idResource", appInput.idResouce);
                     response.setRenderParameter("search_word", appInput.search_word);
                     //System.out.println("NUMRESOURCECHAIN-->" + appInput.numResource);
                     response.setRenderParameter("numResource", appInput.numResource);
-
-
-
 
                     // Send the jobIdentifier and assign the correct view                    
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_GET_MORE_INFO);
@@ -823,11 +802,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
 
-
-
-
                     //System.out.println("ID-RESOURCEOPENAGRIS: " + appInput.idResourceOpenAgris);
-
                     response.setRenderParameter("idResourceOpenAgris", appInput.idResourceOpenAgris);
                     response.setRenderParameter("numResourceOpenAgris", appInput.numResourceOpenAgris);
                     response.setRenderParameter("search_word", appInput.search_word);
@@ -852,11 +827,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
 
-
-
-
                     // System.out.println("ID-RESOURCEOPENAGRIS: " + appInput.);
-
                     response.setRenderParameter("idResourceCulturaItalia", appInput.idResourceCulturaItalia);
                     response.setRenderParameter("numResourceCulturaItalia", appInput.numResourceCulturaItalia);
                     response.setRenderParameter("search_word", appInput.search_word);
@@ -881,11 +852,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
 
-
-
-
                     //System.out.println("ID-RESOURCEEUROPEANA: " + appInput.idResourceEuropeana);
-
                     response.setRenderParameter("idResourceEuropeana", appInput.idResourceEuropeana);
                     response.setRenderParameter("numResourceEuropeana", appInput.numResourceEuropeana);
                     response.setRenderParameter("search_word", appInput.search_word);
@@ -910,19 +877,15 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
 
-
-
-
                     //System.out.println("ID-RESOURCEISIDORE: " + appInput.idResourceIsidore);
-
                     response.setRenderParameter("idResourceIsidore", appInput.idResourceIsidore);
                     response.setRenderParameter("numResourceIsidore", appInput.numResourceIsidore);
                     response.setRenderParameter("search_word", appInput.search_word);
-
+                    
                     // Send the jobIdentifier and assign the correct view                    
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_GET_MORE_INFO_ISIDORE);
-
                     break;
+                    
                 case ACTION_GET_MORE_INFO_PUBMED:
                     _log.info("Got action: 'ACTION_GET_MORE_INFO_PUBMED'");
 
@@ -938,18 +901,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
 
-
-
-
                     //System.out.println("ID-RESOURCEISIDORE: " + appInput.idResourceIsidore);
-
                     response.setRenderParameter("idResourcePubmed", appInput.idResourcePubmed);
                     response.setRenderParameter("numResourcePubmed", appInput.numResourcePubmed);
                     response.setRenderParameter("search_word", appInput.search_word);
 
                     // Send the jobIdentifier and assign the correct view                    
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_GET_MORE_INFO_PUBMED);
-
                     break;
 
                 case ACTION_GET_MORE_INFO_ENGAGE:
@@ -967,18 +925,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
 
-
-
-
                     //System.out.println("ID-RESOURCEISIDORE: " + appInput.idResourceIsidore);
-
                     response.setRenderParameter("idResourceEngage", appInput.idResourceEngage);
                     response.setRenderParameter("numResourceEngage", appInput.numResourceEngage);
                     response.setRenderParameter("search_word", appInput.search_word);
 
                     // Send the jobIdentifier and assign the correct view                    
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_GET_MORE_INFO_ENGAGE);
-
                     break;
 
                 case ACTION_GET_CITATIONS_GSCHOLAR:
@@ -993,22 +946,18 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Process input fields and files to upload
                     getInputForm(request, appInput);
 
-
-
                     // response.setRenderParameter("title_GS", appInput.title_GS);
                     response.setRenderParameter("title_GS", appInput.title_GS);
                     info_GS = executeCommand(appInput.title_GS);
 
-
                     response.setRenderParameter("info_GS", info_GS);
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_CITATIONS_GSCHOLAR);
-
                     break;
-
 
                 default:
                     _log.info("Unhandled action: '" + actionStatus + "'");
-                    response.setRenderParameter("PortletStatus", "" + Views.VIEW_INPUT);
+                    response.setRenderParameter("PortletStatus", "" + Views.VIEW_INPUT);                   
+                    break;
             }
 
         } else if (mode.equals(PortletMode.HELP)) {
@@ -1026,11 +975,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
             // new preferences will takem from edit.jsp
 
-
-
             //**************OPEN AGRIS*************
             String new_OpenAgris = "";
-
             if (request.getParameter("OpenAgris") != null) {
                 new_OpenAgris = request.getParameter("OpenAgris");
             } else {
@@ -1039,14 +985,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgris----> " + new_OpenAgris);
             response.setRenderParameter("OpenAgris", "" + new_OpenAgris);
             appPreferences.OpenAgris = new_OpenAgris;
-
-            portletPreferences.setValue("OpenAgris", new_OpenAgris);
-            
+            portletPreferences.setValue("OpenAgris", new_OpenAgris);            
             
             //**************OPEN AGRIS ENDPOINT*************
             String new_OpenAgrisEndPoint = "";
-
-            if (request.getParameter("OpenAgrisEndPoint") != null && !request.getParameter("OpenAgrisEndPoint").equals(appInit.default_OpenAgrisEndPoint)) {
+            if (request.getParameter("OpenAgrisEndPoint") != null && 
+               !request.getParameter("OpenAgrisEndPoint")
+                    .equals(appInit.default_OpenAgrisEndPoint)) {
                 new_OpenAgrisEndPoint = request.getParameter("OpenAgrisEndPoint");
             } else {
                 new_OpenAgrisEndPoint = appInit.default_OpenAgrisEndPoint;
@@ -1054,16 +999,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
             response.setRenderParameter("OpenAgrisEndPoint", "" + new_OpenAgrisEndPoint);
             appPreferences.OpenAgrisEndPoint = new_OpenAgrisEndPoint;
-
             portletPreferences.setValue("OpenAgrisEndPoint", new_OpenAgrisEndPoint);
             
-            
-            
-            
-
             //**************EUROPEANA*************
             String new_Europeana = "";
-
             if (request.getParameter("Europeana") != null) {
                 new_Europeana = request.getParameter("Europeana");
             } else {
@@ -1072,14 +1011,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_Europeana----> " + new_Europeana);
             response.setRenderParameter("Europeana", "" + new_Europeana);
             appPreferences.Europeana = new_Europeana;
-
-            portletPreferences.setValue("Europeana", new_Europeana);
-            
+            portletPreferences.setValue("Europeana", new_Europeana);           
             
             //**************EUROPEANA ENDPOINT*************
             String new_EuropeanaEndPoint = "";
-
-            if (request.getParameter("EuropeanaEndPoint") != null && !request.getParameter("EuropeanaEndPoint").equals(appInit.default_EuropeanaEndPoint)) {
+            if (request.getParameter("EuropeanaEndPoint") != null && 
+               !request.getParameter("EuropeanaEndPoint")
+                    .equals(appInit.default_EuropeanaEndPoint)) {
                 new_EuropeanaEndPoint = request.getParameter("EuropeanaEndPoint");
             } else {
                 new_EuropeanaEndPoint = appInit.default_EuropeanaEndPoint;
@@ -1087,14 +1025,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
             response.setRenderParameter("EuropeanaEndPoint", "" + new_EuropeanaEndPoint);
             appPreferences.EuropeanaEndPoint = new_EuropeanaEndPoint;
-
-            portletPreferences.setValue("EuropeanaEndPoint", new_EuropeanaEndPoint);
-            
+            portletPreferences.setValue("EuropeanaEndPoint", new_EuropeanaEndPoint);            
 
             //**************CULTURA ITALIA*************
-
             String new_CulturaItalia = "";
-
             if (request.getParameter("CulturaItalia") != null) {
                 new_CulturaItalia = request.getParameter("CulturaItalia");
             } else {
@@ -1106,12 +1040,11 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             // request.setAttribute("pref_value", new_pref_value);
             portletPreferences.setValue("CulturaItalia", new_CulturaItalia);
             
-            
-            
             //**************CULTURAITALIA ENDPOINT*************
             String new_CulturaItaliaEndPoint = "";
-
-            if (request.getParameter("CulturaItaliaEndPoint") != null && !request.getParameter("CulturaItaliaEndPoint").equals(appInit.default_CulturaItaliaEndPoint)) {
+            if (request.getParameter("CulturaItaliaEndPoint") != null && 
+               !request.getParameter("CulturaItaliaEndPoint")
+                    .equals(appInit.default_CulturaItaliaEndPoint)) {
                 new_CulturaItaliaEndPoint = request.getParameter("CulturaItaliaEndPoint");
             } else {
                 new_CulturaItaliaEndPoint = appInit.default_CulturaItaliaEndPoint;
@@ -1119,14 +1052,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
             response.setRenderParameter("CulturaItaliaEndPoint", "" + new_CulturaItaliaEndPoint);
             appPreferences.CulturaItaliaEndPoint = new_CulturaItaliaEndPoint;
-
             portletPreferences.setValue("CulturaItaliaEndPoint", new_CulturaItaliaEndPoint);
-            
-            
+                        
             //**************ISIDORE*************
-
             String new_Isidore = "";
-
             if (request.getParameter("Isidore") != null) {
                 new_Isidore = request.getParameter("Isidore");
             } else {
@@ -1140,8 +1069,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             
             //**************ISIDORE ENDPOINT*************
             String new_IsidoreEndPoint = "";
-
-            if (request.getParameter("IsidoreEndPoint") != null && !request.getParameter("IsidoreEndPoint").equals(appInit.default_IsidoreEndPoint)) {
+            if (request.getParameter("IsidoreEndPoint") != null && 
+               !request.getParameter("IsidoreEndPoint")
+                    .equals(appInit.default_IsidoreEndPoint)) {
                 new_IsidoreEndPoint = request.getParameter("IsidoreEndPoint");
             } else {
                 new_IsidoreEndPoint = appInit.default_IsidoreEndPoint;
@@ -1149,14 +1079,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
             response.setRenderParameter("IsidoreEndPoint", "" + new_IsidoreEndPoint);
             appPreferences.IsidoreEndPoint = new_IsidoreEndPoint;
-
             portletPreferences.setValue("IsidoreEndPoint", new_IsidoreEndPoint);
 
-
             //**************PUBMED*************
-
             String new_Pubmed = "";
-
             if (request.getParameter("Pubmed") != null) {
                 new_Pubmed = request.getParameter("Pubmed");
             } else {
@@ -1166,13 +1092,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             response.setRenderParameter("Pubmed", "" + new_Pubmed);
             appPreferences.Pubmed = new_Pubmed;
             // request.setAttribute("pref_value", new_pref_value);
-            portletPreferences.setValue("Pubmed", new_Pubmed);
-            
+            portletPreferences.setValue("Pubmed", new_Pubmed);            
             
             //**************PUBMED ENDPOINT*************
             String new_PubmedEndPoint = "";
-
-            if (request.getParameter("PubmedEndPoint") != null && !request.getParameter("PubmedEndPoint").equals(appInit.default_PubmedEndPoint)) {
+            if (request.getParameter("PubmedEndPoint") != null && 
+               !request.getParameter("PubmedEndPoint")
+                    .equals(appInit.default_PubmedEndPoint)) {
                 new_PubmedEndPoint = request.getParameter("PubmedEndPoint");
             } else {
                 new_PubmedEndPoint = appInit.default_PubmedEndPoint;
@@ -1180,16 +1106,11 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
             response.setRenderParameter("PubmedEndPoint", "" + new_PubmedEndPoint);
             appPreferences.PubmedEndPoint = new_PubmedEndPoint;
-
             portletPreferences.setValue("PubmedEndPoint", new_PubmedEndPoint);
 
-
             //**************ENGAGE*************
-
             String new_Engage = "";
-
             if (request.getParameter("Engage") != null) {
-
                 new_Engage = request.getParameter("Engage");
                 // System.out.println("ENGAGE1: " + new_Engage);
             } else {
@@ -1200,12 +1121,12 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             appPreferences.Engage = new_Engage;
             // request.setAttribute("pref_value", new_pref_value);
             portletPreferences.setValue("Engage", new_Engage);
-
             
-             //**************ENGAGE ENDPOINT*************
+            //**************ENGAGE ENDPOINT*************
             String new_EngageEndPoint = "";
-
-            if (request.getParameter("EngageEndPoint") != null && !request.getParameter("EngageEndPoint").equals(appInit.default_EngageEndPoint)) {
+            if (request.getParameter("EngageEndPoint") != null && 
+               !request.getParameter("EngageEndPoint")
+                    .equals(appInit.default_EngageEndPoint)) {
                 new_EngageEndPoint = request.getParameter("EngageEndPoint");
             } else {
                 new_EngageEndPoint = appInit.default_EngageEndPoint;
@@ -1213,14 +1134,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
             response.setRenderParameter("EngageEndPoint", "" + new_EngageEndPoint);
             appPreferences.EngageEndPoint = new_EngageEndPoint;
-
-            portletPreferences.setValue("EngageEndPoint", new_EngageEndPoint);
-            
+            portletPreferences.setValue("EngageEndPoint", new_EngageEndPoint);            
 
             //**************NUMBER RECORDS FOR PAGE*************
-
             String new_NumberRecordsForPage = "";
-
             if (request.getParameter("NumberRecordsForPage") != null) {
                 new_NumberRecordsForPage = request.getParameter("NumberRecordsForPage");
             } else {
@@ -1232,13 +1149,47 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             // request.setAttribute("pref_value", new_pref_value);
             portletPreferences.setValue("NumberRecordsForPage", new_NumberRecordsForPage);
 
-
-
-
+            //**************LODLIVE*************
+            String new_LodLive = "";
+            if (request.getParameter("LodLive") != null) {
+                new_LodLive = request.getParameter("LodLive");
+                // System.out.println("LODLIVE1: " + new_LodLive);
+            } else {
+                new_LodLive = "false";
+            }
+            //System.out.println("IN ACTION new_LodLive----> " + new_LodLive);
+            response.setRenderParameter("LodLive", "" + new_LodLive);
+            appPreferences.LodLive = new_LodLive;
+            // request.setAttribute("pref_value", new_pref_value);
+            portletPreferences.setValue("LodLive", new_LodLive);
+            
+            //**************ENGAGE ENDPOINT*************            
+            String new_LodLiveEndPoint = "";
+            if (request.getParameter("LodLiveEndPoint") != null) {
+                new_LodLiveEndPoint = request.getParameter("LodLiveEndPoint");                
+            } else {
+                new_LodLiveEndPoint = "http://localhost:8080/testlodlive/?<%=resource%>";
+            }
+            //System.out.println("IN ACTION new_LodLiveEndPoint----> " + new_LodLiveEndPoint);
+            response.setRenderParameter("LodLiveEndPoint", "" + new_LodLiveEndPoint);
+            appPreferences.LodLiveEndPoint = new_LodLiveEndPoint;
+            // request.setAttribute("pref_value", new_pref_value);
+            portletPreferences.setValue("LodLiveEndPoint", new_LodLiveEndPoint);
+            
+            //**************TIME OUT*************
+            String new_TimeOut = "";
+            if (request.getParameter("TimeOut") != null) {
+                new_TimeOut = request.getParameter("TimeOut");
+            } else {
+                new_TimeOut = "1";
+            }
+            //System.out.println("IN ACTION new_TimeOut----> " + new_TimeOut);
+            response.setRenderParameter("Time Out", "" + new_TimeOut);
+            appPreferences.TimeOut = new_TimeOut;
+            // request.setAttribute("pref_value", new_pref_value);
+            portletPreferences.setValue("TimeOut", new_TimeOut);
 
             portletPreferences.store();
-
-            
            // response.setPortletMode(PortletMode.VIEW);
 
         } else {
@@ -1287,7 +1238,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //currentView = "" + Views.VIEW_INPUT;
             currentView = "" + Views.VIEW_INPUT;
         }
-
+               
         // Different actions will be performed accordingly to the
         // different possible view modes
         switch (Views.valueOf(currentView)) {
@@ -1296,38 +1247,29 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             case VIEW_INPUT: {
                 _log.info("VIEW_INPUT Selected ...");
                 //PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResourceCulturaItalia.jsp");
-
+               
                 PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/input.jsp");
                 dispatcher.include(request, response);
             }
             break;
 
-
-
-
-
             case VIEW_SEMANTIC_SEARCH_ALL_LANGUAGE: {
-
                 _log.info("VIEW_SEMANTIC_SEARCH_ALL_LANGUAGE Selected ...");
-
-
-
-
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/resultFromAllLanguage.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/resultFromAllLanguage.jsp");
                 dispatcher.include(request, response);
 
                 //  firstAction = false;
 
-
-
-
             }
             break;
+                
             case VIEW_GET_MORE_INFO: {
                 _log.info("VIEW_GET_MORE_INFO Selected ...");
                 String idResource = request.getParameter("idResource");
                 request.setAttribute("idResource", idResource);
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResource.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResource.jsp");
                 dispatcher.include(request, response);
             }
 
@@ -1337,17 +1279,20 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 _log.info("VIEW_GET_MORE_INFO_OPENAGRIS Selected ...");
                 //String idResource = request.getParameter("idResource");
                 // request.setAttribute("idResource", idResource);                               
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResourceOpenAgris.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResourceOpenAgris.jsp");
 
                 dispatcher.include(request, response);
             }
+            
             break;
 
             case VIEW_GET_MORE_INFO_CULTURAITALIA: {
                 _log.info("VIEW_GET_MORE_INFO_CULTURAITALIA Selected ...");
                 //String idResource = request.getParameter("idResource");
                 // request.setAttribute("idResource", idResource);                               
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResourceCulturaItalia.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResourceCulturaItalia.jsp");
 
                 dispatcher.include(request, response);
             }
@@ -1357,7 +1302,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 _log.info("VIEW_GET_MORE_INFO_EUROPEANA Selected ...");
                 //String idResource = request.getParameter("idResource");
                 // request.setAttribute("idResource", idResource);                               
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResourceEuropeana.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResourceEuropeana.jsp");
 
                 dispatcher.include(request, response);
             }
@@ -1367,7 +1313,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 _log.info("VIEW_GET_MORE_INFO_ISIDORE Selected ...");
                 //String idResource = request.getParameter("idResource");
                 // request.setAttribute("idResource", idResource);                               
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResourceIsidore.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResourceIsidore.jsp");
 
                 dispatcher.include(request, response);
             }
@@ -1378,44 +1325,44 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 _log.info("VIEW_GET_MORE_INFO_PUBMED Selected ...");
                 //String idResource = request.getParameter("idResource");
                 // request.setAttribute("idResource", idResource);                               
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResourcePubmed.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResourcePubmed.jsp");
 
                 dispatcher.include(request, response);
             }
-
+                break;
             case VIEW_GET_MORE_INFO_ENGAGE: {
                 _log.info("VIEW_GET_MORE_INFO_ENGAGE Selected ...");
                 //String idResource = request.getParameter("idResource");
                 // request.setAttribute("idResource", idResource);                               
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewDetailsResourceEngage.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResourceEngage.jsp");
 
                 dispatcher.include(request, response);
             }
             break;
             case VIEW_CITATIONS_GSCHOLAR: {
                 _log.info("VIEW_CITATIONS_GSCHOLAR Selected ...");
-
-
-                PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/viewCitationsGS.jsp");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewCitationsGS.jsp");
                 dispatcher.include(request, response);
             }
             break;
 
-
-
-
             default:
                 _log.info("Unknown view mode: " + currentView.toString());
+                break;
+                
         } // switch            
     } // doView
 
-    public void handlingPrefernces(PortletPreferences portletPreferences) throws ReadOnlyException, IOException, ValidatorException {
-
+    public void handlingPrefernces(PortletPreferences portletPreferences) 
+            throws ReadOnlyException, IOException, ValidatorException 
+    {
 
         System.out.println("***********HANDLING PREFERENCES IN DOVIEW*****************");
 
         String OpenAgris = portletPreferences.getValue("OpenAgris", "");
-
         //System.out.println("appPreferences.OpenAgris--->" + OpenAgris);
 
         if (OpenAgris == null || OpenAgris.equals("")) {
@@ -1429,7 +1376,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         }
         
         String OpenAgrisEndPoint = portletPreferences.getValue("OpenAgrisEndPoint", "");
-
         //System.out.println("appPreferences.OpenAgris--->" + OpenAgris);
 
         if (OpenAgrisEndPoint == null || OpenAgrisEndPoint.equals("")) {
@@ -1443,7 +1389,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         }
 
         String Europeana = portletPreferences.getValue("Europeana", "");
-
         //System.out.println("appPreferences.Europeana--->" + Europeana);
 
         if (Europeana == null || Europeana.equals("")) {
@@ -1458,151 +1403,115 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         }
         
         String EuropeanaEndPoint = portletPreferences.getValue("EuropeanaEndPoint", "");
-
         //System.out.println("appPreferences.Europeana--->" + Europeana);
 
         if (EuropeanaEndPoint == null || EuropeanaEndPoint.equals("")) {
             //System.out.println("Europeana null");
             //System.out.println("DefaultValue Europeana " + appInit.default_Europeana);
             appPreferences.EuropeanaEndPoint = appInit.default_EuropeanaEndPoint;
-
             portletPreferences.setValue("EuropeanaEndPoint", appPreferences.EuropeanaEndPoint);
-
-            //portletPreferences.store();
-            
+            //portletPreferences.store();            
         }
         
         String CulturaItalia = portletPreferences.getValue("CulturaItalia", "");
-
         //System.out.println("appPreferences.CulturaItalia--->" + CulturaItalia);
 
         if (CulturaItalia == null || CulturaItalia.equals("")) {
             //System.out.println("CulturaItalia null");
             //System.out.println("DefaultValue CulturaItalia " + appInit.default_CulturaItalia);
             appPreferences.CulturaItalia = appInit.default_CulturaItalia;
-
             portletPreferences.setValue("CulturaItalia", appPreferences.CulturaItalia);
-
-           // portletPreferences.store();
-            
-            
+           // portletPreferences.store();                        
         }
         
         String CulturaItaliaEndPoint = portletPreferences.getValue("CulturaItaliaEndPoint", "");
-
         //System.out.println("appPreferences.CulturaItalia--->" + CulturaItalia);
 
         if (CulturaItaliaEndPoint == null || CulturaItaliaEndPoint.equals("")) {
             //System.out.println("CulturaItalia null");
             //System.out.println("DefaultValue CulturaItalia " + appInit.default_CulturaItalia);
             appPreferences.CulturaItaliaEndPoint = appInit.default_CulturaItaliaEndPoint;
-
             portletPreferences.setValue("CulturaItaliaEndPoint", appPreferences.CulturaItaliaEndPoint);
-
-          //  portletPreferences.store();
-            
-            
+          //  portletPreferences.store();                        
         }
         
         String Isidore = portletPreferences.getValue("Isidore", "");
-
         //System.out.println("appPreferences.Isidore--->" + Isidore);
 
         if (Isidore == null || Isidore.equals("")) {
             //System.out.println("Isidore null");
             //System.out.println("DefaultValue Isidore " + appInit.default_Isidore);
             appPreferences.Isidore = appInit.default_Isidore;
-
             portletPreferences.setValue("Isidore", appPreferences.Isidore);
-
            // portletPreferences.store();
         }
         
          String IsidoreEndPoint = portletPreferences.getValue("IsidoreEndPoint", "");
-
         //System.out.println("appPreferences.Isidore--->" + Isidore);
 
         if (IsidoreEndPoint == null || IsidoreEndPoint.equals("")) {
             //System.out.println("Isidore null");
             //System.out.println("DefaultValue Isidore " + appInit.default_Isidore);
             appPreferences.IsidoreEndPoint = appInit.default_IsidoreEndPoint;
-
             portletPreferences.setValue("IsidoreEndPoint", appPreferences.IsidoreEndPoint);
-
            // portletPreferences.store();
         }
         
         String Engage = portletPreferences.getValue("Engage", "");
-
         //System.out.println("appPreferences.Engage--->" + Engage);
 
         if (Engage == null || Engage.equals("")) {
             //System.out.println("Engage null");
             //System.out.println("DefaultValue Engage " + appInit.default_Engage);
             appPreferences.Engage = appInit.default_Engage;
-
             portletPreferences.setValue("Engage", appPreferences.Engage);
-
            // portletPreferences.store();
         }
         
         String EngageEndPoint = portletPreferences.getValue("EngageEndPoint", "");
-
         //System.out.println("appPreferences.Engage--->" + Engage);
 
         if (EngageEndPoint == null || EngageEndPoint.equals("")) {
             //System.out.println("Engage null");
             //System.out.println("DefaultValue Engage " + appInit.default_Engage);
             appPreferences.EngageEndPoint = appInit.default_EngageEndPoint;
-
             portletPreferences.setValue("EngageEndPoint", appPreferences.EngageEndPoint);
-
           //  portletPreferences.store();
         }
         
         String Pubmed = portletPreferences.getValue("Pubmed", "");
-
         //System.out.println("appPreferences.Pubmed--->" + Pubmed);
 
         if (Pubmed == null || Pubmed.equals("")) {
             //System.out.println("Pubmed null");
             //System.out.println("DefaultValue Pubmed " + appInit.default_Pubmed);
             appPreferences.Pubmed = appInit.default_Pubmed;
-
             portletPreferences.setValue("Pubmed", appPreferences.Pubmed);
-
           //  portletPreferences.store();
         }
         
         String PubmedEndPoint = portletPreferences.getValue("PubmedEndPoint", "");
-
         //System.out.println("appPreferences.Pubmed--->" + Pubmed);
 
         if (PubmedEndPoint == null || PubmedEndPoint.equals("")) {
             //System.out.println("Pubmed null");
             //System.out.println("DefaultValue Pubmed " + appInit.default_Pubmed);
             appPreferences.PubmedEndPoint = appInit.default_PubmedEndPoint;
-
             portletPreferences.setValue("PubmedEndPoint", appPreferences.PubmedEndPoint);
-
             portletPreferences.store();
         }
         
         String NumberRecordsForPage = portletPreferences.getValue("NumberRecordsForPage", "");
-
         //System.out.println("appPreferences.NumberRecordsForPage--->" + NumberRecordsForPage);
 
         if (NumberRecordsForPage == null || NumberRecordsForPage.equals("")) {
             //System.out.println("NumberRecordsForPage null");
             //System.out.println("DefaultValue NumberRecordsForPage " + appInit.default_NumberRecordsForPage);
             appPreferences.NumberRecordsForPage = appInit.default_NumberRecordsForPage;
-
             portletPreferences.setValue("NumberRecordsForPage", appPreferences.NumberRecordsForPage);
-
             //portletPreferences.store();
         }
         portletPreferences.store();
-
         //System.out.println("*************FINE HANDLING PREFERENCES IN DOVIEW*****************");
     }
 
@@ -1619,11 +1528,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         //System.out.println("DENTRO DOEDIT OpenAgris----> " + appPreferences.OpenAgris);
         //System.out.println("DENTRO DOEDIT Europeana----> " + appPreferences.Europeana);
         //System.out.println("DENTRO DOEDIT CulturaItalia----> " + appPreferences.CulturaItalia);
-
-
-
-
-
 
         // The edit.jsp will be the responsible to show/edit the current preference values
         PortletRequestDispatcher dispatcher = getPortletContext().getRequestDispatcher("/edit.jsp");
@@ -1793,30 +1697,35 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 + LS);
     } // getInputForm 
 
-    public void handlerTabCHAIN(ActionRequest request, ActionResponse response, App_Input appInput, int numberRecords) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException, MalformedURLException {
-
-
-
-
-        if (!appInput.moreInfo.equals("OK") && !appInput.moreInfoOpenAgris.equals("OK")
-                && !appInput.moreInfoCulturaItalia.equals("OK") && !appInput.moreInfoEuropeana.equals("OK")
-                && !appInput.moreInfoIsidore.equals("OK") && !appInput.moreInfoPubmed.equals("OK")
-                && !appInput.moreInfoEngage.equals("OK")) {
+    public void handlerTabCHAIN(ActionRequest request, ActionResponse response, 
+                                App_Input appInput, int numberRecords) 
+            throws RepositoryException, MalformedQueryException, 
+                   QueryEvaluationException, UnsupportedEncodingException, 
+                   MalformedURLException 
+    {
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")) 
+        {
 
             SemanticQuery query = new SemanticQuery();
 
-
-
-            if (appInput.numberPage == null || appInput.numberPage == "") {
-
+            if (appInput.numberPage == null || appInput.numberPage == "") 
+            {
                 // virtuosoResourceList=new ArrayList();
                 selected_page = "1";
 
-
-
                 //  search_word = appInput.search_word;
 
-                ArrayList virtuosoResourceList = query.queryVirtuosoResource(appInput.search_word, selected_page, numberRecords);
+                ArrayList virtuosoResourceList = 
+                        query.queryVirtuosoResource(
+                        appInput.search_word, 
+                        selected_page, 
+                        numberRecords);
 
                 ArrayList chainTitleList = new ArrayList();
                 ArrayList chainIdentifierList = new ArrayList();
@@ -1858,16 +1767,12 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
                 if (appInput.moreResourceCHAIN.equals("OK")) {
 
-
-
-
                     ArrayList newArray = query.queryVirtuosoResource(appInput.search_word, selected_page, numberRecords);
                     ArrayList newArrayTitle = new ArrayList();
                     ArrayList newArrayId = new ArrayList();
                     ArrayList newArrayAuthor = new ArrayList();
                     ArrayList newArrayDesc = new ArrayList();
                     ArrayList newArrayRep = new ArrayList();
-
 
                     for (int i = 0; i < newArray.size(); i++) {
 
@@ -1885,9 +1790,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                         newArrayAuthor.add(listTempAuthor);
                         newArrayDesc.add(listTempDescription);
                         newArrayRep.add(listTempRepository);
-
-
-
                     }
 
                     sArray = (String[]) newArray.toArray(new String[newArray.size()]);
@@ -1896,16 +1798,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     sArrayChainAuthor = (String[]) newArrayAuthor.toArray(new String[newArrayAuthor.size()]);
                     sArrayChainDescription = (String[]) newArrayDesc.toArray(new String[newArrayDesc.size()]);
                     sArrayChainRepository = (String[]) newArrayRep.toArray(new String[newArrayRep.size()]);
-
                 }
-
             }
 
-
-
         }
-
-
 
         response.setRenderParameter("arrayVirtuosoResource", sArray);
         response.setRenderParameter("arrayChainTitle", sArrayChainTitle);
@@ -1918,25 +1814,34 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         response.setRenderParameter("searched_word", appInput.search_word);
         response.setRenderParameter("selected_page", selected_page);
         response.setRenderParameter("numResourceFromDetails", appInput.numResourceFromDetails);
-
-
     }
 
-    public void handlerTabOpenAgris(ActionRequest request, ActionResponse response, App_Input appInput, int numberRecords, PortletPreferences portletPreferences) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException, MalformedURLException {
+    public void handlerTabOpenAgris(
+            ActionRequest request, 
+            ActionResponse response, 
+            App_Input appInput, 
+            int numberRecords, 
+            PortletPreferences portletPreferences,
+            int TimeOut) 
+            throws RepositoryException, MalformedQueryException, 
+                   QueryEvaluationException, UnsupportedEncodingException, 
+                   MalformedURLException, IOException 
+    {
 
         System.out.println("OPEN AGRIS OK");
-
-
-
         //Se non è stato cliccato moreInfo in nessun tab non devo fare nulla ma solo
         //mandare tutti i parametri precedentemente calcolati al jsp
-        if (!appInput.moreInfo.equals("OK") && !appInput.moreInfoOpenAgris.equals("OK")
-                && !appInput.moreInfoCulturaItalia.equals("OK") && !appInput.moreInfoEuropeana.equals("OK")
-                && !appInput.moreInfoIsidore.equals("OK") && !appInput.moreInfoPubmed.equals("OK")
-                && !appInput.moreInfoEngage.equals("OK")) {
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")) 
+        {
 
-            String OpenAgrisEndPoint = portletPreferences.getValue("OpenAgrisEndPoint", "");
-            
+            String OpenAgrisEndPoint = portletPreferences.getValue("OpenAgrisEndPoint", "");            
+            QueryOpenAgris.ConnectionToOpenAgris(OpenAgrisEndPoint);
             //se è la prima ricerca quindi siamo a pagina1
             if ((appInput.numberPageOpenAgris == null || appInput.numberPageOpenAgris == "")) {
 
@@ -1944,8 +1849,24 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
                 // System.out.println("OPEN AGRIS appInput.numberPageOpenAgris == null");
                 selected_pageOpenAgris = "1";
+                
                 //eseguo la query per prendere le prime 20 risorse
-                ArrayList openAgrisResourceList = QueryOpenAgris.queryOpenAgrisResource(appInput.search_word, selected_pageOpenAgris, numberRecords,OpenAgrisEndPoint);
+//                ArrayList openAgrisResourceList = QueryOpenAgris
+//                        .queryOpenAgrisResource(
+//                        appInput.search_word, 
+//                        selected_pageOpenAgris, 
+//                        numberRecords,
+//                        OpenAgrisEndPoint,
+//                        TimeOut);
+                
+                ArrayList openAgrisResourceList=executeCommandQuery( 
+                        appInput.search_word, 
+                        selected_pageOpenAgris, 
+                        numberRecords,
+                        OpenAgrisEndPoint,
+                        TimeOut,
+                        "TimeOutOpenAgris.jar");
+                
 
                 //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
                 ArrayList openAgrisTitleList = new ArrayList();
@@ -1965,12 +1886,11 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     openAgrisAuthorList.add(listTempAuthors);
                     openAgrisDescriptionList.add(listTempDescription);
                 }
+                
                 sArrayOpenAgris = (String[]) openAgrisResourceList.toArray(new String[openAgrisResourceList.size()]);
-
                 sArrayOpenAgrisTitle = (String[]) openAgrisTitleList.toArray(new String[openAgrisTitleList.size()]);
                 sArrayOpenAgrisAuthor = (String[]) openAgrisAuthorList.toArray(new String[openAgrisAuthorList.size()]);
                 sArrayOpenAgrisDescription = (String[]) openAgrisDescriptionList.toArray(new String[openAgrisDescriptionList.size()]);
-
 
             } else {
 
@@ -1982,10 +1902,24 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 //rimanere immutata
                 // System.out.println("ELSE OPENAGRIS E PAGE--->" + selected_pageOpenAgris);
 
-                if (appInput.moreResourceOpenAgris.equals("OK")) {
+                if (appInput.moreResourceOpenAgris.equals("OK")) 
+                {
                     //Se invece è stato cliccato More Resource in OpenAgris devo calcore il nuovo array delle risorse 
                     //in base alla pagina cliccata
-                    ArrayList newArray = QueryOpenAgris.queryOpenAgrisResource(appInput.search_word, selected_pageOpenAgris, numberRecords,OpenAgrisEndPoint);
+                    
+                     ArrayList newArray=executeCommandQuery(
+                        appInput.search_word, 
+                        selected_pageOpenAgris, 
+                        numberRecords,
+                        OpenAgrisEndPoint,
+                        TimeOut,
+                        "TimeOutOpenAgris.jar");
+                    
+                    /*ArrayList newArray = QueryOpenAgris.queryOpenAgrisResource(
+                            appInput.search_word, 
+                            selected_pageOpenAgris, 
+                            numberRecords,OpenAgrisEndPoint,
+                            TimeOut);*/
 
                     ArrayList newArrayTitle = new ArrayList();
                     ArrayList newArrayAuthor = new ArrayList();
@@ -1993,12 +1927,14 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
                     //System.out.println("MORE RESOURCE OPENAGRIS");
                     for (int i = 0; i < newArray.size(); i++) {
-                        //Ogni risorsa di questo nuovo Array  viene aggiunta all'array già definito delle risorse openAgrisResourceList
+                        //Ogni risorsa di questo nuovo Array  viene aggiunta 
+                        //all'array già definito delle risorse openAgrisResourceList
                         String resource = newArray.get(i).toString();
                         //Per ogni nuova risorsa 
                         //openAgrisResourceList.add(newArray.get(i));
 
-                        //Per ogni nuova risorsa calcolo le proprietà che verranno aggiunte all'array di quelle già presenti
+                        //Per ogni nuova risorsa calcolo le proprietà che verranno 
+                        //aggiunte all'array di quelle già presenti
                         String listTempTitle = QueryOpenAgris.getTitle(resource);
                         String listTempAuthors = QueryOpenAgris.getAuthors(resource);
                         String listTempDescription = QueryOpenAgris.getDescription(resource);
@@ -2006,17 +1942,14 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                         newArrayAuthor.add(listTempAuthors);
                         newArrayDesc.add(listTempDescription);
                     }
-                    sArrayOpenAgris = (String[]) newArray.toArray(new String[newArray.size()]);
-                    
+                    sArrayOpenAgris = (String[]) newArray.toArray(new String[newArray.size()]);                    
                     sArrayOpenAgrisTitle = (String[]) newArrayTitle.toArray(new String[newArrayTitle.size()]);
                     sArrayOpenAgrisAuthor = (String[]) newArrayAuthor.toArray(new String[newArrayAuthor.size()]);
                     sArrayOpenAgrisDescription = (String[]) newArrayDesc.toArray(new String[newArrayDesc.size()]);
-
                 }
             }
 
             //converto gli ArrayList in String [] in modo da poter passarli come parametri al jsp
-
 
         }
         response.setRenderParameter("selected_pageOpenAgris", selected_pageOpenAgris);
@@ -2030,45 +1963,71 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
     }
 
-    public void handlerTabCulturaItalia(ActionRequest request, ActionResponse response, App_Input appInput, int numberRecords, PortletPreferences portletPreferences) throws MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException, MalformedURLException, RepositoryException {
-
-
-
-
-        if (!appInput.moreInfo.equals("OK") && !appInput.moreInfoOpenAgris.equals("OK")
-                && !appInput.moreInfoCulturaItalia.equals("OK") && !appInput.moreInfoEuropeana.equals("OK")
-                && !appInput.moreInfoIsidore.equals("OK") && !appInput.moreInfoPubmed.equals("OK")
-                && !appInput.moreInfoEngage.equals("OK")) {
+    public void handlerTabCulturaItalia(
+            ActionRequest request, 
+            ActionResponse response, 
+            App_Input appInput, 
+            int numberRecords, 
+            PortletPreferences portletPreferences,            
+            int TimeOut) 
+            
+            throws MalformedQueryException, QueryEvaluationException, 
+                   UnsupportedEncodingException, MalformedURLException, 
+                   RepositoryException, IOException
+    {
+              
+        System.out.println("CULTURA ITALIA OK");
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")) 
+        {
 
             String CulturaItaliaEndPoint = portletPreferences.getValue("CulturaItaliaEndPoint", "");
             
+            System.out.println("CULTURA ITALIA ENDPOINT OK---->" + CulturaItaliaEndPoint);
+            QueryCulturaItalia.ConnectionToCulturaItalia(CulturaItaliaEndPoint);
             //Se è la prima ricerca
-            if (appInput.numberPageCulturaItalia == null || appInput.numberPageCulturaItalia == "") {
-                // System.out.println("Cultura Italia appInput.numberPageCulturaItalia == null");
-                //  culturaItaliaResourceList=new ArrayList();
+            if (appInput.numberPageCulturaItalia == null || 
+                appInput.numberPageCulturaItalia == "") 
+            {
                 selected_pageCulturaItalia = "1";
 
-                ArrayList culturaItaliaResourceList = QueryCulturaItalia.queryCulturaItaliaResource(appInput.search_word, selected_pageCulturaItalia, numberRecords,CulturaItaliaEndPoint);
-                ArrayList culturaItaliaTitleList = new ArrayList();
-                ArrayList culturaItaliaTypeList = new ArrayList();
-                ArrayList culturaItaliaAuthorList = new ArrayList();
-                ArrayList culturaItaliaDescriptionList = new ArrayList();
-                for (int i = 0; i < culturaItaliaResourceList.size(); i++) {
+                //eseguo la query per prendere le prime 20 risorse
+                /*ArrayList culturaItaliaResourceList = 
+                        QueryCulturaItalia
+                        .queryCulturaItaliaResource(
+                        appInput.search_word, 
+                        selected_pageCulturaItalia, 
+                        numberRecords,CulturaItaliaEndPoint);*/
+                
+                  ArrayList culturaItaliaResourceList=executeCommandQuery( 
+                        appInput.search_word, 
+                        selected_pageCulturaItalia, 
+                        numberRecords,
+                        CulturaItaliaEndPoint,
+                        TimeOut,
+                        "TimeOutCulturaItalia.jar");
+                
+                  //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
+                  ArrayList culturaItaliaTitleList = new ArrayList();
+                  ArrayList culturaItaliaTypeList = new ArrayList();
+                  ArrayList culturaItaliaAuthorList = new ArrayList();
+                  ArrayList culturaItaliaDescriptionList = new ArrayList();
+                  
+                  for (int i = 0; i < culturaItaliaResourceList.size(); i++) {
                     String resource = culturaItaliaResourceList.get(i).toString();
                     //per ogni risorsa eseguo le query per le sue prorietà
 
                     //le proprietà sono una singola stringa perchè i vari titoli vengono concatenati con ##
-                    String listTempTitle = "", listTempType = "", listTempAuthor = "", listTempDescription = "";
-                    try {
-                        listTempTitle = QueryCulturaItalia.getTitle(resource);
-                        listTempType = QueryCulturaItalia.getType(resource);
-                        listTempAuthor = QueryCulturaItalia.getAuthors(resource);
-                        listTempDescription = QueryCulturaItalia.getDescription(resource);
-                    } catch (RepositoryException ex) {
-                        ex.printStackTrace();
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
-                        //  System.out.println("Exception in action");
-                    }
+                    //String listTempTitle = "", listTempType = "", listTempAuthor = "", listTempDescription = "";
+                    String listTempTitle = QueryCulturaItalia.getTitle(resource);
+                    String listTempType = QueryCulturaItalia.getType(resource);
+                    String listTempAuthor = QueryCulturaItalia.getAuthors(resource);
+                    String listTempDescription = QueryCulturaItalia.getDescription(resource);                    
 
                     //aggiungo le proprietà  in appositi ArrayList
                     culturaItaliaTitleList.add(listTempTitle);
@@ -2083,8 +2042,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 sArrayCulturaItaliaAuthor = (String[]) culturaItaliaAuthorList.toArray(new String[culturaItaliaAuthorList.size()]);
                 sArrayCulturaItaliaDescription = (String[]) culturaItaliaDescriptionList.toArray(new String[culturaItaliaDescriptionList.size()]);
 
-
-
             } else {
 
                 selected_pageCulturaItalia = appInput.numberPageCulturaItalia;
@@ -2092,33 +2049,42 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
                 if (appInput.moreResourceCulturaItalia.equals("OK")) {
 
-
-
-                    ArrayList newArray = QueryCulturaItalia.queryCulturaItaliaResource(appInput.search_word, selected_pageCulturaItalia, numberRecords,CulturaItaliaEndPoint);
+                    /*ArrayList newArray = QueryCulturaItalia
+                            .queryCulturaItaliaResource(
+                            appInput.search_word, 
+                            selected_pageCulturaItalia, 
+                            numberRecords,CulturaItaliaEndPoint);*/
+                    
+                     ArrayList newArray=executeCommandQuery(
+                        appInput.search_word, 
+                        selected_pageCulturaItalia,
+                        numberRecords,
+                        CulturaItaliaEndPoint,
+                        TimeOut,
+                        "TimeOutCulturaItalia.jar");
+                    
                     ArrayList newArrayTitle = new ArrayList();
                     ArrayList newArrayType = new ArrayList();
                     ArrayList newArrayAuthor = new ArrayList();
                     ArrayList newArrayDesc = new ArrayList();
 
-
-
-                    for (int i = 0; i < newArray.size(); i++) {
-                        //Ogni risorsa di questo nuovo Array  viene aggiunta all'array già definito delle risorse openAgrisResourceList
+                    for (int i = 0; i < newArray.size(); i++) 
+                    {
+                        //Ogni risorsa di questo nuovo Array  viene aggiunta 
+                        // all'array già definito delle risorse openAgrisResourceList
                         String resource = newArray.get(i).toString();
 
                         //culturaItaliaResourceList.add(resource);
 
-                        //Per ogni nuova risorsa calcolo le proprietà che verranno aggiunte all'array di quelle già presenti
-                        String listTempTitle = "", listTempType = "", listTempAuthor = "", listTempDescription = "";
-                        try {
-                            listTempTitle = QueryCulturaItalia.getTitle(resource);
-                            listTempType = QueryCulturaItalia.getType(resource);
-                            listTempAuthor = QueryCulturaItalia.getAuthors(resource);
-                            listTempDescription = QueryCulturaItalia.getDescription(resource);
-                        } catch (RepositoryException ex) {
-                            Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-
+                        //Per ogni nuova risorsa calcolo le proprietà che 
+                        // verranno aggiunte all'array di quelle già presenti
+                        //String listTempTitle = "", listTempType = "", listTempAuthor = "", listTempDescription = "";
+                        
+                        String listTempTitle = QueryCulturaItalia.getTitle(resource);
+                        String listTempType = QueryCulturaItalia.getType(resource);
+                        String listTempAuthor = QueryCulturaItalia.getAuthors(resource);
+                        String listTempDescription = QueryCulturaItalia.getDescription(resource);
+                        
                         //aggiungo le proprietà  in appositi ArrayList
                         newArrayTitle.add(listTempTitle);
                         newArrayType.add(listTempType);
@@ -2133,10 +2099,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     sArrayCulturaItaliaDescription = (String[]) newArrayDesc.toArray(new String[newArrayDesc.size()]);
                 }
             }
-
-
-
-
         }
 
         response.setRenderParameter("selected_pageCulturaItalia", selected_pageCulturaItalia);
@@ -2151,31 +2113,55 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
     }
 
-    public void handlerTabEuropeana(ActionRequest request, ActionResponse response, App_Input appInput, int numberRecords, PortletPreferences portletPreferences) throws MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException, MalformedURLException, RepositoryException, IOException {
+    public void handlerTabEuropeana(ActionRequest request, 
+                                    ActionResponse response, 
+                                    App_Input appInput, 
+                                    int numberRecords, 
+                                    PortletPreferences portletPreferences,
+                                    int TimeOut) 
+            throws MalformedQueryException, QueryEvaluationException, 
+                   UnsupportedEncodingException, MalformedURLException, 
+                   RepositoryException, IOException 
+    {
 
-
-
-
-        if (!appInput.moreInfo.equals("OK") && !appInput.moreInfoOpenAgris.equals("OK")
-                && !appInput.moreInfoCulturaItalia.equals("OK") && !appInput.moreInfoEuropeana.equals("OK")
-                && !appInput.moreInfoIsidore.equals("OK") && !appInput.moreInfoPubmed.equals("OK")
-                && !appInput.moreInfoEngage.equals("OK")) {
-
+        System.out.println("EUROPEANA OK");
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")) 
+        {
             
             String EuropeanaEndPoint = portletPreferences.getValue("EuropeanaEndPoint", "");
+            QueryEuropeana.ConnectionToEuropeana(EuropeanaEndPoint);
 
-            System.out.println("EUROPEANA OK---->"+EuropeanaEndPoint);
+            System.out.println("EUROPEANA OK ----> " + EuropeanaEndPoint);
 
             //se è la prima ricerca quindi siamo a pagina1
-            if ((appInput.numberPageEuropeana == null || appInput.numberPageEuropeana == "")) {
-
+            if ((appInput.numberPageEuropeana == null || 
+                 appInput.numberPageEuropeana == "")) 
+            {
 
                 selected_pageEuropeana = "1";
-                
-                
 
                 //eseguo la query per prendere le prime 20 risorse
-                ArrayList europeanaResourceList = QueryEuropeana.queryEuropeanaResource(appInput.search_word, selected_pageEuropeana, numberRecords,EuropeanaEndPoint);
+                /*ArrayList europeanaResourceList = 
+                        QueryEuropeana.queryEuropeanaResource(
+                        appInput.search_word, 
+                        selected_pageEuropeana, 
+                        numberRecords,
+                        EuropeanaEndPoint);*/
+                
+                ArrayList europeanaResourceList = executeCommandQuery(
+                        appInput.search_word, 
+                        selected_pageEuropeana, 
+                        numberRecords,
+                        EuropeanaEndPoint,
+                        TimeOut,
+                        "TimeOutEuropeana.jar");
+                
                 //System.out.println("PAROLA SELEZIONATA EUROPEANA " + appInput.search_word);
                 //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
                 ArrayList europeanaTitleList = new ArrayList();
@@ -2196,20 +2182,14 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     String listTempAuthorsEuropeana = QueryEuropeana.getEuropeanaAuthors(resource);
                     String listTempDescriptionEuropeana = QueryEuropeana.getEuropeanaDescription(resource);
                     String listTempTypeEuropeana = QueryEuropeana.getEuropeanaType(resource);
-
                     String listTempIdentifierEuropeana = QueryEuropeana.getEuropeanaIdentifier(resource);
-
 
                     //aggiungo le proprietà  in appositi ArrayList
                     europeanaTitleList.add(listTempTitleEuropeana);
-
                     europeanaAuthorList.add(listTempAuthorsEuropeana);
-
                     europeanaDescriptionList.add(listTempDescriptionEuropeana);
-
                     europeanaIdentifierList.add(listTempIdentifierEuropeana);
                     europeanaTypeList.add(listTempTypeEuropeana);
-
                 }
 
                 sArrayEuropeana = (String[]) europeanaResourceList.toArray(new String[europeanaResourceList.size()]);
@@ -2219,9 +2199,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 sArrayEuropeanaIdentifier = (String[]) europeanaIdentifierList.toArray(new String[europeanaIdentifierList.size()]);
                 sArrayEuropeanaType = (String[]) europeanaTypeList.toArray(new String[europeanaTypeList.size()]);
 
-
-
-
             } else {
 
                 // se non siamo a pagina 1 e quindi è stato cliccato More Resource in OpenAgris,
@@ -2230,11 +2207,26 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 moreResourceEuropeana = appInput.moreResourceEuropeana;
                 //se è non stato cliccato More Resource in CHAIN non devo ricalcolare niente perchè la pagina di OpenAgris deve 
                 //rimanere immutata
-                if (appInput.moreResourceEuropeana.equals("OK")) {
+                if (appInput.moreResourceEuropeana.equals("OK")) 
+                {
                     //Se invece è stato cliccato More Resource in OpenAgris devo calcore il nuovo array dell e risorse 
                     //in base alla pagina cliccata
 
-                    ArrayList newArray = QueryEuropeana.queryEuropeanaResource(appInput.search_word, selected_pageEuropeana, numberRecords,EuropeanaEndPoint);
+                    /*ArrayList newArray = 
+                            QueryEuropeana.queryEuropeanaResource(
+                            appInput.search_word, 
+                            selected_pageEuropeana, 
+                            numberRecords,
+                            EuropeanaEndPoint);*/
+                    
+                    ArrayList newArray = 
+                            executeCommandQuery(
+                            appInput.search_word, 
+                            selected_pageEuropeana, 
+                            numberRecords,
+                            EuropeanaEndPoint,
+                            TimeOut,
+                            "TimeOutEuropeana.jar");
 
                     ArrayList newArrayTitle = new ArrayList();
                     ArrayList newArrayAuthor = new ArrayList();
@@ -2242,7 +2234,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     ArrayList newArrayId = new ArrayList();
                     ArrayList newArrayType = new ArrayList();
 
-                    for (int i = 0; i < newArray.size(); i++) {
+                    for (int i = 0; i < newArray.size(); i++) 
+                    {
                         //Ogni risorsa di questo nuovo Array  viene aggiunta all'array già definito delle risorse openAgrisResourceList
                         String resource = newArray.get(i).toString();
                         //Per ogni nuova risorsa 
@@ -2269,15 +2262,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     sArrayEuropeanaDescription = (String[]) newArrayDesc.toArray(new String[newArrayDesc.size()]);
                     sArrayEuropeanaIdentifier = (String[]) newArrayId.toArray(new String[newArrayId.size()]);
                     sArrayEuropeanaType = (String[]) newArrayType.toArray(new String[newArrayType.size()]);
-
                 }
-
             }
-
-
-
-
         }
+        
         response.setRenderParameter("selected_pageEuropeana", selected_pageEuropeana);
         response.setRenderParameter("arrayEuropeanaResource", sArrayEuropeana);
         response.setRenderParameter("arrayEuropeanaTitle", sArrayEuropeanaTitle);
@@ -2288,41 +2276,61 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         response.setRenderParameter("moreResourceEuropeana", moreResourceEuropeana);
         response.setRenderParameter("moreInfoEuropeana", appInput.moreInfoEuropeana);
         response.setRenderParameter("numResourceEuropeanaFromDetails", appInput.numResourceEuropeanaFromDetails);
-
     }
 
-    public void handlerTabIsidore(ActionRequest request, ActionResponse response, App_Input appInput, int numberRecords,PortletPreferences portletPreferences) throws MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException, MalformedURLException, RepositoryException, IOException {
-
+    public void handlerTabIsidore(ActionRequest request, 
+                                  ActionResponse response, 
+                                  App_Input appInput, 
+                                  int numberRecords,
+                                  PortletPreferences portletPreferences,
+                                  int TimeOut) 
+            throws MalformedQueryException, QueryEvaluationException, 
+                   UnsupportedEncodingException, MalformedURLException, 
+                   RepositoryException, IOException 
+    {
 
         System.out.println("ISIDORE OK");
 
-
-
-
-        if (!appInput.moreInfo.equals("OK") && !appInput.moreInfoOpenAgris.equals("OK")
-                && !appInput.moreInfoCulturaItalia.equals("OK") && !appInput.moreInfoEuropeana.equals("OK")
-                && !appInput.moreInfoIsidore.equals("OK") && !appInput.moreInfoPubmed.equals("OK")
-                && !appInput.moreInfoEngage.equals("OK")) {
-
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")) 
+        {
             String IsidoreEndPoint = portletPreferences.getValue("IsidoreEndPoint", "");
-
+            System.out.println("ISIDORE ENDPOINT-->"+IsidoreEndPoint);
+            QueryIsidore.ConnectionToIsidore(IsidoreEndPoint);
 
             //se è la prima ricerca quindi siamo a pagina1
-            if ((appInput.numberPageIsidore == null || appInput.numberPageIsidore == "")) {
-//                System.out.println("PAROLA SELEZIONATA ISIDORE  " + appInput.search_word);
-//                System.out.println("ISIDORE appInput.Isidore == null");
+            if ((appInput.numberPageIsidore == null || 
+                 appInput.numberPageIsidore == "")) 
+            {
                 selected_pageIsidore = "1";
                 //eseguo la query per prendere le prime 20 risorse
 
-
-                ArrayList isidoreResourceList = QueryIsidore.queryIsidoreResource(appInput.search_word, selected_pageIsidore, numberRecords,IsidoreEndPoint);
+                /*ArrayList isidoreResourceList = QueryIsidore
+                        .queryIsidoreResource(appInput.search_word, 
+                                              selected_pageIsidore, 
+                                              numberRecords,IsidoreEndPoint);*/
+                
+                ArrayList isidoreResourceList = executeCommandQuery(
+                        appInput.search_word, 
+                        selected_pageIsidore, 
+                        numberRecords,
+                        IsidoreEndPoint,
+                        TimeOut,
+                        "TimeOutIsidore.jar");
 
                 //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
                 ArrayList isidoreTitleList = new ArrayList();
                 ArrayList isidoreAuthorList = new ArrayList();
                 ArrayList isidoreDescriptionList = new ArrayList();
                 ArrayList isidoreIdentifierList = new ArrayList();
-                for (int i = 0; i < isidoreResourceList.size(); i++) {
+                
+                for (int i = 0; i < isidoreResourceList.size(); i++) 
+                {
 
                     String resource = isidoreResourceList.get(i).toString();
                     //per ogni risorsa eseguo le query per le sue prorietà
@@ -2331,16 +2339,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     String listTempTitleIsidore = QueryIsidore.getIsidoreTitle(resource);
                     String listTempAuthorsIsidore = QueryIsidore.getIsidoreAuthors(resource);
                     String listTempDescriptionIsidore = QueryIsidore.getIsidoreDescription(resource);
-
                     String listTempIdentifierIsidore = QueryIsidore.getIsidoreIdentifier(resource);
-
 
                     //aggiungo le proprietà  in appositi ArrayList
                     isidoreTitleList.add(listTempTitleIsidore);
                     isidoreAuthorList.add(listTempAuthorsIsidore);
                     isidoreDescriptionList.add(listTempDescriptionIsidore);
                     isidoreIdentifierList.add(listTempIdentifierIsidore);
-
                 }
 
                 sArrayIsidore = (String[]) isidoreResourceList.toArray(new String[isidoreResourceList.size()]);
@@ -2358,19 +2363,34 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 moreResourceIsidore = appInput.moreResourceIsidore;
                 //se è non stato cliccato More Resource in CHAIN non devo ricalcolare niente perchè la pagina di OpenAgris deve 
                 //rimanere immutata
-                if (appInput.moreResourceIsidore.equals("OK")) {
+                if (appInput.moreResourceIsidore.equals("OK")) 
+                {
                     //Se invece è stato cliccato More Resource in OpenAgris devo calcore il nuovo array dell e risorse 
                     //in base alla pagina cliccata
-                    ArrayList newArray = QueryIsidore.queryIsidoreResource(appInput.search_word, selected_pageIsidore, numberRecords,IsidoreEndPoint);
+                    
+                    /*ArrayList newArray = QueryIsidore
+                            .queryIsidoreResource(
+                            appInput.search_word, 
+                            selected_pageIsidore, 
+                            numberRecords,IsidoreEndPoint);*/
+                    
+                    ArrayList newArray = executeCommandQuery(
+                            appInput.search_word, 
+                            selected_pageIsidore, 
+                            numberRecords,
+                            IsidoreEndPoint,
+                            TimeOut,
+                            "TimeOutIsidore.jar");
 
                     ArrayList newArrayTitle = new ArrayList();
                     ArrayList newArrayAuthor = new ArrayList();
                     ArrayList newArrayDesc = new ArrayList();
                     ArrayList newArrayId = new ArrayList();
 
-
-                    for (int i = 0; i < newArray.size(); i++) {
-                        //Ogni risorsa di questo nuovo Array  viene aggiunta all'array già definito delle risorse openAgrisResourceList
+                    for (int i = 0; i < newArray.size(); i++) 
+                    {
+                        //Ogni risorsa di questo nuovo Array  viene aggiunta 
+                        // all'array già definito delle risorse openAgrisResourceList
                         String resource = newArray.get(i).toString();
                         //Per ogni nuova risorsa 
                         //isidoreResourceList.add(newArray.get(i));
@@ -2380,7 +2400,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                         String listTempAuthorsIsidore = QueryIsidore.getIsidoreAuthors(resource);
                         String listTempDescriptionIsidore = QueryIsidore.getIsidoreDescription(resource);
                         String listTempIdentifierIsidore = QueryIsidore.getIsidoreIdentifier(resource);
-
 
                         newArrayTitle.add(listTempTitleIsidore);
                         newArrayAuthor.add(listTempAuthorsIsidore);
@@ -2393,18 +2412,10 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     sArrayIsidoreAuthor = (String[]) newArrayAuthor.toArray(new String[newArrayAuthor.size()]);
                     sArrayIsidoreDescription = (String[]) newArrayDesc.toArray(new String[newArrayDesc.size()]);
                     sArrayIsidoreIdentifier = (String[]) newArrayId.toArray(new String[newArrayId.size()]);
-
                 }
             }
             //converto gli ArrayList in String [] in modo da poter passarli come parametri al jsp
-
-
-
         }
-
-
-
-
 
         response.setRenderParameter("selected_pageIsidore", selected_pageIsidore);
         response.setRenderParameter("arrayIsidoreResource", sArrayIsidore);
@@ -2415,50 +2426,66 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         response.setRenderParameter("moreResourceIsidore", moreResourceIsidore);
         response.setRenderParameter("moreInfoIsidore", appInput.moreInfoIsidore);
         response.setRenderParameter("numResourceIsidoreFromDetails", appInput.numResourceIsidoreFromDetails);
-
-
-
-
     }
 
-    public void handlerTabPubmed(ActionRequest request, ActionResponse response, App_Input appInput, int numberRecords,PortletPreferences portletPreferences) throws MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException, MalformedURLException, RepositoryException, IOException {
-
+    public void handlerTabPubmed(
+            ActionRequest request, 
+            ActionResponse response, 
+            App_Input appInput, 
+            int numberRecords,
+            PortletPreferences portletPreferences,
+            int TimeOut) 
+            throws  MalformedQueryException, QueryEvaluationException, 
+                    UnsupportedEncodingException, MalformedURLException, 
+                    RepositoryException, IOException 
+    {
 
         System.out.println("PUBMED OK");
 
-//        String[] sArrayPubmed = null;
-//        String[] sArrayPubmedTitle = null;
-//        String[] sArrayPubmedAuthor = null;
-//        String[] sArrayPubmedDescription = null;
-
-
-
-        if (!appInput.moreInfo.equals("OK") && !appInput.moreInfoOpenAgris.equals("OK")
-                && !appInput.moreInfoCulturaItalia.equals("OK") && !appInput.moreInfoEuropeana.equals("OK")
-                && !appInput.moreInfoIsidore.equals("OK") && !appInput.moreInfoPubmed.equals("OK")
-                && !appInput.moreInfoEngage.equals("OK")) {
-
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")) 
+        {
 
              String PubmedEndPoint = portletPreferences.getValue("PubmedEndPoint", "");
-
+             QueryPubMed.ConnectionToPubMed(PubmedEndPoint);
 
             //se è la prima ricerca quindi siamo a pagina1
-            if ((appInput.numberPagePubmed == null || appInput.numberPagePubmed == "")) {
-//                System.out.println("PAROLA SELEZIONATA ISIDORE  " + appInput.search_word);
-//                System.out.println("ISIDORE appInput.Isidore == null");
+            if ((appInput.numberPagePubmed == null || 
+                 appInput.numberPagePubmed == "")) 
+            {
                 selected_pagePubmed = "1";
                 //eseguo la query per prendere le prime 20 risorse
 
-
-                ArrayList pubmedResourceList = QueryPubMed.queryPubmedResource(appInput.search_word, selected_pagePubmed, numberRecords,PubmedEndPoint);
+                /*ArrayList pubmedResourceList = QueryPubMed
+                        .queryPubmedResource(
+                        appInput.search_word, 
+                        selected_pagePubmed, 
+                        numberRecords,
+                        PubmedEndPoint);*/
+                
+                ArrayList pubmedResourceList = executeCommandQuery(
+                        appInput.search_word, 
+                        selected_pagePubmed, 
+                        numberRecords,
+                        PubmedEndPoint,
+                        TimeOut,
+                        "TimeOutPubMed.jar");
 
                 //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
                 ArrayList pubmedTitleList = new ArrayList();
                 ArrayList pubmedAuthorList = new ArrayList();
                 ArrayList pubmedDescriptionList = new ArrayList();
-                // pubmedIdentifierList = new ArrayList();
-                for (int i = 0; i < pubmedResourceList.size(); i++) {
-                    //System.out.println("sono quaaa");
+                ArrayList pubmedURLList = new ArrayList();
+                //ArrayList pubmedURIList = new ArrayList();
+                
+                
+                for (int i = 0; i < pubmedResourceList.size(); i++) 
+                {                    
                     String resource = pubmedResourceList.get(i).toString();
                     //per ogni risorsa eseguo le query per le sue prorietà
 
@@ -2466,124 +2493,153 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     String listTempTitlePubmed = QueryPubMed.getPubmedTitle(resource);
                     String listTempAuthorsPubmed = QueryPubMed.getPubmedAuthors(resource);
                     String listTempDescriptionPubmed = QueryPubMed.getPubmedDescription(resource);
+                    String listTempURLPubmed = QueryPubMed.getPubmedURL(resource);
+                   // String listTempURIPubmed=QueryPubMed.getPubmedURI(resource);
                     //aggiungo le proprietà  in appositi ArrayList
                     pubmedTitleList.add(listTempTitlePubmed);
-
                     pubmedAuthorList.add(listTempAuthorsPubmed);
-
                     pubmedDescriptionList.add(listTempDescriptionPubmed);
+                    pubmedURLList.add(listTempURLPubmed);
+                   // pubmedURIList.add(listTempURIPubmed);
                 }
+                
                 sArrayPubmed = (String[]) pubmedResourceList.toArray(new String[pubmedResourceList.size()]);
                 sArrayPubmedTitle = (String[]) pubmedTitleList.toArray(new String[pubmedTitleList.size()]);
                 sArrayPubmedAuthor = (String[]) pubmedAuthorList.toArray(new String[pubmedAuthorList.size()]);
                 sArrayPubmedDescription = (String[]) pubmedDescriptionList.toArray(new String[pubmedDescriptionList.size()]);
-                // sArrayPubmedIdentifier = (String[]) pubmedIdentifierList.toArray(new String[pubmedIdentifierList.size()]);
-
-
+                sArrayPubmedURL = (String[]) pubmedURLList.toArray(new String[pubmedURLList.size()]);
+               // sArrayPubmedURI = (String[]) pubmedURIList.toArray(new String[pubmedURIList.size()]);
 
             } else {
-
-
-
                 // se non siamo a pagina 1 e quindi è stato cliccato More Resource in OpenAgris,
                 //oppure è stato cliccato More Resource in un qualche tab e quindi appInput.numberPageOpenAgris != null
                 selected_pagePubmed = appInput.numberPagePubmed;
                 moreResourcePubmed = appInput.moreResourcePubmed;
                 //se è non stato cliccato More Resource in CHAIN non devo ricalcolare niente perchè la pagina di OpenAgris deve 
                 //rimanere immutata
-                if (appInput.moreResourcePubmed.equals("OK")) {
+                if (appInput.moreResourcePubmed.equals("OK")) 
+                {
                     //Se invece è stato cliccato More Resource in OpenAgris devo calcore il nuovo array dell e risorse 
                     //in base alla pagina cliccata
 
-                    ArrayList newArray = QueryPubMed.queryPubmedResource(appInput.search_word, selected_pagePubmed, numberRecords,PubmedEndPoint);
+                    /*ArrayList newArray = QueryPubMed
+                            .queryPubmedResource(
+                            appInput.search_word, 
+                            selected_pagePubmed, 
+                            numberRecords,
+                            PubmedEndPoint);*/
+                    
+                    ArrayList newArray = executeCommandQuery(
+                            appInput.search_word, 
+                            selected_pagePubmed, 
+                            numberRecords,
+                            PubmedEndPoint,
+                            TimeOut,
+                            "TimeOutPubMed.jar");
 
                     ArrayList newArrayTitle = new ArrayList();
                     ArrayList newArrayAuthor = new ArrayList();
                     ArrayList newArrayDesc = new ArrayList();
+                    ArrayList newArrayURL = new ArrayList();
+                  //  ArrayList newArrayURI = new ArrayList();
 
 
-                    for (int i = 0; i < newArray.size(); i++) {
+                    for (int i = 0; i < newArray.size(); i++) 
+                    {
                         //Ogni risorsa di questo nuovo Array  viene aggiunta all'array già definito delle risorse openAgrisResourceList
                         String resource = newArray.get(i).toString();
-                        //Per ogni nuova risorsa 
-                        //pubmedResourceList.add(newArray.get(i));
-
+                    
                         //Per ogni nuova risorsa calcolo le proprietà che verranno aggiunte all'array di quelle già presenti
                         String listTempTitlePubmed = QueryPubMed.getPubmedTitle(resource);
                         String listTempAuthorsPubmed = QueryPubMed.getPubmedAuthors(resource);
                         String listTempDescriptionPubmed = QueryPubMed.getPubmedDescription(resource);
-                        //  String listTempIdentifierPubmed = QueryPubMed.getPubMedIdentifier(resource);
-
+                        String listTempURLPubmed = QueryPubMed.getPubmedURL(resource);
+                       // String listTempURIPubmed=QueryPubMed.getPubmedURI(resource);
 
                         newArrayTitle.add(listTempTitlePubmed);
                         newArrayAuthor.add(listTempAuthorsPubmed);
                         newArrayDesc.add(listTempDescriptionPubmed);
-                        //  pubmedIdentifierList.add(listTempIdentifierPubmed);
+                        newArrayURL.add(listTempURLPubmed);
+                      //  newArrayURI.add(listTempURIPubmed);
+                        
                     }
                     sArrayPubmed = (String[]) newArray.toArray(new String[newArray.size()]);
                     sArrayPubmedTitle = (String[]) newArrayTitle.toArray(new String[newArrayTitle.size()]);
                     sArrayPubmedAuthor = (String[]) newArrayAuthor.toArray(new String[newArrayAuthor.size()]);
-
-
                     sArrayPubmedDescription = (String[]) newArrayDesc.toArray(new String[newArrayDesc.size()]);
-                    // sArrayPubmedIdentifier = (String[]) pubmedIdentifierList.toArray(new String[pubmedIdentifierList.size()]);
-
-
+                    sArrayPubmedURL = (String[]) newArrayURL.toArray(new String[newArrayURL.size()]);
+                  //  sArrayPubmedURI = (String[]) newArrayURI.toArray(new String[newArrayURI.size()]);
                 }
             }
             //converto gli ArrayList in String [] in modo da poter passarli come parametri al jsp
-
-
-
         }
         response.setRenderParameter("selected_pagePubmed", selected_pagePubmed);
         response.setRenderParameter("arrayPubmedResource", sArrayPubmed);
         response.setRenderParameter("arrayPubmedTitle", sArrayPubmedTitle);
         response.setRenderParameter("arrayPubmedAuthor", sArrayPubmedAuthor);
         response.setRenderParameter("arrayPubmedDescription", sArrayPubmedDescription);
-        // response.setRenderParameter("arrayPubmedIdentifier", sArrayPubmedIdentifier);
+        response.setRenderParameter("arrayPubmedURL", sArrayPubmedURL);
+       // response.setRenderParameter("arrayPubmedURI", sArrayPubmedURI);
         response.setRenderParameter("moreResourcePubmed", moreResourcePubmed);
         response.setRenderParameter("moreInfoPubmed", appInput.moreInfoPubmed);
         response.setRenderParameter("numResourcePubmedFromDetails", appInput.numResourcePubmedFromDetails);
-
-
-
-
     }
 
-    public void handlerTabEngage(ActionRequest request, ActionResponse response, App_Input appInput, int numberRecords,PortletPreferences portletPreferences) throws MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException, MalformedURLException, RepositoryException, IOException {
-
-
+    public void handlerTabEngage(
+            ActionRequest request, 
+            ActionResponse response, 
+            App_Input appInput, 
+            int numberRecords,
+            PortletPreferences portletPreferences,
+            int TimeOut) 
+            throws MalformedQueryException, QueryEvaluationException, 
+                   UnsupportedEncodingException, MalformedURLException, 
+                   RepositoryException, IOException 
+    {
         System.out.println("Engare OK");
 
-
-
-
-        if (!appInput.moreInfo.equals("OK") && !appInput.moreInfoOpenAgris.equals("OK")
-                && !appInput.moreInfoCulturaItalia.equals("OK") && !appInput.moreInfoEuropeana.equals("OK")
-                && !appInput.moreInfoIsidore.equals("OK") && !appInput.moreInfoPubmed.equals("OK")
-                && !appInput.moreInfoEngage.equals("OK")) {
-
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")) 
+        {
 
             String EngageEndPoint = portletPreferences.getValue("EngageEndPoint", "");
+            QueryEngage.ConnectionToEngage(EngageEndPoint);
 
             //se è la prima ricerca quindi siamo a pagina1
-            if ((appInput.numberPageEngage == null || appInput.numberPageEngage == "")) {
+            if ((appInput.numberPageEngage == null || 
+                 appInput.numberPageEngage == "")) 
+            {
 //                System.out.println("PAROLA SELEZIONATA ISIDORE  " + appInput.search_word);
 //                System.out.println("ISIDORE appInput.Isidore == null");
                 selected_pageEngage = "1";
                 //eseguo la query per prendere le prime 20 risorse
 
-
-                ArrayList engageResourceHomepageList = QueryEngage.queryEngageResourceFromHomepage(appInput.search_word, selected_pageEngage, numberRecords,EngageEndPoint);
-
+                /*ArrayList engageResourceHomepageList = QueryEngage
+                        .queryEngageResourceFromHomepage(
+                        appInput.search_word, 
+                        selected_pageEngage, 
+                        numberRecords,EngageEndPoint);*/
+                
+                ArrayList engageResourceHomepageList = executeCommandQuery(
+                        appInput.search_word, 
+                        selected_pageEngage, 
+                        numberRecords,EngageEndPoint,
+                        TimeOut,
+                        "TimeOutEngage.jar");
 
                 //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
                 ArrayList engageTitleList = new ArrayList();
                 ArrayList engageAuthorList = new ArrayList();
                 ArrayList engageDescriptionList = new ArrayList();
                 ArrayList engageHomePageList = new ArrayList();
-                for (int i = 0; i < engageResourceHomepageList.size(); i++) {
+                
+                for (int i = 0; i < engageResourceHomepageList.size(); i++) 
+                {
 
                     String homepageResourceEngage = engageResourceHomepageList.get(i).toString();
                     //per ogni risorsa eseguo le query per le sue prorietà
@@ -2592,9 +2648,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     String listTempTitleEngage = QueryEngage.getEngageTitle(homepageResourceEngage);
                     String listTempAuthorsEngage = QueryEngage.getEngageAuthors(homepageResourceEngage);
                     String listTempDescriptionEngage = QueryEngage.getEngageDescription(homepageResourceEngage);
-
                     // String listTempHomepageEngage = QueryEngage.getEngageHomepage(homepageResourceEngage);
-
 
                     //aggiungo le proprietà  in appositi ArrayList
                     engageTitleList.add(listTempTitleEngage);
@@ -2603,14 +2657,11 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     engageHomePageList.add(homepageResourceEngage);
                 }
 
-
                 sArrayEngage = (String[]) engageResourceHomepageList.toArray(new String[engageResourceHomepageList.size()]);
                 sArrayEngageTitle = (String[]) engageTitleList.toArray(new String[engageTitleList.size()]);
                 sArrayEngageAuthor = (String[]) engageAuthorList.toArray(new String[engageAuthorList.size()]);
                 sArrayEngageDescription = (String[]) engageDescriptionList.toArray(new String[engageDescriptionList.size()]);
                 sArrayEngageHomepage = (String[]) engageHomePageList.toArray(new String[engageHomePageList.size()]);
-
-
 
             } else {
 
@@ -2620,19 +2671,32 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 moreResourceEngage = appInput.moreResourceEngage;
                 //se è non stato cliccato More Resource in CHAIN non devo ricalcolare niente perchè la pagina di OpenAgris deve 
                 //rimanere immutata
-                if (appInput.moreResourceEngage.equals("OK")) {
+                if (appInput.moreResourceEngage.equals("OK")) 
+                {
                     //Se invece è stato cliccato More Resource in OpenAgris devo calcore il nuovo array dell e risorse 
                     //in base alla pagina cliccata
 
-                    ArrayList engageResourceHomepageList = QueryEngage.queryEngageResourceFromHomepage(appInput.search_word, selected_pageEngage, numberRecords,EngageEndPoint);
-
+                    /*ArrayList engageResourceHomepageList = QueryEngage
+                            .queryEngageResourceFromHomepage(
+                            appInput.search_word, 
+                            selected_pageEngage, 
+                            numberRecords,EngageEndPoint);*/
+                    
+                    ArrayList engageResourceHomepageList = executeCommandQuery(
+                            appInput.search_word, 
+                            selected_pageEngage, 
+                            numberRecords,EngageEndPoint,
+                            TimeOut,
+                            "TimeOutEngage.jar");
 
                     //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
                     ArrayList engageTitleList = new ArrayList();
                     ArrayList engageAuthorList = new ArrayList();
                     ArrayList engageDescriptionList = new ArrayList();
                     ArrayList engageHomePageList = new ArrayList();
-                    for (int i = 0; i < engageResourceHomepageList.size(); i++) {
+                    
+                    for (int i = 0; i < engageResourceHomepageList.size(); i++) 
+                    {
 
                         String homepageResourceEngage = engageResourceHomepageList.get(i).toString();
                         //per ogni risorsa eseguo le query per le sue prorietà
@@ -2641,9 +2705,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                         String listTempTitleEngage = QueryEngage.getEngageTitle(homepageResourceEngage);
                         String listTempAuthorsEngage = QueryEngage.getEngageAuthors(homepageResourceEngage);
                         String listTempDescriptionEngage = QueryEngage.getEngageDescription(homepageResourceEngage);
-
-                        // String listTempHomepageEngage = QueryEngage.getEngageHomepage(homepageResourceEngage);
-                        // System.out.println("sono quaaarrr" + listTempIdentifierIsidore);
+                        // String listTempHomepageEngage = QueryEngage.getEngageHomepage(homepageResourceEngage);                        
 
                         //aggiungo le proprietà  in appositi ArrayList
                         engageTitleList.add(listTempTitleEngage);
@@ -2657,11 +2719,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     sArrayEngageAuthor = (String[]) engageAuthorList.toArray(new String[engageAuthorList.size()]);
                     sArrayEngageDescription = (String[]) engageDescriptionList.toArray(new String[engageDescriptionList.size()]);
                     sArrayEngageHomepage = (String[]) engageHomePageList.toArray(new String[engageHomePageList.size()]);
-
-
-
-
-
                 }
             }
 
@@ -2676,11 +2733,6 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         response.setRenderParameter("moreResourceEngage", moreResourceEngage);
         response.setRenderParameter("moreInfoEngage", appInput.moreInfoEngage);
         response.setRenderParameter("numResourceEngageFromDetails", appInput.numResourceEngageFromDetails);
-
-
-
-
-
     }
 
     public void setNotNullInputParameter(App_Input appInput) {
@@ -2778,13 +2830,17 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
     }
 
-    public void doGet(final ActionRequest request, final ActionResponse response, final App_Input appInput, final int numberRecords,final PortletPreferences portletPreferences) {
+    public void doGet(final ActionRequest request, 
+                      final ActionResponse response, 
+                      final App_Input appInput, 
+                      final int numberRecords,
+                      final PortletPreferences portletPreferences,
+                      final int TimeOut) 
+    {
         testLookup();
         int numThread = countTab(portletPreferences);
-        System.out.println("About to submit tasks to " + tp);
-       // PortletPreferences portletPreferences = request.getPreferences();
-        
-        
+        System.out.println("About to submit tasks to " + tp);        
+        // PortletPreferences portletPreferences = request.getPreferences();
         
         final Semaphore s = new Semaphore(0);
         Thread thread_openAgris = null;
@@ -2813,108 +2869,87 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     } catch (MalformedURLException ex) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
-                    
-
-
-                    
+                
                     s.release();
                     System.out.println("thread_chain isAlive: "+Thread.currentThread().getName()+"---"+ Thread.currentThread().isAlive());
-                    System.out.println("###################### finish thread chain"+ Thread.currentThread().isAlive());
-               
-
-                
-
-
-
-
+                    System.out.println("###################### finish thread chain"+ Thread.currentThread().isAlive());               
             }
         };
 
- if ( portletPreferences.getValue("OpenAgris", "").equals("true")) {
-      //  if (appPreferences.OpenAgris.equals("true")) {
+        if ( portletPreferences.getValue("OpenAgris", "").equals("true")) 
+        {
+            //  if (appPreferences.OpenAgris.equals("true")) {
             thread_openAgris = new Thread("OPENAGRIS_THREAD") {
-
+                
                 @Override
                 public void run() {
-
-                    System.out.println("Executing task in " + Thread.currentThread());
-
-
+                                      
+                    System.out.println("Executing task in " + Thread.currentThread());                   
                     System.out.println("################### init_thread OpenAgris");
+                    
                     try {
-                        handlerTabOpenAgris(request, response, appInput, numberRecords,portletPreferences);
+                        try {
+                            handlerTabOpenAgris(request, response, appInput, numberRecords,portletPreferences, TimeOut);
+                        } catch (IOException ex) {
+                            Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                    .log(Level.SEVERE, null, ex);
+                        }
                     } catch (RepositoryException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     } catch (MalformedQueryException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     } catch (QueryEvaluationException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (UnsupportedEncodingException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (MalformedURLException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-
-
-
-
-
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                .log(Level.SEVERE, null, ex);
+                    } 
 
                     s.release();
-
                     System.out.println("###################### finish thread OpenAgris");
-
-
-
                 }
             };
         }
 
-
-if ( portletPreferences.getValue("CulturaItalia", "").equals("true")) {
-      //  if (appPreferences.CulturaItalia.equals("true")) {
+        if ( portletPreferences.getValue("CulturaItalia", "").equals("true")) 
+        {
+            //  if (appPreferences.CulturaItalia.equals("true")) {
             thread_culturaItalia = new Thread("CULTURAITALIA_THREAD") {
 
                 @Override
                 public void run() {
-
+                    
                     System.out.println("Executing task in " + Thread.currentThread());
-
-
                     System.out.println("################### init_thread CulturaItalia");
+                    
                     try {
-                        handlerTabCulturaItalia(request, response, appInput, numberRecords,portletPreferences);
+                        try {
+                            handlerTabCulturaItalia(request, response, appInput, numberRecords,portletPreferences, TimeOut);
+                        } catch (IOException ex) {
+                            Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                    .log(Level.SEVERE, null, ex);
+                        }
                     } catch (MalformedQueryException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     } catch (QueryEvaluationException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (UnsupportedEncodingException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (MalformedURLException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     } catch (RepositoryException ex) {
-                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName())
+                                .log(Level.SEVERE, null, ex);
                     }
-
-
-
-
-
 
                     s.release();
 
                     System.out.println("###################### finish thread CulturaItalia");
-
-
-
                 }
             };
         }
 
-if (portletPreferences.getValue("Engage", "").equals("true")) {
-      //  if (appPreferences.Engage.equals("true")) {
+        if (portletPreferences.getValue("Engage", "").equals("true")) 
+        {
+            //  if (appPreferences.Engage.equals("true")) {
             thread_engage = new Thread("ENGAGE_THREAD") {
 
                 @Override
@@ -2925,7 +2960,7 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
 
                     System.out.println("################### init_thread Engage");
                     try {
-                        handlerTabEngage(request, response, appInput, numberRecords,portletPreferences);
+                        handlerTabEngage(request, response, appInput, numberRecords,portletPreferences, TimeOut);
                     } catch (MalformedQueryException ex) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (QueryEvaluationException ex) {
@@ -2940,37 +2975,26 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-
-
-
-
-
-
                     s.release();
 
                     System.out.println("###################### finish thread Engage");
-
-
 
                 }
             };
         }
         
-        String EuropeanaSet = portletPreferences.getValue("Europeana", "");
-        System.out.println("EuropeanaSet--"+EuropeanaSet+" appPreferences.Europeana"+appPreferences.Europeana);
-
-        if (EuropeanaSet.equals("true")) {
+        if (portletPreferences.getValue("Europeana", "").equals("true")) 
+        {        
             thread_europeana = new Thread("EUROPEANA_THREAD") {
 
                 @Override
                 public void run() {
                     
                     System.out.println("Executing task in " + Thread.currentThread());
-
-
                     System.out.println("################### init_thread Europeana");
+                    
                     try {
-                        handlerTabEuropeana(request, response, appInput, numberRecords,portletPreferences);
+                        handlerTabEuropeana(request, response, appInput, numberRecords, portletPreferences, TimeOut);
                     } catch (MalformedQueryException ex) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (QueryEvaluationException ex) {
@@ -2985,15 +3009,9 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-
-
-
                     s.release();
 
                     System.out.println("###################### finish thread europeana");
-                    
-
-
                 }
             };
         }
@@ -3006,11 +3024,10 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                 public void run() {
 
                     System.out.println("Executing task in " + Thread.currentThread());
-
-
                     System.out.println("################### init_thread Isidore");
+                    
                     try {
-                        handlerTabIsidore(request, response, appInput, numberRecords,portletPreferences);
+                        handlerTabIsidore(request, response, appInput, numberRecords,portletPreferences, TimeOut);
                     } catch (MalformedQueryException ex) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (QueryEvaluationException ex) {
@@ -3025,18 +3042,9 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-
-
-
-
-
-
                     s.release();
 
                     System.out.println("###################### finish thread Isidore");
-
-
-
                 }
             };
         }
@@ -3049,11 +3057,10 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                 public void run() {
 
                     System.out.println("Executing task in " + Thread.currentThread());
-
-
                     System.out.println("################### init_thread Pubmed");
+                    
                     try {
-                        handlerTabPubmed(request, response, appInput, numberRecords,portletPreferences);
+                        handlerTabPubmed(request, response, appInput, numberRecords,portletPreferences, TimeOut);
                     } catch (MalformedQueryException ex) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (QueryEvaluationException ex) {
@@ -3068,21 +3075,13 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                         Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
-
-
-
-
-
-
                     s.release();
 
                     System.out.println("###################### finish thread Pubmed");
-
-
-
                 }
             };
         }
+        
         if (tp != null) {
             tp.execute(thread_chain);
             if (thread_openAgris != null) {
@@ -3114,10 +3113,8 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
         } else {
            
                 thread_chain.start();
-                
-           
-            
         }
+        
         //tp.shutdown();
        //while (!tp.isTerminated()) {}
         System.out.println("###################### finish threadPoolMio");
@@ -3188,7 +3185,12 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
 
         System.out.println("TITLE ANALIZE: " + title);
 
-        String[] command = new String[]{"python", appServerPath + "/WEB-INF/job/scholar.py", "-c 1", "--phrase", title};
+        String[] command = new String[]{
+            "python", appServerPath 
+                + "/WEB-INF/job/scholar.py", 
+                "-c 1", 
+                "--phrase", 
+                title};
 
 
 //          System.out.println("*********COMMAND*********** "); 
@@ -3204,14 +3206,10 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
         String citations_list = "";
         String year = "";
 
-
-
-
         Process p;
         boolean control = false;
+        
         try {
-
-
 
             p = Runtime.getRuntime().exec(command);
 
@@ -3221,9 +3219,6 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
 
             String line = "";
 
-
-
-
             condition:
             while ((line = reader.readLine()) != null) {
 
@@ -3231,13 +3226,15 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                 control = true;
                 System.out.println("LINE: " + line);
 
-
                 if (line.contains("Title")) {
                     String title_GS = line.split("Title ")[1];
                     //System.out.println("Title_GS: " + title_GS);
 
-
-                    String newTitle_GS = title_GS.toUpperCase().replace(" ", "").replace("'", "").replace("?", "").replace(".", "");
+                    String newTitle_GS = title_GS.toUpperCase()
+                            .replace(" ", "")
+                            .replace("'", "")
+                            .replace("?", "")
+                            .replace(".", "");
 
 //                    char c1 = '%u2019';
 //                    for (int i = 0; i < title.length(); i++) {
@@ -3251,8 +3248,16 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                     String tt1 = new String(title.getBytes("ISO-8859-1"), "UTF-8");
                     // System.out.println("******TTTTTT UTF8: "+tt1);
 
-                    String newTitle_CHAIN = tt1.toUpperCase().replace(" ", "").replace("'", "").replace("?", "").replace(".", "");
-                    System.out.println("Title_GS: " + newTitle_GS + "\nTITLE_CH: " + newTitle_CHAIN);
+                    String newTitle_CHAIN = tt1.toUpperCase()
+                            .replace(" ", "")
+                            .replace("'", "")
+                            .replace("?", "")
+                            .replace(".", "");
+                    
+                    System.out.println("Title_GS: " 
+                            + newTitle_GS 
+                            + "\nTITLE_CH: " 
+                            + newTitle_CHAIN);
 
                     if (!newTitle_GS.equals(newTitle_CHAIN)) {
 
@@ -3260,9 +3265,9 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
 
                         control = false;
                         break condition;
-
                     }
                 }
+                
                 if (line.contains("URL")) {
                     url = line.split("URL ")[1];
                     System.out.println("URL: " + url);
@@ -3286,7 +3291,6 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                     citations = line.split("Citations ")[1];
                     // System.out.println("NUM CIT: " + citations);
                     info_GS[3] = citations;
-
                 }
 
                 if (line.contains("Citations list")) {
@@ -3294,7 +3298,6 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                     citations_list = line.split("Citations list ")[1];
                     //System.out.println("URL CIT: " + citations_list);
                     info_GS[4] = citations_list;
-
                 }
 
                 if (line.contains("Year")) {
@@ -3302,19 +3305,15 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
                     year = line.split("Year ")[1];
                     //System.out.println("Year: " + year);
                     info_GS[5] = year;
-
                 }
-
-
             }
+            
             if (!control) {
 
                 for (int i = 0; i < info_GS.length; i++) {
                     info_GS[i] = "No Information available";
                 }
             }
-
-
 
         } catch (Exception e) {
 
@@ -3327,5 +3326,233 @@ if (portletPreferences.getValue("Engage", "").equals("true")) {
         return info_GS;
         //return output.toString();
 
+    }
+    
+    
+    /*private void executeCommandQueryOpenAgris (String word) 
+    {
+        System.out.println("TITLE ANALIZE: " + word);
+
+       // String[] command = new String[]{"javac", appServerPath + "/WEB-INF/job/scholar.py", "-c 1", "--phrase", title};
+        String[] command = new String[]{"export CLASSPATH=.:"
+                + appServerPath
+                + "SPARQL/libs/*","&& java "
+                + appServerPath
+                + "SPARQL/SPARQL_OpenAgris"};
+      
+        Process p;
+        boolean control = false;
+        
+        try {
+
+            System.out.println("APPSERVERPATH: "+appServerPath);
+            p = Runtime.getRuntime().exec("java -jar "
+                    + appServerPath
+                    + "SPARQLOPENAGRIS/TimeOutOpenAgris.jar giusi");
+           
+            p.waitFor();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(p.getInputStream()));
+            
+            String line = "";
+
+            System.out.println("-------->"+reader.readLine());
+
+            condition:
+            while ((line = reader.readLine()) != null) 
+            {
+                //System.out.println("ECCO: "+line.split(" ")[0]);
+                control = true;
+                System.out.println("LINE: " + line);
+            }
+            
+            if (!control) System.out.println("No records found!");            
+
+        } catch (Exception e) {
+            System.out.println("EXCEPTION IN COMPILE.sh: " + e.getMessage());           
+        }
+    }*/
+      
+    
+    private ArrayList executeCommandQuery(
+            String word, String numPage, 
+            int numRecords, String EndPoint,
+            int TimeOut,
+            String JARfile) 
+            throws IOException 
+    {
+
+        ArrayList listRecources = new ArrayList();
+        String line;
+        
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Task myTask=new Task(word, numPage, numRecords, EndPoint, JARfile);
+        Future<String> future = executor.submit(myTask);
+        
+       try {
+	      System.out.println("Running SPARQL query and set a Max Timeout of "
+                      + TimeOut
+                      + " minutes");
+              
+	      //System.out.println(future.get(1, TimeUnit.MINUTES));
+              System.out.println(future.get(TimeOut, TimeUnit.MINUTES));
+	      System.out.println("Finished!");
+              listRecources = myTask.getArray();
+	      //System.out.println("PID = " + (new Task(word)).getPID());
+	      // Process p = Runtime.getRuntime().exec("kill -15 " + PID.substring(0, PID.indexOf("@")));
+              //BufferedReader input = new BufferedReader (new InputStreamReader(p.getInputStream()));
+              //while ((line = input.readLine()) != null) System.out.println(line);
+              //input.close();
+              //int exitVal = p.waitFor() ;
+              //System.out.println("exit value: " + exitVal);
+
+    } catch (Exception err) { 
+		future.cancel(true);
+                System.out.println("Terminated!");
+                System.out.println("Killing process with PID() = " + PID);
+                if(PID==0) PID=714184579;
+    		Process p = Runtime.getRuntime().exec("kill -9 " + PID);
+        	BufferedReader input = new BufferedReader (new InputStreamReader(p.getInputStream()));
+        	while ((line = input.readLine()) != null) System.out.println(line);
+        	input.close();
+                
+    }
+       System.out.println("ARRAY = " + listRecources.size());
+       
+       return listRecources;
+
+    }
+    
+  class Task implements Callable<String> 
+  {
+    Process p = null;
+    String word_search;
+    String page;
+    int nRec;
+    String endPoint;
+    String JARFile;
+    //Process p2=null;
+    ArrayList listRes=new ArrayList();
+    
+    public Task(String word, String num_page, 
+                int numRecords, String EndPoint, String JARfile)
+    {
+        word_search=word;
+        page=num_page;
+        nRec=numRecords;
+        endPoint=EndPoint;
+        JARFile=JARfile;
+        
+    }
+    public Task(){}
+ 
+    public int getPID() { return PID; }
+    public ArrayList getArray() { return listRes; }
+
+    @Override
+    public String call() throws Exception 
+    {
+        
+        ArrayList array=new ArrayList();
+	String line;
+        
+        //String word="'"+word_search+"'";
+        String[] command = new String[]{"java", "-jar",
+            appServerPath 
+            + "SPARQL_TIMEOUT/" + JARFile, //+ "SPARQL_TIMEOUT/TimeOutOpenAgris.jar", 
+            word_search, 
+            page, 
+            String.valueOf(nRec),
+            endPoint};
+        System.out.println("JARFile-->"+JARFile);
+      // String command="java -jar "+appServerPath+"SPARQL_OPENAGRIS/TimeOutOpenAgris.jar "+ word+ " "+page+" "+nRec+" "+endPoint;
+      // System.out.println("COMMAND-->"+command);
+       p = Runtime.getRuntime().exec(command);
+       
+//       BufferedReader inputErr =
+//        	new BufferedReader (new InputStreamReader(p.getErrorStream()));
+//        while ((lineErr = inputErr.readLine()) != null) 
+//        {
+//            System.out.println("ERROR");
+//            System.out.println(lineErr);
+//        }
+       
+	//PID = ManagementFactory.getRuntimeMXBean().getName();
+       // System.out.println("Process started with PID = " + PID);
+        PID=getUnixPID(p);
+        
+        System.out.println("PID ---> "+PID);
+        
+        BufferedReader input =
+        	new BufferedReader (new InputStreamReader(p.getInputStream()));
+        
+       // PID=line.split(" ")[1];
+        System.out.println("Process started with PID = " + PID);
+              
+        while ((line = input.readLine()) != null) 
+        {
+            System.out.println(line);
+            if(line.contains("==> "))
+            {
+                String resourceOpenAgris=line.split("==> ")[1];
+                System.out.println("RESOURCE:" + resourceOpenAgris);
+                array.add(resourceOpenAgris);
+            }
+            
+            listRes = getListNotDuplicate(array);
+        
+        }
+        input.close();
+
+        int exitVal = p.waitFor() ;
+        System.out.println("exit value: " + exitVal);
+        return "Task completed successfully!";
+    }
+  }
+     
+     
+  int getUnixPID(Process process) 
+          throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException 
+  {
+    if (process.getClass().getName().equals("java.lang.UNIXProcess")) {
+        Class proc = process.getClass();
+        Field field = proc.getDeclaredField("pid");
+        field.setAccessible(true);
+        Object pid = field.get(process);
+        return (Integer) pid;
+    } else {
+        throw new IllegalArgumentException("Not a UNIX Process");
+    }
+  }
+     
+  public static ArrayList getListNotDuplicate(ArrayList listOriginal) 
+  {
+
+        ArrayList listNuova = new ArrayList();
+
+        if (listOriginal.size() > 1) 
+        {
+            int k = 1;
+            int j, i = 0;
+            boolean duplicato;
+            
+            listNuova.add(listOriginal.get(0));
+            for (i = 1; i < listOriginal.size(); i++) 
+            {
+                duplicato = false;
+                for (j = 0; j < i; j++) 
+                {
+                    if (listOriginal.get(i).equals(listOriginal.get(j)))
+                        duplicato = true;                    
+                }
+                
+                if (!duplicato) 
+                    listNuova.add(listOriginal.get(i));
+            }
+
+            return listNuova;
+        } else {
+            return listOriginal;
+        }
     }
 }

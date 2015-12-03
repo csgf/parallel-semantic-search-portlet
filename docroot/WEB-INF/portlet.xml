@@ -75,6 +75,19 @@
 			<name>NumberRecordsForPage</name>
 			<value>10</value>
 		</init-param>
+
+		<init-param>
+                        <name>LodLive</name>
+                        <value>false</value>
+                </init-param>
+                <init-param>
+                        <name>LodLiveEndPoint</name>
+                        <value>http://localhost:8080/testlodlive/</value>
+                </init-param>
+		<init-param>
+                        <name>TimeOut</name>
+                        <value>1</value>
+                </init-param>
 		
 		<expiration-cache>0</expiration-cache>
 		<supports>

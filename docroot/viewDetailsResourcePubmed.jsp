@@ -37,23 +37,26 @@
 
         <div id="conteinerRecord" style="">
             <%
-                 String idResourcePubmed = renderRequest.getParameter("idResourcePubmed");
-                 String numResourcePubmed = renderRequest.getParameter("numResourcePubmed");
-                 String searched_word = renderRequest.getParameter("search_word");
+                String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");
+                String idResourcePubmed = renderRequest.getParameter("idResourcePubmed");
+                String numResourcePubmed = renderRequest.getParameter("numResourcePubmed");
+                String searched_word = renderRequest.getParameter("search_word");
                 String sPubmedTitle = QueryPubMed.getPubmedTitle(idResourcePubmed);
-                String sPubmedID = QueryPubMed.getPubmedIdentifier(idResourcePubmed);
-                ArrayList id_httpPubmed = new ArrayList();
-                int c = 0;
+                String sPubmedURL = QueryPubMed.getPubmedURL(idResourcePubmed);
+                ArrayList ArrayinDataSet=QueryPubMed.getPubmedInDataset(idResourcePubmed);
 
-                if (sPubmedID.length() > 0) {
-                    String[] idfs = sPubmedID.split("##");
-                    for (int ii = 0; ii < idfs.length; ii++) {
-                        if (idfs[ii].length() > 4 && idfs[ii].substring(0, 4).equals("http")) {
-                            id_httpPubmed.add(idfs[ii].toString());
-                        }
-
+                String[] surl = sPubmedURL.split("##");
+                String URL = "";
+                for (int j = 0; j < surl.length; j++) {
+                    if (surl[j] != "") {
+                        URL = surl[j];
                     }
+
                 }
+
+                String sPubmedID = QueryPubMed.getPubmedIdentifier(idResourcePubmed);
+
+
                 String sPubmedAuthors = QueryPubMed.getPubmedAuthors(idResourcePubmed);
                 String authors = "";
                 if (sPubmedAuthors.length() != 0) {
@@ -63,16 +66,16 @@
 
                 String sPubmedDescriptions = QueryPubMed.getPubmedDescription(idResourcePubmed);
                 ArrayList arrayPubmedPublisher = QueryPubMed.getPubmedPublisher(idResourcePubmed);
-              //  ArrayList arrayIsidoreSubject = QueryPubMed.getIsidoreSubject(idResourceIsidore);
-               // ArrayList arrayIsidoreSource = QueryPubMed.getIsidoreSource(idResourceIsidore);
+                //  ArrayList arrayIsidoreSubject = QueryPubMed.getIsidoreSubject(idResourceIsidore);
+                // ArrayList arrayIsidoreSource = QueryPubMed.getIsidoreSource(idResourceIsidore);
                 ArrayList arrayPubmedLanguage = QueryPubMed.getPubmedLanguage(idResourcePubmed);
                 ArrayList arrayPubmedDate = QueryPubMed.getPubmedDate(idResourcePubmed);
-               // ArrayList arrayIsidoreContributor = QueryPubMed.getIsidoreContributor(idResourceIsidore);
-               // String coverageInfo = QueryPubMed.getIsidoreCoverage(idResourceIsidore);
-               // ArrayList arrayIsidoreRights = QueryPubMed.getIsidoreRights(idResourceIsidore);
+                // ArrayList arrayIsidoreContributor = QueryPubMed.getIsidoreContributor(idResourceIsidore);
+                // String coverageInfo = QueryPubMed.getIsidoreCoverage(idResourceIsidore);
+                // ArrayList arrayIsidoreRights = QueryPubMed.getIsidoreRights(idResourceIsidore);
                 ArrayList arrayPubmedType = QueryPubMed.getPubmedType(idResourcePubmed);
-              //  ArrayList arrayIsidoreFormat = QueryPubMed.getIsidoreFormat(idResourceIsidore);
-              //  ArrayList arrayIsidoreRelation = QueryPubMed.getIsidoreRelation(idResourceIsidore);
+                //  ArrayList arrayIsidoreFormat = QueryPubMed.getIsidoreFormat(idResourceIsidore);
+                //  ArrayList arrayIsidoreRelation = QueryPubMed.getIsidoreRelation(idResourceIsidore);
 
             %>
 
@@ -84,27 +87,36 @@
                     String[] listTitlePubmed = sPubmedTitle.split("##");
 
                     for (int j = 0; j < listTitlePubmed.length; j++) {
-                        if (listTitlePubmed.length > 1) {
+                        {
 
-                            if (id_httpPubmed.size() > 0) {
-                                if (!listTitlePubmed[j].equals("")) {
+                            String title = listTitlePubmed[j];
 
-                                    //System.out.println("TITOLO:>>>" + listTitleIsidore[j].toString());
+                            if (URL != "" && URL != "---") {
+                                if (!title.equals("")) {
             %>
-            <a href="<%=id_httpPubmed.get(0).toString()%>" target="_blank" style="color:black"><h1>(<%=(c + 1)%>)<u><%=listTitlePubmed[j]%></u></h1></a> 
+            <u><a href="<%= URL%>" target="_blank" title="<%=URL%>"><h1><%= title%></h1> </a>
+                [<a href="<%=LodLiveEndPoint%>/?<%=idResourcePubmed%>" target="_blank" id="<%=idResourcePubmed%>" style="cursor: pointer;">Linked Data</a>]</u>
+            <a href="<%= idResourcePubmed%>" target="_blank " >  URI:<%= idResourcePubmed%></a>
+            <%
+
+                }
+            } else {
+                if (!title.equals("")) {
+            %>
+            <h1><u><%= title%></u> </h1>
+            [<a href="<%=LodLiveEndPoint%>/?<%=idResourcePubmed%>" target="_blank" id="<%=idResourcePubmed%>" style="cursor: pointer;">Linked Data</a>]
+
+            <a href="<%= idResourcePubmed%>" target="_blank " >  URI:<%=idResourcePubmed%></a>
+            <%
+                    }
+                }%>
 
             <%}
-            } else {%>
-            <h1><u><%=listTitlePubmed[j]%></u></h1>               
-            <% }
-                        }
 
                     }
 
 
                 }
-
-
 
             %>
             <br><br>   
@@ -113,7 +125,7 @@
 
                 <fieldset class="fieldsetInformations">
                     <legend class="legendFieldset" >General Information</legend>
-                    <%if (sPubmedAuthors != "") {%>
+                    <%if (sPubmedAuthors != "" && sPubmedAuthors != "---") {%>
                     <p class="klios_p"><b>Authors: </b><%=authors%></p>
                     <%}%>
                     <%
@@ -136,16 +148,11 @@
                             }
                         }
 
-               
-
-
-
-
 
                         //IDENTIFIER
                         if (sPubmedID.length() != 0) {
 
-                            String[] listIdentifierPubmed= sPubmedID.split("##");
+                            String[] listIdentifierPubmed = sPubmedID.split("##");
                             for (int j = 0; j < listIdentifierPubmed.length; j++) {
                                 String identifierResource = listIdentifierPubmed[j];
 
@@ -157,11 +164,11 @@
                                         if (identifierResource.length() > 4 && identifierResource.substring(0, 4).equals("http")) {
                                             //System.out.println("la j vale dall'if " + j);
 
-                    %><p class="klios_p"><b>Identifier (<%=(j)%>) : </b><a href="<%=identifierResource%>" target="_blank"><u><%=identifierResource%> </u></a></p> 
+                    %><p class="klios_p"><b>Identifier : </b><a href="<%=identifierResource%>" target="_blank"><u><%=identifierResource%> </u></a></p> 
                     <%} else {
                         //System.out.println("la j vale dall'else " + j);
                     %>
-                    <p class="klios_p"><b>Identifier (<%=(j)%>) : </b><%=identifierResource%></p> 
+                    <p class="klios_p"><b>Identifier : </b><%=identifierResource%></p> 
 
                     <%}
 
@@ -188,8 +195,8 @@
                             }
                         }
 
-                
-                  //LANGUAGE
+
+                        //LANGUAGE
 
                         if (arrayPubmedLanguage.size() != 0) {
                             //System.out.println("sono dentro language " + arrayIsidoreLanguage.size());
@@ -210,7 +217,7 @@
 
 
                         }
-                  //TYPE
+                        //TYPE
                         if (arrayPubmedType.size() != 0) {
                             //System.out.println("sono dentro date " + arrayIsidoreDate.size());
                             for (int j = 0; j < arrayPubmedType.size(); j++) {
@@ -220,8 +227,8 @@
 
 
                         }
-                       
-                  //PUBLISHER
+
+                        //PUBLISHER
                         if (arrayPubmedPublisher.size() != 0) {
                             //System.out.println("sono dentro date " + arrayIsidoreDate.size());
                             for (int j = 0; j < arrayPubmedPublisher.size(); j++) {
@@ -231,15 +238,43 @@
 
 
                         }
-                     
+
                     %>
 
 
                 </fieldset>
+                <br>
+                <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=idResourcePubmed%>" target="_blank">Linked Data </a>
+
+                <br>    
+                <br>
+
+                <a id="DataSetLink" class="Link" href="#" onClick="showFieldSetDataSet(); return false;">Dataset Information <img id="ImageAnimationDataSet" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
+                <br>
+                <fieldset class="fieldsetInformations" id="IdFieldSetDataSet" style="display: none;">
+                  <%  //IN DATASET
+
+                        if (ArrayinDataSet.size() != 0) {
+                            //System.out.println("sono dentro language " + arrayIsidoreLanguage.size());
+                            for (int j = 0; j < ArrayinDataSet.size(); j++) {
+                    %>
+                    <p class="klios_p"><b>In DataSet  : </b><%=ArrayinDataSet.get(j).toString()%></p> 
+                    <%  }
+
+
+                        }%>
+                    
+                    
+                    
+                    
+                    
+                </fieldset>
+
+
             </div>
             <br>    
 
-            
+
             <div>
                 <fieldset class="fieldsetInformations" >
                     <legend class="legendFieldset" >Repository Information</legend>
@@ -255,7 +290,7 @@
             <br>
         </div>
         <br>
-         <div>
+        <div>
             <form id="search_form" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_SEMANTIC_SEARCH_ALL_LANGUAGE"/></portlet:actionURL>" method="post">   
                 <!-- <input type="button" value="<< Back" onclick="history.go( -1 );"/> -->
                 <input type="submit" value="<< Back" />
@@ -264,6 +299,31 @@
                 <input hidden="true"  id="id_search_word"  name="search_word" value="<%=searched_word%>" />
             </form>
         </div> 
+        <script type="text/javascript">   
+            var controlDataSet=true;
+            var controlRepository=true;
+            var controlGScholar=true;
+            var controlDate=true;
+            
+            function showFieldSetDataSet(){
+                $("#IdFieldSetDataSet").animate({"height": "toggle"});
+                
+                
+                
+                
+                 if( controlDataSet==true ) {
+                    $("#ImageAnimationDataSet").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_214_resize_small.png" );
+                    
+                     controlDataSet=false;
+                }
+                else {
+                    $("#ImageAnimationDataSet").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" );
+                    controlDataSet=true;
+                }
+                
+            }            
+        </script>  
+
     </body>
 
 </html>

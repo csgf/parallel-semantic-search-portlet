@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openrdf.model.Value;
 import org.openrdf.query.*;
+import org.openrdf.query.resultio.TupleQueryResultFormat;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -29,20 +30,20 @@ public class QueryEngage {
     public static ArrayList arrayEngageResource;
     // public static ArrayList arrayEngageTitles;
 
-    static public RepositoryConnection ConnectionToEngage(String EngageEndPoint) throws RepositoryException {
+    static public RepositoryConnection ConnectionToEngage(String EngageEndPoint) 
+            throws RepositoryException 
+    {
         //String endpointURL = "http://engagesrv.epu.ntua.gr:8890/sparql";
-
-        Repository myRepository = new HTTPRepository(EngageEndPoint);
-
+        HTTPRepository myRepository = new HTTPRepository(EngageEndPoint);
         myRepository.initialize();
-
+        myRepository.setPreferredTupleQueryResultFormat(TupleQueryResultFormat.SPARQL);
         EngageConnection = myRepository.getConnection();
-
         return EngageConnection;
-
     }
 
-    static public int testEndPoint(String EngageEndPoint) throws MalformedURLException, IOException {
+    static public int testEndPoint(String EngageEndPoint) 
+            throws MalformedURLException, IOException 
+    {
         // URL url = new URL("http://engagesrv.epu.ntua.gr:8890/sparql");
         URL url = new URL(EngageEndPoint);
         HttpURLConnection http = null;
@@ -67,19 +68,26 @@ public class QueryEngage {
         return statusCode;
     }
 
-    public static ArrayList queryEngageResourceFromHomepage(String search_word, String numPage, int numberRecords, String EngageEndPoint) throws RepositoryException, MalformedQueryException,  UnsupportedEncodingException, MalformedURLException, IOException {
+    public static ArrayList queryEngageResourceFromHomepage(
+            String search_word, 
+            String numPage, 
+            int numberRecords, 
+            String EngageEndPoint) 
+            throws RepositoryException, MalformedQueryException,  
+                   UnsupportedEncodingException, MalformedURLException, 
+                   IOException 
+    {
         ArrayList arrayEngageResourceDupl = new ArrayList();
         arrayEngageResource = new ArrayList();
+        
         int statusCode = testEndPoint(EngageEndPoint);
+        
         if (statusCode != -1) {
             try {
                 ConnectionToEngage(EngageEndPoint);
-
                 String word = "' " + search_word + " '";
 
-               
                 int page = Integer.parseInt(numPage);
-
 
                 int numOffset = (page - 1) * numberRecords;
                 int numerFinal = numberRecords * page;
@@ -90,23 +98,21 @@ public class QueryEngage {
                     String[] splitSword = search_word.split(":");
                     String field = splitSword[0];
 
-                    if (field.equals(SemanticQuery.search_filter.author.toString()) || field.equals(SemanticQuery.search_filter.format.toString()) || field.equals(SemanticQuery.search_filter.type.toString()) || field.equals(SemanticQuery.search_filter.publisher.toString()) || field.equals(SemanticQuery.search_filter.subject.toString())) {
+                    if (field.equals(SemanticQuery.search_filter.author.toString()) 
+                     || field.equals(SemanticQuery.search_filter.format.toString()) 
+                     || field.equals(SemanticQuery.search_filter.type.toString()) 
+                     || field.equals(SemanticQuery.search_filter.publisher.toString()) 
+                     || field.equals(SemanticQuery.search_filter.subject.toString())) {
 
                         SemanticQuery.search_filter wordFilter = SemanticQuery.search_filter.valueOf(field);
 
                         System.out.println("wordFilter ENGAGE =>>>>>>" + wordFilter);
                     
-                   
-
                     String s = splitSword[1];
                     String search = "'" + s + "'";
                     
-                    
-                    
-                    
                     switch (wordFilter) {
                             case author:
-
                                 queryString = ""
                                 + "select distinct ?homepage where { \n"
                                 + "?s dcterms:creator ?creator. \n"
@@ -115,6 +121,7 @@ public class QueryEngage {
                                 + "FILTER regex(?author, '" + s + "','i').\n"
                                 + "}";
                                 break;
+                                
                             case subject:
                                 queryString = ""
                                 + "select distinct ?homepage \n"
@@ -124,6 +131,8 @@ public class QueryEngage {
                                 
                                 + "FILTER regex(?keyword, '" + s + "','i').\n"
                                 + "}";
+                                break;
+                                
                             case type:
                                 queryString = ""
                             + "SELECT distinct ?homepage  WHERE {\n"
@@ -131,8 +140,8 @@ public class QueryEngage {
                             + "?resource foaf:homepage ?homepage.\n"
                             + "FILTER regex(?title, '" + search_word + "','i').\n"
                             + "}limit " + numerFinal;
-
                                 break;
+                                
                             case format:
                                 queryString = ""
                             + "SELECT distinct ?homepage  WHERE {\n"
@@ -141,6 +150,7 @@ public class QueryEngage {
                             + "FILTER regex(?title, '" + search_word + "','i').\n"
                             + "}limit " + numerFinal;
                                 break;
+                                
                             case publisher:
                                  queryString = ""
                                 + "select distinct ?homepage \n"
@@ -151,6 +161,7 @@ public class QueryEngage {
                                 
                                  + "FILTER regex(?publisher_name, '" + s + "','i').\n"   
                                 + "}limit " + numerFinal;
+                                break;
 
                             default:
 
@@ -166,13 +177,6 @@ public class QueryEngage {
                             + "FILTER regex(?title, '" + search_word + "','i').\n"
                             + "}limit " + numerFinal;
                     }
-                    
-                    
-
-          
-                        
-                    
-
                 } else {
 
                     queryString = ""
@@ -190,38 +194,25 @@ public class QueryEngage {
     //                    + "}limit " + numerFinal;
 
 
-
-
-
-
-
-
                 System.out.println("QUERY ENGAGE : " + queryString);
 
-                TupleQuery tupleQuery = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-
-
+                TupleQuery tupleQuery = EngageConnection
+                        .prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 
                 TupleQueryResult result = tupleQuery.evaluate();
 
-
-
-
-                if (result.hasNext()) {
-                    while (result.hasNext()) {
-
-
+                if (result.hasNext()) 
+                {
+                    while (result.hasNext()) 
+                    {
                         BindingSet bindingSet = result.next();
                         String resource = bindingSet.getValue("homepage").stringValue();
-
                         arrayEngageResourceDupl.add(resource);
                     }
-
                 }
 
-
-
                 arrayEngageResource = getListNotDuplicate(arrayEngageResourceDupl);
+                
             } catch (QueryEvaluationException ex) {
                 Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -231,12 +222,14 @@ public class QueryEngage {
         return arrayEngageResource;
     }
 
-    public static String getEngageTitle(String resource) throws RepositoryException, MalformedQueryException, UnsupportedEncodingException {
+    public static String getEngageTitle(String resource) 
+            throws RepositoryException, MalformedQueryException, UnsupportedEncodingException 
+    {
         ArrayList arrayEngageTitleDupl = new ArrayList();
         ArrayList arrayEngageTitles = new ArrayList();
         String sTitles = "";
+        
         try {
-
 
             String queryStringTitle = "";
 
@@ -247,37 +240,25 @@ public class QueryEngage {
                     + "?s foaf:homepage <" + resource + ">.\n"
                     + "}";
 
-
-
-            TupleQuery tupleQuery_title = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringTitle);
-
-
+            TupleQuery tupleQuery_title = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringTitle);
 
             TupleQueryResult result_title = tupleQuery_title.evaluate();
 
-
-
-
             String titles = "";
 
-            if (result_title.hasNext()) {
-                while (result_title.hasNext()) {
+            if (result_title.hasNext()) 
+            {
+                while (result_title.hasNext()) 
+                {
                     BindingSet bindingSet_title = result_title.next();
-
-                    if (bindingSet_title.getValue("title") != null) {
-
+                    if (bindingSet_title.getValue("title") != null) 
+                    {
                         Value title = bindingSet_title.getValue("title");
-
                         titles = title.stringValue();
-
-
                         String titleFinale = new String(titles.getBytes("iso-8859-1"), "utf-8");
-
                         arrayEngageTitleDupl.add(titleFinale);
-
-
                     }
-
                 }
                 arrayEngageTitles = getListNotDuplicate(arrayEngageTitleDupl);
             } else {
@@ -286,80 +267,58 @@ public class QueryEngage {
             }
             result_title.close();
 
-
-
-
             for (int i = 0; i < arrayEngageTitles.size(); i++) {
 
                 if (arrayEngageTitles.get(i).toString() != "") {
                     sTitles = sTitles + "##" + arrayEngageTitles.get(i).toString();
                 }
             }
-
-
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return sTitles;
     }
 
-    public static String getEngageAuthors(String resource) throws RepositoryException, MalformedQueryException, UnsupportedEncodingException {
+    public static String getEngageAuthors(String resource) 
+            throws RepositoryException, MalformedQueryException, UnsupportedEncodingException 
+    {
 
         ArrayList arrayEngageAuthorsDupl = new ArrayList();
-
         ArrayList arrayEngageAuthors = new ArrayList();
         String sAuthors = "";
+        
         try {
-
-
-
-
-
-            String queryStringAuthors = ""
+                String queryStringAuthors = ""
                     + "select distinct ?author where { \n"
                     + "?s dcterms:creator ?creator. \n"
                     + "?creator foaf:name ?author. \n"
                     + "?s foaf:homepage <" + resource + ">.\n"
                     + "}";
 
-
-
-
-            TupleQuery tupleQuery_authors = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringAuthors);
-
-
+            TupleQuery tupleQuery_authors = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringAuthors);
 
             TupleQueryResult result_authors = tupleQuery_authors.evaluate();
 
-
-
-
             String authors = "";
 
-            if (result_authors.hasNext()) {
-                while (result_authors.hasNext()) {
+            if (result_authors.hasNext()) 
+            {
+                while (result_authors.hasNext()) 
+                {
                     BindingSet bindingSet_authors = result_authors.next();
-
-                    if (bindingSet_authors.getValue("author") != null) {
-
+                    if (bindingSet_authors.getValue("author") != null) 
+                    {
                         Value author = bindingSet_authors.getValue("author");
-
                         authors = author.stringValue();
-
-
-                        if (!authors.equals("0")) {
-
+                        if (!authors.equals("0")) 
+                        {
                             String authorsFinale = new String(authors.getBytes("iso-8859-1"), "utf-8");
-
                             arrayEngageAuthorsDupl.add(authorsFinale);
-
                         }
-
                     }
-
                 }
+                
                 arrayEngageAuthors = getListNotDuplicate(arrayEngageAuthorsDupl);
             } else {
                 sAuthors = "";
@@ -367,29 +326,26 @@ public class QueryEngage {
 
             result_authors.close();
 
-
             for (int i = 0; i < arrayEngageAuthors.size(); i++) {
                 if (arrayEngageAuthors.get(i).toString() != "") {
                     sAuthors = sAuthors + "##" + arrayEngageAuthors.get(i).toString();
                 }
-
             }
-
-
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
         return sAuthors;
     }
 
-    public static String getEngageDescription(String resource) throws RepositoryException, MalformedQueryException, UnsupportedEncodingException {
+    public static String getEngageDescription(String resource) 
+            throws RepositoryException, MalformedQueryException, UnsupportedEncodingException 
+    {
 
         ArrayList arrayEngageDescriptionDupl = new ArrayList();
-
         ArrayList arrayEngageDescription = new ArrayList();
         String sDescriptions = "";
+        
         try {
 
             String queryStringDescriptions = ""
@@ -398,44 +354,30 @@ public class QueryEngage {
                     + "?s foaf:homepage <" + resource + ">.\n"
                     + "}";
 
-            TupleQuery tupleQuery_description = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringDescriptions);
-
-
-
+            TupleQuery tupleQuery_description = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringDescriptions);
+            
             TupleQueryResult result_description = tupleQuery_description.evaluate();
 
-
-
-
             String descriptions = "";
-
-
-
-
-            if (result_description.hasNext()) {
-                while (result_description.hasNext()) {
+            
+            if (result_description.hasNext()) 
+            {
+                while (result_description.hasNext()) 
+                {
                     BindingSet bindingSet_description = result_description.next();
-
-                    if (bindingSet_description.getValue("desc") != null) {
-
+                    if (bindingSet_description.getValue("desc") != null) 
+                    {
                         Value description = bindingSet_description.getValue("desc");
-
                         descriptions = description.stringValue();
-
-
                         String descrFinale = new String(descriptions.getBytes("iso-8859-1"), "utf-8");
-
                         arrayEngageDescriptionDupl.add(descrFinale);
-
-
                     }
 
                 }
                 arrayEngageDescription = getListNotDuplicate(arrayEngageDescriptionDupl);
             } else {
                 sDescriptions = "";
-
-
             }
 
             result_description.close();
@@ -448,22 +390,20 @@ public class QueryEngage {
 
                 }
             }
-
-
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return sDescriptions;
     }
 
-    public static String getEngageIdentifier(String resource) throws RepositoryException, MalformedQueryException, UnsupportedEncodingException {
+    public static String getEngageIdentifier(String resource) 
+            throws RepositoryException, MalformedQueryException, UnsupportedEncodingException 
+    {
 
         ArrayList arrayEngageIdDupl = new ArrayList();
-
         ArrayList arrayEngageId = new ArrayList();
         String sId = "";
+        
         try {
 
             String queryStringId = ""
@@ -472,39 +412,27 @@ public class QueryEngage {
                     + "?s foaf:homepage <" + resource + ">.\n"
                     + "}";
 
-
-            TupleQuery tupleQuery_id = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringId);
-
-
+            TupleQuery tupleQuery_id = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringId);
 
             TupleQueryResult result_id = tupleQuery_id.evaluate();
 
-
-
-
             String ids = "";
-
-
-            if (result_id.hasNext()) {
-                while (result_id.hasNext()) {
+            
+            if (result_id.hasNext()) 
+            {
+                while (result_id.hasNext()) 
+                {
                     BindingSet bindingSet_id = result_id.next();
-
-                    if (bindingSet_id.getValue("id") != null) {
-
+                    if (bindingSet_id.getValue("id") != null) 
+                    {
                         Value id = bindingSet_id.getValue("id");
-
                         ids = id.stringValue();
-
-
-
                         String idFinale = new String(ids.getBytes("iso-8859-1"), "utf-8");
-
                         arrayEngageIdDupl.add(idFinale);
-
-
                     }
-
                 }
+                
                 arrayEngageId = getListNotDuplicate(arrayEngageIdDupl);
             } else {
                 sId = "---";
@@ -512,28 +440,25 @@ public class QueryEngage {
 
             result_id.close();
 
-
             for (int i = 0; i < arrayEngageId.size(); i++) {
                 if (!arrayEngageId.get(i).toString().equals("")) {
                     sId = sId + "##" + arrayEngageId.get(i).toString();
                 }
 
             }
-
-
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return sId;
     }
 
-    public static String getEngageHomepage(String resource) throws RepositoryException, MalformedQueryException, UnsupportedEncodingException {
+    public static String getEngageHomepage(String resource) 
+            throws RepositoryException, MalformedQueryException, UnsupportedEncodingException 
+    {
         ArrayList arrayEngageHomepageDupl = new ArrayList();
-
         ArrayList arrayEngageHomepage = new ArrayList();
         String sHomepage = "";
+        
         try {
 
             String queryStringHomepage = ""
@@ -542,41 +467,25 @@ public class QueryEngage {
                     + "?s foaf:homepage <" + resource + ">.\n"
                     + "}";
 
-
-
-
-
-            TupleQuery tupleQuery_homepage = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringHomepage);
-
-
+            TupleQuery tupleQuery_homepage = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringHomepage);            
 
             TupleQueryResult result_homepage = tupleQuery_homepage.evaluate();
 
-
-
-
             String homepages = "";
 
-
-            if (result_homepage.hasNext()) {
-                while (result_homepage.hasNext()) {
+            if (result_homepage.hasNext()) 
+            {
+                while (result_homepage.hasNext()) 
+                {
                     BindingSet bindingSet_homepage = result_homepage.next();
-
-                    if (bindingSet_homepage.getValue("homepage") != null) {
-
+                    if (bindingSet_homepage.getValue("homepage") != null) 
+                    {
                         Value home_page = bindingSet_homepage.getValue("homepage");
-
                         homepages = home_page.stringValue();
-
-
-
                         String homepageFinale = new String(homepages.getBytes("iso-8859-1"), "utf-8");
-
                         arrayEngageHomepageDupl.add(homepageFinale);
-
-
                     }
-
                 }
                 arrayEngageHomepage = getListNotDuplicate(arrayEngageHomepageDupl);
             } else {
@@ -584,29 +493,23 @@ public class QueryEngage {
             }
 
             result_homepage.close();
-
-
+            
             for (int i = 0; i < arrayEngageHomepage.size(); i++) {
                 if (!arrayEngageHomepage.get(i).toString().equals("")) {
                     sHomepage = sHomepage + "##" + arrayEngageHomepage.get(i).toString();
                 }
-
             }
-
-
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         }
         return sHomepage;
     }
 
-    public static String getEngageLanguage(String resource) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException {
+    public static String getEngageLanguage(String resource) 
+            throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException 
+    {
 
         String sLanguage = "";
-
-
 
         String queryStringLanguage = ""
                 + "SELECT ?language \n"
@@ -615,50 +518,39 @@ public class QueryEngage {
                 + "?s foaf:homepage <" + resource + ">.\n"
                 + "}";
 
-        TupleQuery tupleQuery_language = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringLanguage);
-
+        TupleQuery tupleQuery_language = EngageConnection
+                .prepareTupleQuery(QueryLanguage.SPARQL, queryStringLanguage);
+            
         TupleQueryResult result_language = tupleQuery_language.evaluate();
 
-
-
         String linkLanguage = "";
-        if (result_language.hasNext()) {
-            while (result_language.hasNext()) {
+        if (result_language.hasNext()) 
+        {
+            while (result_language.hasNext()) 
+            {
                 BindingSet bindingSet_language = result_language.next();
-
-                if (bindingSet_language.getValue("language") != null) {
-
+                if (bindingSet_language.getValue("language") != null) 
+                {
                     Value language = bindingSet_language.getValue("language");
-
-
                     linkLanguage = new String(language.stringValue().getBytes("iso-8859-1"), "utf-8");
-
                 }
-
             }
-
 
             if (!linkLanguage.equals("")) {
                 String[] split_language = linkLanguage.split("/");
-
                 sLanguage = split_language[split_language.length - 1].toString();
-
             } else {
                 sLanguage = "noLanguage";
             }
-
-
-
-
-
         }
         return sLanguage;
     }
 
-    public static String getEngageDate(String resource) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException {
+    public static String getEngageDate(String resource) 
+            throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException 
+    {
 
         String sDate = "";
-
 
         String queryStringDate = ""
                 + "SELECT ?date \n"
@@ -667,34 +559,26 @@ public class QueryEngage {
                 + "?s foaf:homepage <" + resource + ">.\n"
                 + "}";
 
-        TupleQuery tupleQuery_date = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringDate);
-
+        TupleQuery tupleQuery_date = EngageConnection
+                .prepareTupleQuery(QueryLanguage.SPARQL, queryStringDate);
+            
         TupleQueryResult result_date = tupleQuery_date.evaluate();
-
-
-
 
         String dates = "";
 
-
-
-
-        if (result_date.hasNext()) {
-            while (result_date.hasNext()) {
+        if (result_date.hasNext()) 
+        {
+            while (result_date.hasNext()) 
+            {
                 BindingSet bindingSet_date = result_date.next();
-
-                if (bindingSet_date.getValue("date") != null) {
-
+                if (bindingSet_date.getValue("date") != null) 
+                {
                     Value date = bindingSet_date.getValue("date");
-
                     dates = new String(date.stringValue().getBytes("iso-8859-1"), "utf-8");
-
-
                 }
-
             }
-
         }
+        
         if (!dates.equals("")) {
             sDate = dates;
         }
@@ -702,10 +586,12 @@ public class QueryEngage {
         return sDate;
     }
 
-    public static String getEngageModified(String resource) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException {
+    public static String getEngageModified(String resource) 
+            throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException 
+    {
 
         String sModified = "";
-
+        
         String queryStringDate = ""
                 + "SELECT ?modified \n"
                 + "WHERE {\n "
@@ -713,36 +599,26 @@ public class QueryEngage {
                 + "?s foaf:homepage <" + resource + ">.\n"
                 + "}";
 
-
-
-
-
-        TupleQuery tupleQuery_date = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringDate);
-
-
+        TupleQuery tupleQuery_date = EngageConnection
+                .prepareTupleQuery(QueryLanguage.SPARQL, queryStringDate);
 
         TupleQueryResult result_date = tupleQuery_date.evaluate();
 
         String modified = "";
 
-
-
-
-        if (result_date.hasNext()) {
-            while (result_date.hasNext()) {
+        if (result_date.hasNext()) 
+        {
+            while (result_date.hasNext()) 
+            {
                 BindingSet bindingSet_date = result_date.next();
-
-                if (bindingSet_date.getValue("modified") != null) {
-
+                if (bindingSet_date.getValue("modified") != null)
+                {
                     Value date_mod = bindingSet_date.getValue("modified");
-
                     modified = new String(date_mod.stringValue().getBytes("iso-8859-1"), "utf-8");
-
                 }
-
             }
-
         }
+        
         if (!modified.equals("")) {
             sModified = modified;
         } else {
@@ -752,13 +628,11 @@ public class QueryEngage {
         return sModified;
     }
 
-    public static String getEngageTemporal(String resource) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException {
-
-
-
-
+    public static String getEngageTemporal(String resource) 
+            throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException 
+    {
         String sTemporal = "";
-
+        
         String queryStringDate = ""
                 + "SELECT ?temporal \n"
                 + "WHERE {\n "
@@ -766,47 +640,38 @@ public class QueryEngage {
                 + "?s foaf:homepage <" + resource + ">.\n"
                 + "}";
 
-
-        TupleQuery tupleQuery_date = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringDate);
+        TupleQuery tupleQuery_date = EngageConnection
+                .prepareTupleQuery(QueryLanguage.SPARQL, queryStringDate);       
 
         TupleQueryResult result_date = tupleQuery_date.evaluate();
 
         String temporal = "";
 
-
-
-
-        if (result_date.hasNext()) {
-            while (result_date.hasNext()) {
+        if (result_date.hasNext()) 
+        {
+            while (result_date.hasNext()) 
+            {
                 BindingSet bindingSet_date = result_date.next();
-
-                if (bindingSet_date.getValue("temporal") != null) {
-
+                if (bindingSet_date.getValue("temporal") != null) 
+                {
                     Value date_temporal = bindingSet_date.getValue("temporal");
-
                     temporal = new String(date_temporal.stringValue().getBytes("iso-8859-1"), "utf-8");
-
-
-
-
-
                 }
-
             }
-
         }
+        
         if (!temporal.equals("")) {
             sTemporal = temporal;
         }
 
-
         return sTemporal;
     }
 
-    public static ArrayList getEngagePublisher(String resource) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException {
+    public static ArrayList getEngagePublisher(String resource) 
+            throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException 
+    {
 
         ArrayList arrayEngagePublisherDupl = new ArrayList();
-
         ArrayList arrayEngagePublisher = new ArrayList();
         String sPublisher = "";
 
@@ -818,48 +683,38 @@ public class QueryEngage {
                 + "?s foaf:homepage <" + resource + ">.\n"
                 + "}";
 
-        TupleQuery tupleQuery_publisher = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringPublisher);
-
+        TupleQuery tupleQuery_publisher = EngageConnection
+                .prepareTupleQuery(QueryLanguage.SPARQL, queryStringPublisher);
+            
         TupleQueryResult result_publisher = tupleQuery_publisher.evaluate();
-
 
         String publishers = "";
 
-
-
-
-        if (result_publisher.hasNext()) {
-            while (result_publisher.hasNext()) {
+        if (result_publisher.hasNext()) 
+        {
+            while (result_publisher.hasNext()) 
+            {
                 BindingSet bindingSet_publisher = result_publisher.next();
-
-                if (bindingSet_publisher.getValue("publisher") != null) {
-
+                if (bindingSet_publisher.getValue("publisher") != null) 
+                {
                     Value publisher = bindingSet_publisher.getValue("publisher");
-
                     publishers = publisher.stringValue();
-
                     String publisherFinale = new String(publisher.stringValue().getBytes("iso-8859-1"), "utf-8");
-
                     arrayEngagePublisherDupl.add(publisherFinale);
-
-
                 }
-
             }
+            
             arrayEngagePublisher = getListNotDuplicate(arrayEngagePublisherDupl);
-
-
-
-
-
         }
+        
         return arrayEngagePublisher;
     }
 
-    public static ArrayList getEngageKeywords(String resource) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException {
+    public static ArrayList getEngageKeywords(String resource) 
+            throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException 
+    {
 
         ArrayList arrayEngageKeywordsDupl = new ArrayList();
-
         ArrayList arrayEngageKeywords = new ArrayList();
 
         String queryString = ""
@@ -869,47 +724,38 @@ public class QueryEngage {
                 + "?s foaf:homepage <" + resource + ">.\n"
                 + "}";
 
-
-
-
-
-        TupleQuery tupleQuery = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
-
-
+        TupleQuery tupleQuery = EngageConnection
+                .prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 
         TupleQueryResult result = tupleQuery.evaluate();
 
-
         String publishers = "";
 
-        if (result.hasNext()) {
-            while (result.hasNext()) {
+        if (result.hasNext()) 
+        {
+            while (result.hasNext()) 
+            {
                 BindingSet bindingSet = result.next();
-
-                if (bindingSet.getValue("keyword") != null) {
-
+                if (bindingSet.getValue("keyword") != null) 
+                {
                     Value keyword = bindingSet.getValue("keyword");
-
                     String keywordFinale = new String(keyword.stringValue().getBytes("iso-8859-1"), "utf-8");
-
                     arrayEngageKeywordsDupl.add(keywordFinale);
-
-
                 }
-
             }
+            
             arrayEngageKeywords = getListNotDuplicate(arrayEngageKeywordsDupl);
-
         }
+        
         return arrayEngageKeywords;
     }
 
-    public static String getEngageCoverage(String resource) throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException {
-
+    public static String getEngageCoverage(String resource) 
+            throws RepositoryException, MalformedQueryException, QueryEvaluationException, UnsupportedEncodingException 
+    {
 
         String sCoverage = "";
-
-
+        
         String queryStringCoverage = ""
                 + "select  ?coverage \n"
                 + "where{ \n"
@@ -917,45 +763,37 @@ public class QueryEngage {
                 + "?s foaf:homepage <" + resource + ">.\n"
                 + "}";
 
-
-
-
-        TupleQuery tupleQuery_coverage = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringCoverage);
-
-
+        TupleQuery tupleQuery_coverage = EngageConnection
+                .prepareTupleQuery(QueryLanguage.SPARQL, queryStringCoverage);
 
         TupleQueryResult result_coverage = tupleQuery_coverage.evaluate();
 
-
         String coverages = "";
 
-
-        if (result_coverage.hasNext()) {
-            while (result_coverage.hasNext()) {
+        if (result_coverage.hasNext()) 
+        {
+            while (result_coverage.hasNext()) 
+            {
                 BindingSet bindingSet_coverage = result_coverage.next();
-
-                if (bindingSet_coverage.getValue("coverage") != null) {
-
+                if (bindingSet_coverage.getValue("coverage") != null) 
+                {
                     Value coverage = bindingSet_coverage.getValue("coverage");
                     coverages = coverage.stringValue();
-
-
                 }
-
             }
+            
             if (!coverages.equals("") && !coverages.equals("0")) {
                 sCoverage = coverages;
             }
-
-
-
         }
+        
         return sCoverage;
     }
 
     public static String getEngageDistributionTitle(String resource) {
 
         String sDistributionTitle = "";
+        
         try {
 
             String queryStringDistribution = ""
@@ -966,62 +804,41 @@ public class QueryEngage {
                     + "?distribution dcterms:title ?titleDistribution.\n"
                     + "}";
 
-
-
-
-
-            TupleQuery tupleQuery = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringDistribution);
-
-
+            TupleQuery tupleQuery = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringDistribution);
 
             TupleQueryResult result = tupleQuery.evaluate();
 
-
-
-
             String titleDistribution = "";
 
-
-
-
-
-            if (result.hasNext()) {
-                while (result.hasNext()) {
+            if (result.hasNext()) 
+            {
+                while (result.hasNext()) 
+                {
                     BindingSet bindingSet = result.next();
-
-                    if (bindingSet.getValue("distribution") != null) {
-
+                    if (bindingSet.getValue("distribution") != null) 
+                    {
                         titleDistribution = bindingSet.getValue("titleDistribution").stringValue();
-
-
-
-
                         sDistributionTitle = titleDistribution;
-
-
                     }
-
                 }
-
-
             }
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RepositoryException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MalformedQueryException ex) {
-
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return sDistributionTitle;
     }
 
-    public static String getEngageDistributionAccessURL(String resource) {
+    public static String getEngageDistributionAccessURL(String resource) 
+    {
 
         String sDistributionAccessURL = "";
+        
         try {
 
             String queryStringDistribution = ""
@@ -1032,47 +849,25 @@ public class QueryEngage {
                     + "?distribution <http://www.w3.org/ns/dcat#accessURL> ?accessURL.\n"
                     + "}";
 
-
-
-
-
-            TupleQuery tupleQuery = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringDistribution);
-
-
+            TupleQuery tupleQuery = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringDistribution);
 
             TupleQueryResult result = tupleQuery.evaluate();
 
-
-
-
             String accessURL = "";
 
-
-
-
-
-            if (result.hasNext()) {
-                while (result.hasNext()) {
+            if (result.hasNext()) 
+            {
+                while (result.hasNext()) 
+                {
                     BindingSet bindingSet = result.next();
-
-                    if (bindingSet.getValue("distribution") != null) {
-
+                    if (bindingSet.getValue("distribution") != null) 
+                    {
                         accessURL = bindingSet.getValue("accessURL").stringValue();
-
-
-
-
                         sDistributionAccessURL = accessURL;
-
-
                     }
-
                 }
-
-
             }
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RepositoryException ex) {
@@ -1088,6 +883,7 @@ public class QueryEngage {
     public static String getEngageDistributionDownloadURL(String resource) {
 
         String sDistributionDownloadURL = "";
+        
         try {
 
             String queryStringDistribution = ""
@@ -1098,60 +894,38 @@ public class QueryEngage {
                     + "?distribution <http://www.w3.org/ns/dcat#downloadURL> ?downloadURL.\n"
                     + "}";
 
-
-
-
-
-            TupleQuery tupleQuery = EngageConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringDistribution);
-
-
+            TupleQuery tupleQuery = EngageConnection
+                    .prepareTupleQuery(QueryLanguage.SPARQL, queryStringDistribution);
 
             TupleQueryResult result = tupleQuery.evaluate();
 
-
-
-
             String downloadURL = "";
 
-
-
-
-
-            if (result.hasNext()) {
-                while (result.hasNext()) {
+            if (result.hasNext()) 
+            {
+                while (result.hasNext()) 
+                {
                     BindingSet bindingSet = result.next();
-
-                    if (bindingSet.getValue("distribution") != null) {
-
+                    if (bindingSet.getValue("distribution") != null) 
+                    {
                         downloadURL = bindingSet.getValue("downloadURL").stringValue();
-
-
-
-
                         sDistributionDownloadURL = downloadURL;
-
-
                     }
-
                 }
-
-
             }
-
-
         } catch (QueryEvaluationException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         } catch (RepositoryException ex) {
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MalformedQueryException ex) {
-
             Logger.getLogger(QueryEngage.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return sDistributionDownloadURL;
     }
 
-    public static ArrayList getListNotDuplicate(ArrayList listOriginal) {
+    public static ArrayList getListNotDuplicate(ArrayList listOriginal) 
+    {
 
         ArrayList listNuova = new ArrayList();
 

@@ -22,6 +22,9 @@
     <body link="BLACK" vlink="red">
 
         <%
+          
+	   
+            String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");
             String idResource = renderRequest.getParameter("idResourceOpenAgris");
              String numResourceOpenAgris = renderRequest.getParameter("numResourceOpenAgris");
              //System.out.println("numResource------->:"+numResourceOpenAgris);
@@ -198,7 +201,7 @@
             </fieldset>   
                  <br>    
              <br>
-            <a id="LinkedData" class="Link" href="http://www.chain-project.eu/LodLiveGraph/?<%=idResource%>" target="_blank">Linked Data </a>
+            <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=idResource%>" target="_blank">Linked Data </a>
            
             <br> 
             <br>

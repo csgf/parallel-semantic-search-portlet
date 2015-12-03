@@ -22,7 +22,9 @@
     <body>
         
         <%
+            String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");
             String idResource = renderRequest.getParameter("idResourceCulturaItalia");
+            String TimeOut = renderRequest.getParameter("TimeOut");
             //String idResource = "http://dati.culturaitalia.it/resource/oai-polomuseale-firenze-it-sculture-825";
             // String idResource = "http://dati.culturaitalia.it/resource/oai-fc1-to-cnr-it-openbess-to082-00007";
             //String idResource="http://dati.culturaitalia.it/resource/oai-polomuseale-firenze-it-sculture-1361";
@@ -86,9 +88,6 @@
             ArrayList listMember = QueryCulturaItalia.is_current_or_former_member(idResource);
             ArrayList listBased = QueryCulturaItalia.was_based_on(idResource);
             ArrayList listIn = QueryCulturaItalia.includes(idResource);
-
-
-
         %>
         <div id="conteinerRecord" style="">
             <%
@@ -155,7 +154,7 @@
                         if (!rep.equals("---")) {
                             if (rep.substring(0, 4).equals("http")) {
                 %> <p class="klios_p"><a href="<%=rep%>" target="_blank" style="cursor: -webkit-zoom-in; cursor: -moz-zoom-in;" > <img src="<%=rep%>" style="height: 100px; width:100px;"></a></p>
-                <%} else {%> <p class="klios_p"><b>Rapresentation : </b><%=rep%></p>
+                <%} else {%> <p class="klios_p"><b>Representation : </b><%=rep%></p>
                 <% }
 
                         }
@@ -393,7 +392,7 @@
             </fieldset>
                 
              <br>
-            <a id="LinkedData" class="Link" href="http://www.chain-project.eu/LodLiveGraph/?<%=idResource%>" target="_blank">Linked Data </a>
+            <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=idResource%>" target="_blank">Linked Data </a>
            
             <br>     
                     <br>     

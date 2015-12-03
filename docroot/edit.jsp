@@ -36,8 +36,7 @@
 <%@page import="javax.portlet.*"%>
 
 <% 
-  
-  
+    
 PortletPreferences preferences = renderRequest.getPreferences();
 String OpenAgris = preferences.getValue("OpenAgris", "");
 String OpenAgrisEndPoint = preferences.getValue("OpenAgrisEndPoint", "");
@@ -52,22 +51,25 @@ String PubmedEndPoint = preferences.getValue("PubmedEndPoint", "");
 String Engage = preferences.getValue("Engage", "");
 String EngageEndPoint = preferences.getValue("EngageEndPoint", "");
 String NumberRecordsForPage=preferences.getValue("NumberRecordsForPage", "");
-           // System.out.println("VALORE_OPENAGRIS: "+OpenAgris);
-           // System.out.println("VALORE_OPENAGRISENDPOINT: "+OpenAgrisEndPoint);
-            System.out.println("VALORE_Europeana: "+Europeana);
-            System.out.println("VALORE_EuropeanaEndPoint: "+EuropeanaEndPoint);
-            System.out.println("VALORE_CulturaItalia: "+CulturaItalia);
-            System.out.println("VALORE_CulturaItaliaEndPoint: "+CulturaItaliaEndPoint);
-            System.out.println("VALORE_Isidore: "+Isidore);
-            System.out.println("VALORE_IsidoreEndPoint: "+IsidoreEndPoint);
-            System.out.println("VALORE_Pubmed: "+Pubmed);
-            System.out.println("VALORE_PubmedEndPoint: "+PubmedEndPoint);
-            System.out.println("VALORE_Engage: "+Engage);
-            System.out.println("VALORE_EngageEndPoint: "+EngageEndPoint);
-            System.out.println("VALORE_NumberRecordsForPage: "+NumberRecordsForPage);
-  
-  
-  
+String LodLive = preferences.getValue("LodLive", "");
+String LodLiveEndPoint=preferences.getValue("LodLiveEndPoint", "");
+String TimeOut = preferences.getValue("TimeOut", "");
+           
+// System.out.println("VALORE_OPENAGRIS: "+OpenAgris);
+// System.out.println("VALORE_OPENAGRISENDPOINT: "+OpenAgrisEndPoint);
+System.out.println("VALORE_Europeana: " + Europeana);
+System.out.println("VALORE_EuropeanaEndPoint: " + EuropeanaEndPoint);
+System.out.println("VALORE_CulturaItalia: " + CulturaItalia);
+System.out.println("VALORE_CulturaItaliaEndPoint: " + CulturaItaliaEndPoint);
+System.out.println("VALORE_Isidore: " + Isidore);
+System.out.println("VALORE_IsidoreEndPoint: " + IsidoreEndPoint);
+System.out.println("VALORE_Pubmed: " + Pubmed);
+System.out.println("VALORE_PubmedEndPoint: " + PubmedEndPoint);
+System.out.println("VALORE_Engage: " + Engage);
+System.out.println("VALORE_EngageEndPoint: " + EngageEndPoint);
+System.out.println("VALORE_NumberRecordsForPage: " + NumberRecordsForPage);
+System.out.println("VALORE_LodLiveEndPoint: " + LodLiveEndPoint);
+System.out.println("VALORE_TimeOut: " + TimeOut);
             
 String OpenAgrisEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("OpenAgrisEndPoint");
 String EuropeanaEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("EuropeanaEndPoint");
@@ -75,77 +77,136 @@ String CulturaItaliaEndPoint_default = ((PortletConfig) request.getAttribute("ja
 String IsidoreEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("IsidoreEndPoint");              
 String PubmedEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("PubmedEndPoint");            
 String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("EngageEndPoint");  
+String LodLiveEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("LodLiveEndPoint");
+String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("TimeOut");
 %>
-<html>
-
 
     <div  style="border-style: ridge;">    
-
         <div style="float: left; padding-left: 20px;">
-
-            <form id="<portlet:namespace/>Preferences" action="<portlet:actionURL portletMode="edit"></portlet:actionURL>" method="post">
-
-            
-            
+            <form id="<portlet:namespace/>Preferences" 
+                  action="<portlet:actionURL 
+                  portletMode="edit"></portlet:actionURL>" 
+                  method="post">                        
             
                 <table>
+                    <tr>                        
+                        <th colspan="2" 
+                            style="height:40px;">Select <u>Repositories</u> for your semantic search engine
+                        </th> 
+                    </tr>
 
                     
-
-                    <tr>
-                        
-                        <th colspan="2" style="height:40px;">Select <u>Repositories</u> for your semantic search engine</th>  
-                        
-                    </tr>
-
                     <tr class="rowList" style="height: 30px;">
-
-
-
                         <td>
-
-                            <input type="checkbox" id="1" name="OpenAgris" onClick="ckeckOpenAgris()" >OpenAgris
+                            <input type="checkbox" 
+                                   id="1" 
+                                   name="OpenAgris"
+                                   onClick="ckeckOpenAgris()"/>OpenAgris
                         </td> 
                         <td>
-                            <input id="idOpenAgrisEndPoint" disabled  class="rounded" type="text" name="OpenAgrisEndPoint" value="<%=OpenAgrisEndPoint%>" ><br> 
+                            <input id="idOpenAgrisEndPoint" disabled  
+                                   class="rounded" 
+                                   type="text" 
+                                   size="50px;"
+                                   name="OpenAgrisEndPoint" 
+                                   value="<%=OpenAgrisEndPoint%>"/><br/> 
                         </td>
 
+                        
                     </tr>
                     <tr class="rowList" style="height: 50px;">
                         <td>
-                            <input type="checkbox" id="2" name="Europeana" onClick="ckeckEuropeana()" >Europeana 
+                            <input type="checkbox" 
+                                   id="2" 
+                                   name="Europeana" 
+                                   onClick="ckeckEuropeana()"/>Europeana 
                         </td>
                         <td>
-                            <input id="idEuropeanaEndPoint" disabled class="rounded" type="text" name="EuropeanaEndPoint" value="<%=EuropeanaEndPoint%>"><br> 
+                            <input id="idEuropeanaEndPoint" disabled 
+                                   class="rounded" 
+                                   type="text" 
+                                   size="50px;"
+                                   name="EuropeanaEndPoint" 
+                                   value="<%=EuropeanaEndPoint%>"/><br/> 
                         </td>
                     </tr>
+                    
+                    
                     <tr class="rowList" style="height: 50px;"> 
-                        <td><input type="checkbox" id="3" name="CulturaItalia" onClick="ckeckCulturaItalia()" >Cultura Italia</td>
                         <td>
-                            <input id="idCulturaItaliaEndPoint" disabled class="rounded" type="text" name="CulturaItaliaEndPoint" value="<%=CulturaItaliaEndPoint%>"><br> 
+                            <input type="checkbox" 
+                                   id="3" 
+                                   name="CulturaItalia" 
+                                   onClick="ckeckCulturaItalia()"/>Cultura Italia
+                        </td>
+                        <td>
+                            <input id="idCulturaItaliaEndPoint" 
+                                   disabled 
+                                   class="rounded" 
+                                   type="text"
+                                   size="50px;"
+                                   name="CulturaItaliaEndPoint" 
+                                   value="<%=CulturaItaliaEndPoint%>"/><br/> 
                         </td>
                     </tr>
+                    
+                    
                     <tr class="rowList" style="height: 50px;">
-                        <td><input type="checkbox" id="4" name="Isidore" onClick="ckeckIsidore()" >Isidore</td>
                         <td>
-                            <input id="idIsidoreEndPoint" disabled class="rounded" type="text" name="IsidoreEndPoint" value="<%=IsidoreEndPoint%>"><br> 
+                            <input type="checkbox" 
+                                   id="4" 
+                                   name="Isidore" 
+                                   onClick="ckeckIsidore()"/>Isidore
+                        </td>
+                        <td>
+                            <input id="idIsidoreEndPoint" disabled 
+                                   class="rounded" 
+                                   type="text"
+                                   size="50px;"
+                                   name="IsidoreEndPoint" 
+                                   value="<%=IsidoreEndPoint%>"/><br/> 
                         </td>
                     </tr>
-                     <tr class="rowList" style="height: 50px;">
-                        <td><input type="checkbox" id="5" name="Pubmed" onClick="ckeckPubmed()" >Pubmed</td>
+                    
+                    
+                    <tr class="rowList" style="height: 50px;">
                         <td>
-                            <input id="idPubmedEndPoint" disabled class="rounded" type="text" name="PubmedEndPoint" value="<%=PubmedEndPoint%>"><br> 
+                            <input type="checkbox" 
+                                   id="5" 
+                                   name="Pubmed" 
+                                   onClick="ckeckPubmed()"/>Pubmed
+                        </td>
+                        <td>
+                            <input id="idPubmedEndPoint" disabled 
+                                   class="rounded" 
+                                   type="text" 
+                                   size="50px;"
+                                   name="PubmedEndPoint" 
+                                   value="<%=PubmedEndPoint%>"/><br/> 
                         </td>
                     </tr>
-                     <tr class="rowList" style="height: 50px;">
-                        <td><input type="checkbox" id="6" name="Engage" onClick="ckeckEngage()" >Engage</td>
+                    
+                    
+                    <tr class="rowList" style="height: 50px;">
                         <td>
-                            <input id="idEngageEndPoint" disabled class="rounded" type="text" name="EngageEndPoint" value="<%=EngageEndPoint%>"><br> 
+                            <input type="checkbox" 
+                                   id="6" 
+                                   name="Engage" 
+                                   onClick="ckeckEngage()"/>Engage
+                        </td>
+                        <td>
+                            <input id="idEngageEndPoint" disabled 
+                                   class="rounded" 
+                                   type="text" 
+                                   size="50px;"
+                                   name="EngageEndPoint" 
+                                   value="<%=EngageEndPoint%>"/><br/> 
                         </td>
                     </tr>
 
                     <tr>
-                        <th colspan="2" style="height:40px;">Choose record's number to view in the result page</th>
+                        <th colspan="2" 
+                            style="height:40px;">Choose record's number to view in the result page</th>
                     </tr>
 
                     <tr class="rowList" style="height: 30px;">
@@ -157,30 +218,82 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
                                 <option value="30">30</option>
                                 <option value="40">40</option>
                             </select>
-                        </td>
-                        
+                        </td>                        
                     </tr>
+                    
+                    
+                    
+                    <!-- Giuseppe LA ROCCA -->
+                    <tr>
+                        <th colspan="2" 
+                            style="height:40px;">Choose the default endpoint for LodLive</th>
+                    </tr>
+                    <tr class="rowList" style="height: 50px;">
+                        <td>
+                            <input type="checkbox" 
+                                   id="7" 
+                                   name="LodLive" 
+                                   onClick="ckeckLodLive()"/>LodLive
+                        </td>
+                        <td>
+                            <input id="idLodLiveEndPoint" disabled 
+                                   class="rounded" 
+                                   type="text" 
+                                   size="50px;"
+                                   name="LodLiveEndPoint" 
+                                   value="<%=LodLiveEndPoint%>"/><br/> 
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th colspan="2" 
+                            style="height:40px;">Choose the default time out</th>
+                    </tr>
+                    <tr class="rowList" style="height: 50px;">
+                        <td>(Default value is 1 min.)</td>
+                        <td>
+                            <select id="idTimeOut" name="TimeOut">                                
+                                <option value="1">1 min.</option>
+                                <option value="2">2 min.</option>
+                                <option value="3">3 min.</option>
+                                <option value="5">5 min.</option>                                
+                            </select>
+                        </td>                        
+                    </tr>
+                    <!-- Giuseppe LA ROCCA -->
+                    
+                    
+                    
                     
 
 
-                    <tr style="height:60px;"><td colspan="2"><input type="button" id="setPreferences" value="Set preferences" onclick="SetPreferences()"></td></tr>
-
-
+                    <tr style="height:60px;">
+                        <td colspan="2">
+                            <input type="button" 
+                                   id="setPreferences" 
+                                   value="Set preferences" 
+                                   onclick="SetPreferences()"/>
+                        </td>
+                    </tr>
                 </table>  
 
             </form>
 
 
         </div>
-        <div style="float:right">
-            <img href="" src="<%=renderRequest.getContextPath()%>/images/loghiSemanticSearch3.png" style="padding-top:40px;" />
-        </div>
+        <!--div style="float:right">
+            <img href="" 
+                 src="<%=renderRequest.getContextPath()%>/images/loghiSemanticSearch3.png" 
+                 style="padding-top:30px;" />
+        </div-->
+                 
         <div>
             <center>
                 <table>   
                     <tr>
-                        <td style="padding:20px;"> <form action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_INPUT"/></portlet:actionURL>" method="post">
-                                <input type="submit" value="Back To Application">
+                        <td style="padding:20px;">
+                            <form action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_INPUT"/></portlet:actionURL>" method="post">
+                                <input type="submit" value="Back To Application"/>
                             </form>
                         </td>
                         <td>
@@ -192,7 +305,6 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
 
     </div>        
 
-</html>
 <script type="text/javascript" >
     
 
@@ -216,18 +328,24 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
         document.getElementById("4").checked=true;
         document.getElementById('idIsidoreEndPoint').disabled = false;
     <%} %> 
-      <%if(Pubmed.equals("true")){%>
+    <%if(Pubmed.equals("true")){%>
         
         document.getElementById("5").checked=true;
         document.getElementById('idPubmedEndPoint').disabled = false;
     <%} %>  
-      <%if(Engage.equals("true")){%>
+    <%if(Engage.equals("true")){%>
         
         document.getElementById("6").checked=true;
         document.getElementById('idEngageEndPoint').disabled = false;
     <%} %>  
+    <%if(LodLive.equals("true")){%>
+        
+        document.getElementById("7").checked=true;
+        document.getElementById('idLodLiveEndPoint').disabled = false;
+    <%} %>  
         
         document.getElementById("idNumberRecords").value="<%=NumberRecordsForPage%>";
+        document.getElementById("idTimeOut").value="<%=TimeOut%>";
 
 
         // This function is responsible to enable all textareas
@@ -241,6 +359,7 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
             document.getElementById("4").checked=false;
             document.getElementById("5").checked=false;
             document.getElementById("6").checked=false;
+            document.getElementById("7").checked=false;            
             document.getElementById("idOpenAgrisEndPoint").value="http://202.45.139.84:10035/catalogs/fao/repositories/agrovoc#query";
             document.getElementById('idOpenAgrisEndPoint').disabled = true;
             document.getElementById("idEuropeanaEndPoint").value="<%=EuropeanaEndPoint_default%>";
@@ -254,6 +373,9 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
             document.getElementById("idEngageEndPoint").value="<%=EngageEndPoint_default%>";
             document.getElementById('idEngageEndPoint').disabled = true;
             document.getElementById("idNumberRecords").value="10";
+            document.getElementById("idTimeOut").value="1";
+            document.getElementById("idLodLiveEndPoint").value="<%=LodLiveEndPoint_default%>";
+            document.getElementById('idLodLiveEndPoint').disabled = true;
         }
     
     
@@ -265,9 +387,10 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
             var control=0;
             
             var number=document.getElementById("idNumberRecords").value;
+            var timeout=document.getElementById("idTimeOut").value;
             
             //alert("NUMBER: "+number);
-            var rep=new Array("NO","NO","NO","NO","NO","NO");
+            var rep=new Array("NO","NO","NO","NO","NO","NO", "NO");
        
             if (document.getElementById("1").checked==true)
             {
@@ -303,6 +426,7 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
                     control=1;
                 }
             }
+            
             if (document.getElementById("4").checked==true)
             {
                 rep[3]="Isidore";
@@ -313,7 +437,8 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
                     control=1;
                 }
             } 
-             if (document.getElementById("5").checked==true)
+            
+            if (document.getElementById("5").checked==true)
             {
                 rep[4]="Pubmed";
                 document.getElementById("5").value="true"; 
@@ -323,6 +448,7 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
                     control=1;
                 }
             } 
+            
             if (document.getElementById("6").checked==true)
             {
                 rep[5]="Engage";
@@ -332,23 +458,39 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
                     alert("The EndPoint Engage is mandatory!!!");
                     control=1;
                 }
-            } 
+            }
+            
+            if (document.getElementById("7").checked==true)
+            {
+                rep[6]="LodLive";
+                document.getElementById("7").value="true"; 
+                
+                if(document.getElementById("idLodLiveEndPoint").value==""){
+                    alert("The LodLive EndPoint is mandatory!!!");
+                    control=1;
+                }
+            }
             
             var size=rep.length;
-            var repChoose="";
+            var repChoose="";            
             
-            
-            if(control==0){
-            for(var i=0;i<size;i++)
-             { 
-                 if(rep[i]!="NO"){
-                 repChoose+=rep[i]+",";
-                 }}
+            if(control==0)
+            {
+                // size-1 to exlude from the list of repositories 
+                // the LodLive Endpoint
+                for(var i=0;i<size-1;i++)
+                { 
+                     if (rep[i]!="NO") repChoose+=rep[i]+",";                 
+                }
 
-                 if(repChoose=="")
-                 alert("You don't have choose repositories. \n Number records for page is: "+number);
-                 else
-                     alert("You have choose repositories :"+repChoose+"\n Number records for page is: "+number);
+                if(repChoose=="")
+                    alert("You don't have choose repositories. \n Number records for page is: "
+                    + number);
+                else
+                    alert("You have choose repositories :"
+                    + repChoose
+                    + "\n Number records for page is: "
+                    + number);
             }
         
               // alert("CONTROL: "+control);      
@@ -358,71 +500,68 @@ String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.por
 	                
         }
         
-        function ckeckOpenAgris(){
-            
-            
-            //alert("VALUE: "+document.getElementById("1").checked);
-            
+        function ckeckOpenAgris()
+        {
+            //alert("VALUE: "+document.getElementById("1").checked);            
             if(document.getElementById("1").checked==true)
                 document.getElementById('idOpenAgrisEndPoint').disabled = false;
             else
                document.getElementById('idOpenAgrisEndPoint').disabled = true; 
         }
         
-        function ckeckEuropeana(){
-            
-            
-            //alert("VALUE: "+document.getElementById("2").checked);
-            
+        function ckeckEuropeana()
+        {
+            //alert("VALUE: "+document.getElementById("2").checked);            
             if(document.getElementById("2").checked==true)
                 document.getElementById('idEuropeanaEndPoint').disabled = false;
             else
                document.getElementById('idEuropeanaEndPoint').disabled = true; 
         }
     
-        function ckeckCulturaItalia(){
-            
-            
-            //alert("VALUE: "+document.getElementById("3").checked);
-            
+        function ckeckCulturaItalia()
+        {
+            //alert("VALUE: "+document.getElementById("3").checked);            
             if(document.getElementById("3").checked==true)
                 document.getElementById('idCulturaItaliaEndPoint').disabled = false;
             else
                document.getElementById('idCulturaItaliaEndPoint').disabled = true; 
         }
-        function ckeckIsidore(){
-            
-            
-            //alert("VALUE: "+document.getElementById("4").checked);
-            
+        
+        function ckeckIsidore()
+        {
+            //alert("VALUE: "+document.getElementById("4").checked);            
             if(document.getElementById("4").checked==true)
                 document.getElementById('idIsidoreEndPoint').disabled = false;
             else
                document.getElementById('idIsidoreEndPoint').disabled = true; 
         }
-        function ckeckPubmed(){
-            
-            
-            //alert("VALUE: "+document.getElementById("5").checked);
-            
+        
+        function ckeckPubmed()
+        {
+            //alert("VALUE: "+document.getElementById("5").checked);            
             if(document.getElementById("5").checked==true)
                 document.getElementById('idPubmedEndPoint').disabled = false;
             else
                document.getElementById('idPubmedEndPoint').disabled = true; 
         }
-        function ckeckEngage(){
-            
-            
-            //alert("VALUE: "+document.getElementById("6").checked);
-            
+        
+        function ckeckEngage()
+        {
+            //alert("VALUE: "+document.getElementById("6").checked);            
             if(document.getElementById("6").checked==true)
                 document.getElementById('idEngageEndPoint').disabled = false;
             else
                document.getElementById('idEngageEndPoint').disabled = true; 
         }
-   
-    
-	
+        
+        function ckeckLodLive()
+        {                        
+            //alert("VALUE: "+document.getElementById("7").checked);           
+            if(document.getElementById("7").checked==true)
+                document.getElementById('idLodLiveEndPoint').disabled = false;
+            else
+               document.getElementById('idLodLiveEndPoint').disabled = true; 
+        }      	
 </script>
 
 

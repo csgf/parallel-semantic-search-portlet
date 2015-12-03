@@ -33,6 +33,7 @@
 
         <div id="conteinerRecord" style="">
             <%
+                String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");
                 String idResourceEngage = renderRequest.getParameter("idResourceEngage");
                 String res="www.engagedata.eu/rdf/dataset/";
                 String serialNumbResource= idResourceEngage.substring(7).split("/")[2];
@@ -225,7 +226,7 @@
             </div>
                     
              <br>
-            <a id="LinkedData" class="Link" href="http://www.chain-project.eu/LodLiveGraph/?<%=resourceEng%>" target="_blank">Linked Data </a>
+            <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=resourceEng%>" target="_blank">Linked Data </a>
            
             <br>         
             <br>    

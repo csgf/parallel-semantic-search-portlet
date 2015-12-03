@@ -18,14 +18,10 @@
 
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.lang.Math"%>
-
-
 <%@page import="java.util.Iterator"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.Collections"%>
 <%@page import="java.util.Arrays"%>
-
-
 <%@page import="it.infn.ct.SemanticQueryMoreInfo"%>
 <%@page import="it.infn.ct.SemanticQuery"%>
 <%@page import="it.infn.ct.QueryPubMed"%>
@@ -34,39 +30,10 @@
 <%@page import="it.infn.ct.QueryEuropeana"%>
 <%@page import="it.infn.ct.QueryIsidore"%>
 <%@page import="it.infn.ct.QueryEngage"%>
-
-
 <%@page import="javax.portlet.*"%>
-
-
-
-
-
-
 <%@page contentType="text/html; charset=utf-8" %>
 
-
-
 <portlet:defineObjects />
-<%//
-  // Application Submission page
-  //
-  //
-  // The portlet code assigns the jobIdentifier as input parameter for this jsp file
-  //
-%>
-
-
-<%
-// Below the submission web form
-//
-// It only have a button that will show the input form again for a new job submission
-%>
-
-
-
-<html>
-
 
     <head>
         <style>
@@ -108,27 +75,22 @@
                 cursor: pointer;
             }
 
-
-
-
-
         </style>
     </head>
-
     <body>
 
-        <%
-        
+        <%       
         
         PortletPreferences preferences = renderRequest.getPreferences();
-
-           
+ 
             String OpenAgris = preferences.getValue("OpenAgris", "");
             String Europeana = preferences.getValue("Europeana", "");
             String CulturaItalia = preferences.getValue("CulturaItalia", "");
             String Isidore = preferences.getValue("Isidore", "");
             String Pubmed = preferences.getValue("Pubmed", "");
             String Engage = preferences.getValue("Engage", "");
+            String LodLiveEndPoint = preferences.getValue("LodLiveEndPoint", "");
+            String TimeOut = preferences.getValue("TimeOut", "");
            
             String numberRecordsForPage = preferences.getValue("NumberRecordsForPage", "");
             System.out.println("VALORE_Openagris_: "+OpenAgris);
@@ -137,10 +99,8 @@
             System.out.println("VALORE_Isidore_: "+Isidore);
             System.out.println("VALORE_Pubmed_: "+Pubmed);
             System.out.println("VALORE_Engage_: "+Engage);
-            System.out.println("NumberRecordsForPage "+numberRecordsForPage);
-            
-         
-
+            System.out.println("VALORE_LodLiveEndPoint_: "+LodLiveEndPoint);
+            System.out.println("NumberRecordsForPage "+numberRecordsForPage);                    
                           
         String searched_word = renderRequest.getParameter("searched_word");
        // System.out.println("SEARCH-WORD**"+searched_word);
@@ -169,13 +129,10 @@
         String moreInfoCulturaItalia=renderRequest.getParameter("moreInfoCulturaItalia");
         //System.out.println("moreInfoCulturaItalia in JSP: "+moreInfoCulturaItalia);
         String numResourceCulturaItaliaFromDetails=renderRequest.getParameter("numResourceCulturaItaliaFromDetails");
-        System.out.println("numResourceCulturaItaliaFromDetails in JSP: "+numResourceCulturaItaliaFromDetails);
-        
-        
+        System.out.println("numResourceCulturaItaliaFromDetails in JSP: "+numResourceCulturaItaliaFromDetails);              
         //********** FINE CULTURA ITALIA************
         
-        //EUROPEANA
-        
+        //EUROPEANA        
         String selected_pageEuropeana = renderRequest.getParameter("selected_pageEuropeana");
         String moreResourceEuropeana=renderRequest.getParameter("moreResourceEuropeana");
         //System.out.println("MORE RESOURCE EUROPEANA in JSP--->"+moreResourceEuropeana);
@@ -184,8 +141,7 @@
         String numResourceEuropeanaFromDetails=renderRequest.getParameter("numResourceEuropeanaFromDetails");
         System.out.println("numResourceEuropeanaFromDetails in JSP: "+numResourceEuropeanaFromDetails);
         
-        //ISIDORE
-        
+        //ISIDORE        
         String selected_pageIsidore = renderRequest.getParameter("selected_pageIsidore");
         String moreResourceIsidore=renderRequest.getParameter("moreResourceIsidore");
         String moreInfoIsidore=renderRequest.getParameter("moreInfoIsidore");
@@ -193,20 +149,16 @@
         String numResourceIsidoreFromDetails=renderRequest.getParameter("numResourceIsidoreFromDetails");
         System.out.println("numResourceIsidoreFromDetails in JSP: "+numResourceIsidoreFromDetails);
         
-        //PUBMED
-        
+        //PUBMED       
          String selected_pagePubmed = renderRequest.getParameter("selected_pagePubmed");
         String moreResourcePubmed=renderRequest.getParameter("moreResourcePubmed");
-        String moreInfoPubmed=renderRequest.getParameter("moreInfoPubmed");
-       
+        String moreInfoPubmed=renderRequest.getParameter("moreInfoPubmed");       
         String numResourcePubmedFromDetails=renderRequest.getParameter("numResourcePubmedFromDetails");
         
-        //ENGAGE
-        
+        //ENGAGE        
         String selected_pageEngage = renderRequest.getParameter("selected_pageEngage");
         String moreResourceEngage=renderRequest.getParameter("moreResourceEngage");
-        String moreInfoEngage=renderRequest.getParameter("moreInfoEngage");
-       
+        String moreInfoEngage=renderRequest.getParameter("moreInfoEngage");       
         String numResourceEngageFromDetails=renderRequest.getParameter("numResourceEngageFromDetails");
         
         
@@ -216,29 +168,56 @@
         <div id="divContainer">
             <center>
 
-                <h4> You will search in CHAIN-REDS-KB
-                    <%  if (OpenAgris.equals("true")) {%>
-                    , OpenAgris
-                    <% } %>
-                    <%  if (Europeana.equals("true")) {%>
-                    , Europeana
-                    <% } %>
-                    <%  if (CulturaItalia.equals("true")) {%>
-                    , CulturaItalia
-                    <% } %>
-                    <%  if (Isidore.equals("true")) {%>
-                    , Isidore
-                    <% } %>
-                    <%  if (Pubmed.equals("true")) {%>
-                    , Pubmed
-                    <% } %>
-                    <%  if (Engage.equals("true")) {%>
-                    , Engage
-                    <% } %>
-                </h4>   
-
+                <h4>Welcome to the parallel Semantic Search Engine (SSE)<br/><br/></h4>
                 
+                <div style="margin-left:15px" 
+                     align="justify"
+                     id="header" 
+                     style="width:690px; font-family: Tahoma,Verdana,sans-serif,Arial; 
+                     font-size: 14px; display:none;">
+                <p>
+                     Using the SSE you can search in parallel and in more than 100 languages across several Linked Data repositories:                    
+                   <!-- <ul>
+                    <li>the e-Infrastructure Knowledge Base (KB) containing more than 30 million resources belonging to thousands of 
+                    semantically enriched <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/oadr-map/">Open Access Document Repositories</a> 
+                    and <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/data-repositories-map/">Data Repositories</a>.
+                    Search results are ranked according to the <a href="http://repositories.webometrics.info/">Ranking Web of Repositories</a>.
+                    </li>
+                    <li>
+                      <a href="http://www.europeana.eu/portal/">Europeana</a>, 
+                      <a href="http://dati.culturaitalia.it/?locale=it">Cultura Italia</a>,
+                      <a href="http://www.rechercheisidore.fr/">Isidore</a>, 
+                      <a href="http://agris.fao.org/openagris/index.do">OpenAgris</a> and 
+                      <a href="http://pubmed.bio2rdf.org/">PubMed</a> (others can simply added using the configuration options).
+                    </li>
+                </ul> -->
+                    <ol>
+                    <li>The e-Infrastructure Knowledge Base (KB) containing more than 30 million resources belonging to thousands of 
+                        semantically enriched <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/oadr-map/">Open Access Document Repositories</a> 
+                        and <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/data-repositories-map/">Data Repositories</a>.
+                        Search results are ranked according to the <a href="http://repositories.webometrics.info/">Ranking Web of Repositories</a>.
+                    </li>
+                    <li>
+                        <a href="http://www.europeana.eu/portal/">Europeana</a>, 
+                        <a href="http://dati.culturaitalia.it/?locale=it">Cultura Italia</a>,
+                        <a href="http://www.rechercheisidore.fr/">Isidore</a>,
+                        <a href="http://agris.fao.org/openagris/index.do">OpenAgris</a> and
+                        <a href="http://pubmed.bio2rdf.org/">PubMed</a> (Note: Cultura Italia only allows 1-keyword searches).
+                    </li>
+                </ol>
+                   
+                   
+               </p>
+                </div>
                 
+                <p>Click here to get some examples
+                <input type="image" 
+                       align="absmiddle"
+                       style="width:20px !important; heigth:20px !important"
+                       src="<%=renderRequest.getContextPath()%>/images/help.png"
+                       onclick="examplebutton();"/>
+                </p>
+                                
                 <div id="divSearchBar"> 
                     <form id="search_form" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_SEMANTIC_SEARCH_ALL_LANGUAGE"/></portlet:actionURL>" method="post">         
                         <table>
@@ -247,10 +226,9 @@
                                     <img href="http://klios.ct.infn.it" src="<%=renderRequest.getContextPath()%>/images/logo_klios.png" />
                                 </td>
 
-                                <td>
-                                    <input id="examplebutton" class="rounded" type="button" value="Examples" style="text-align: right;font-size: 12px;"  />
-                                  
-                                </td>
+                                <!--td>
+                                    <input id="examplebutton" class="rounded" type="button" value="Examples" style="text-align: right;font-size: 12px;"  />                                  
+                                </td-->
                                 <!--<td align="right" style="padding-right: 10px; width: 80px;">
                                     <ul id="nav" class="rounded">
                                         <li style="width: 80px;"><input id="examplebutton" class="rounded" type="button" value="Examples" style="text-align: right;font-size: 12px;" />
@@ -266,21 +244,11 @@
 
                                             </ul>
                                         </li>
-
-
-
-
                                     </ul>
                                 </td>-->
 
-
-
                                 <td align="center" style=" padding: 10px;">
-
                                     <input class="rounded" id="id_search_word"  name="search_word" type="text" style="width:600px;height: 20px;font-size: 12px" value="<%=searched_word%>" />
-
-
-
                                 </td>
                                 <td align="center" style=" padding: 10px;">
                                     <!-- <input hidden="true" id="id_graph"  name="graph" type="text" value="http://RepositoryOntology_v2"/>-->
@@ -288,12 +256,9 @@
                                     <input id="buttonSearchImg "  type="button" onclick="submitSearch(); " style="text-align: right;font-size: 12px;" value="Search"/>
                                 </td>
                             </tr>
-                            <tr>
-
+                            <!--tr>
                                 <td colspan="4" align="center" style=" padding-top:0px; padding-bottom: 14px">Enter a keyword </td>
-
-
-                            </tr>
+                            </tr-->
 
                         </table>
 
@@ -461,7 +426,7 @@
 
                 <div id="tabMenuResult" class="tabber">
 
-                    <div id="tabactive"  class="tabbertab" title="CHAIN-REDS-KB" >
+                    <div id="tabactive"  class="tabbertab" title="E-INFRA-KB" >
 
 
                     
@@ -484,6 +449,7 @@
 
                             String []sArrayChainDescription=(String[])request.getParameterValues("arrayChainDescription");
                             ArrayList arrayChainDescription =new ArrayList(Arrays.asList(sArrayChainDescription));
+                            //System.out.println("LLLLLLL--->"+arrayChainDescription.size());
 
                             String []sArrayChainRepository=(String[])request.getParameterValues("arrayChainRepository");
                             ArrayList arrayChainRepository =new ArrayList(Arrays.asList(sArrayChainRepository));
@@ -496,15 +462,15 @@
                               {
                                    if(arrayVirtuosoResource.get(0).toString().equals("Exception")){
                             %>
-                            <span>The service is temporarily unavailable!</span>
+                            <span> The service is temporarily unavailable!</span>
                             <% }
                                 else{%>
-                            <span>Records found. Displaying  1 to <%=arrayVirtuosoResource.size()%></span>
+                            <span> Records found. Displaying  1 to <%=arrayVirtuosoResource.size()%></span>
                             <% }
 
                             } else {
                             %>
-                            <span>Records not found for "<%=searched_word%>".</span>
+                            <span> Records not found for "<%=searched_word%>".</span>
                             <%} %>
 
                         </div>
@@ -578,8 +544,8 @@
                                                             
                                                               <input id="titleResourceVirtuoso<%=countId+"--"+j%>" name="titleResourceVirtuoso" value="<%= title %>" hidden="true" />
                                                              
-                                                             [<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>]
-                                                             [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resource%>"  style="cursor: pointer;" target="_blank">Linked Data</a>]</li>
+                                                             (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
+                                                             (<a href="<%=LodLiveEndPoint%>/?<%=resource%>"  style="cursor: pointer;" target="_blank">Linked Data</a>)</li>
                                                             
                                                         <%
                                                          }else{
@@ -590,8 +556,8 @@
                                                         <!-- <img id="counterResoureGS_<%=countId%>" style="cursor: pointer;width:20px;height: 20px;" src="<%=renderRequest.getContextPath()%>/images/gscholar_icon.png" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)" />
                                                          <a href="http://localhost:8080/testlodlive/?<%=resource%>" target="_blank"><img id="<%=resource%>" style="cursor: pointer;width:80px;height: 25px;" src="<%=renderRequest.getContextPath()%>/images/lodliveLogo200px.jpg" /></a></li>
                                                             <input id="titleResourceVirtuoso<%=countId+"--"+j%>" name="titleResourceVirtuoso" value="<%= title %>" hidden="true" />-->
-                                                            [<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>]
-                                                         [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resource%>" style="cursor: pointer;" target="_blank">Linked Data</a>]</li>
+                                                            (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
+                                                         (<a href="<%=LodLiveEndPoint%>/?<%=resource%>" style="cursor: pointer;" target="_blank">Linked Data</a>)</li>
                                                         
                                                         <input id="titleResourceVirtuoso<%=countId+"--"+j%>" name="titleResourceVirtuoso" value="<%= title %>" hidden="true" />
                                                         <%
@@ -680,19 +646,19 @@
 
                                         </tr> <!-- chiudo riga description --> 
 
-                                        <!--     <tr>
+                                        <tr>
                                             <td>
                                                 <form id="checkCitations" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_GET_CITATIONS_GSCHOLAR"/></portlet:actionURL>" method="post">
                                                     <br>
 
                                                     <input id="title_GS" name="title_GS" value="" hidden="true" />
-                                                    <!-- <input id="control_GS" name="control_GS" value="" hidden="true" /> -->
+                                                    <!-- <input id="control_GS" name="control_GS" value="" hidden="true" />-->
 
-                                               <!--     <p id="counterResoureGS_<%=countId%>" style="cursor: pointer;color: green;" onclick="CheckCitations(this.id)">Check citations on Google Scholar</p>    
+                                                    <p id="counterResoureGS_<%=countId%>" style="cursor: pointer;color: green;" onclick="CheckCitations(this.id)">Check citations on Google Scholar</p>    
                                                 </form>
                                             </td> 
 
-                                        </tr>  -->
+                                        </tr>  
 
 
 
@@ -772,7 +738,7 @@
                         <div class="showpageArea">
 
 
-                            <span  >Records found. Displaying  1 to <%=arrayVirtuosoResource.size()%>
+                            <span> Records found. Displaying  1 to <%=arrayVirtuosoResource.size()%>
 
                                 <% if(arrayVirtuosoResource.size()==limitMax) {%>
 
@@ -793,7 +759,7 @@
                     <!-- CODICE OPENAGRIS**************** -->
 
                     <% if (OpenAgris.equals("true")) { %>
-                    <div id="notabactive" class="tabbertab" title="OpenAgris" >        
+                    <div id="notabactive" class="tabbertab" title="OPENAGRIS" >        
 
                         <%
                         
@@ -823,12 +789,12 @@
                             <span>The service is temporarily unavailable!</span>
                             <% }
                                 else{%>
-                            <span>Records found. Displaying  1 to <%=arrayOpenAgrisResource.size()%></span>
+                            <span> Records found. Displaying  1 to <%=arrayOpenAgrisResource.size()%></span>
                             <% }
 
                             } else {
                             %>
-                            <span>Records not found for "<%=searched_word%>".</span>
+                            <span> Records not found for "<%=searched_word%>".</span>
                             <%} %>
                         </div>
 
@@ -867,7 +833,7 @@
                                                     %>
                                                     <li><%= title %>
                                                      <!--<a href="http://localhost:8080/testlodlive/?<%=resource%>" target="_blank"><img id="<%=resource%>" style="cursor: pointer;width:80px;height: 25px;" src="<%=renderRequest.getContextPath()%>/images/lodliveLogo200px.jpg" /></a></li>-->
-                                                        [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resource%>" target="_blank" id="<%=resource%>" style="cursor: pointer;">Linked Data</a>]</li>
+                                                        (<a href="<%=LodLiveEndPoint%>/?<%=resource%>" target="_blank" id="<%=resource%>" style="cursor: pointer;">Linked Data</a>)</li>
 
                                                     <%
                                                               }
@@ -968,7 +934,7 @@
                         <div class="showpageArea">
 
 
-                            <span  >Records found. Displaying  1 to <%=arrayOpenAgrisResource.size()%>
+                            <span> Records found. Displaying  1 to <%=arrayOpenAgrisResource.size()%>
 
                                 <% if(arrayOpenAgrisResource.size()==limitMaxOpenAgris) {%>
 
@@ -990,7 +956,7 @@
                     <!-- CODICE EUROPEANA**************** -->
                     <% if (Europeana.equals("true")) { %>
 
-                    <div id="notabactive" class="tabbertab" title="Europeana" >         
+                    <div id="notabactive" class="tabbertab" title="EUROPEANA" >         
                         <%
                       String [] sArrayEuropeana=(String[])request.getParameterValues("arrayEuropeanaResource");
                       ArrayList arrayEuropeanaResource =new ArrayList(Arrays.asList(sArrayEuropeana)); 
@@ -1011,7 +977,7 @@
                        
                     String [] sArrayEuropeanaType=(String[]) request.getParameterValues("arrayEuropeanaType");
                     ArrayList arrayEuropeanaType=new ArrayList(Arrays.asList(sArrayEuropeanaType)); 
-                       
+                        
                         
                         %>
                         <div class="showpageArea">
@@ -1022,12 +988,12 @@
                             <span>The service is temporarily unavailable!</span>
                             <% }
                                 else{%>
-                            <span>Records found. Displaying  1 to <%=arrayEuropeanaResource.size()%></span>
+                            <span> Records found. Displaying  1 to <%=arrayEuropeanaResource.size()%></span>
                             <% }
 
                             } else {
                             %>
-                            <span>Records not found for "<%=searched_word%>".</span>
+                            <span> Records not found for "<%=searched_word%>".</span>
                             <%} %>
                         </div>
                         <table>   
@@ -1035,6 +1001,7 @@
                         
                             if(arrayEuropeanaResource.size()>0 && !arrayEuropeanaResource.get(0).toString().equals("Exception") )
                             {
+                                
                                 for (int i=0;i<arrayEuropeanaResource.size();i++)
                                 {
                                     String resourceEuropeana=arrayEuropeanaResource.get(i).toString();
@@ -1048,6 +1015,7 @@
                                             <td>
                                                 <% if(arrayEuropeanaTitle.size()>0){
                                                   
+                                                    
                                                     ArrayList id_stringEuropeana=new ArrayList();
                                                     ArrayList id_httpEuropeana=new ArrayList();
                         
@@ -1080,6 +1048,7 @@
                                                     
                                                 
                                                   String [] stitles=  titles.split("##");
+                                                  
                                                 %>
 
                                                 <ul class="klios_list"> 
@@ -1091,11 +1060,12 @@
                                                              
                                                          
                                                           String link= id_httpEuropeana.get(0).toString();
+                                                          
                                                           //System.out.println("linkkkkkkkkkk europeana "+link);
                                                           if(!title.equals("")){
                                                     %>
                                                     <li><a href="<%= link %>" target="_blank" title="<%= link%>"><%= title %> </a>
-                                                    [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resourceEuropeana%>" target="_blank" id="<%=resourceEuropeana%>" style="cursor: pointer;">Linked Data</a>]</li>
+                                                    (<a href="<%=LodLiveEndPoint%>/?<%=resourceEuropeana%>" target="_blank" id="<%=resourceEuropeana%>" style="cursor: pointer;">Linked Data</a>)</li>
 
                                                     <%
                                                                                                        }
@@ -1104,18 +1074,35 @@
                                                       if(!title.equals("")){ 
                                                     %>
                                                     <li><%= title %>
-                                                    [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resourceEuropeana%>" target="_blank" id="<%=resourceEuropeana%>" style="cursor: pointer;" >Linked Data</a>]</li>
+                                                    (<a href="<%=LodLiveEndPoint%>/?<%=resourceEuropeana%>" target="_blank" id="<%=resourceEuropeana%>" style="cursor: pointer;" >Linked Data</a>)</li>
                                                     <%
                                                           }
                                                         }
                                                   }
                                                   if(arrayEuropeanaType.size()>0){
+                                                      
+                                                      
+                                                      
                                                       String types=arrayEuropeanaType.get(i).toString();
+                                                      
+                                                      
+                                                      
+                                                      String type="";
+                                                      if(!types.equals("") && !types.equals("---")){
                                                       String [] stype_eu=types.split("##");
-                                                      String type=stype_eu[1].toString();
-                                                    %>
-                                                    <li>(TYPE: <%=type%>)</li>
-                                                    <%}%>
+                                                      for (int k=0;k<stype_eu.length;k++)
+                                                       {
+                                                          if(!stype_eu[k].toString().equals(""))
+                                                            type=stype_eu[k].toString()+";"+type;
+                                                       }
+                                                      %> <li>(TYPE: <%=type%>)</li> <%
+                                                      
+                                                      }
+                                                      
+                                                    
+                                                   
+                                                   
+                                                     }%>
                                                 </ul> 
 
 
@@ -1230,7 +1217,7 @@
                         <div class="showpageArea">
 
 
-                            <span  >Records found. Displaying  1 to <%=arrayEuropeanaResource.size()%>
+                            <span> Records found. Displaying  1 to <%=arrayEuropeanaResource.size()%>
 
                                 <% if(arrayEuropeanaResource.size()==limitMaxEuropeana) {%>
 
@@ -1246,12 +1233,15 @@
 
 
                     </div>
-                    <% } %>
+                    <% 
+                    
+System.out.println("FINE EUROPEANA");
+} %>
                     <!--FINE CODICE EUROPEANA**************** -->
 
                     <!-- CODICE CULTURA ITALIA**************** -->
                     <% if (CulturaItalia.equals("true")) { %>
-                    <div id="notabactive" class="tabbertab" title="CulturaItalia" >  
+                    <div id="notabactive" class="tabbertab" title="CULTURAITALIA" >  
 
 
                         <%String []sArrayCulturaItalia=(String[])request.getParameterValues("arrayCulturaItaliaResource");
@@ -1276,12 +1266,12 @@
                             <span>The service is temporarily unavailable!</span>
                             <% }
                                 else{%>
-                            <span>Records found. Displaying  1 to <%=arrayCulturaItaliaResource.size()%></span>
+                            <span> Records found. Displaying  1 to <%=arrayCulturaItaliaResource.size()%></span>
                             <% }
 
                             } else {
                             %>
-                            <span>Records not found for "<%=searched_word%>".</span>
+                            <span> Records not found for "<%=searched_word%>".</span>
                             <%} %>
                         </div>
                         <table>  
@@ -1316,7 +1306,7 @@
                                                           if(!title.equals("")){
                                                     %>
                                                     <li><%= title %>
-                                                    [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resource%>" target="_blank" id="<%=resource%>" style="cursor: pointer;">Linked Data</a>]</li>
+                                                    (<a href="<%=LodLiveEndPoint%>/?<%=resource%>" target="_blank" id="<%=resource%>" style="cursor: pointer;">Linked Data</a>)</li>
 
                                                     <%}
                                                        }%>
@@ -1428,7 +1418,7 @@
                         <div class="showpageArea">
 
 
-                            <span  >Records found. Displaying  1 to <%=arrayCulturaItaliaResource.size()%>
+                            <span> Records found. Displaying  1 to <%=arrayCulturaItaliaResource.size()%>
 
                                 <% if(arrayCulturaItaliaResource.size()==limitMaxCulturaItalia) {%>
 
@@ -1447,13 +1437,13 @@
 
                     <!-- CODICE ISIDORE**************** -->
                     <% if (Isidore.equals("true")) { %>
-                    <div id="notabactive" class="tabbertab" title="Isidore" >         
+                    <div id="notabactive" class="tabbertab" title="ISIDORE" >         
 
                         <%
                            String [] sArrayIsidore=(String[])request.getParameterValues("arrayIsidoreResource");
                            ArrayList arrayIsidoreResource =new ArrayList(Arrays.asList(sArrayIsidore)); 
 
-                           //System.out.println("SIZE Isidore-->"+arrayIsidoreResource.size());
+                           System.out.println("SIZE Isidore-->"+arrayIsidoreResource.size());
                            String [] sArrayIsidoreTitle=(String[])request.getParameterValues("arrayIsidoreTitle");
                            ArrayList arrayIsidoreTitle =new ArrayList(Arrays.asList(sArrayIsidoreTitle)); 
 
@@ -1481,12 +1471,12 @@
                             <span>The service is temporarily unavailable!</span>
                             <% }
                                 else{%>
-                            <span>Records found. Displaying  1 to <%=arrayIsidoreResource.size()%></span>
+                            <span> Records found. Displaying  1 to <%=arrayIsidoreResource.size()%></span>
                             <% }
 
                             } else {
                             %>
-                            <span>Records not found for "<%=searched_word%>".</span>
+                            <span> Records not found for "<%=searched_word%>".</span>
                             <%} %>
                         </div>
                         <table>   
@@ -1555,7 +1545,7 @@
                                                           if(!title.equals("")){
                                                     %>
                                                     <li><a href="<%= link %>" target="_blank" title="<%= link%>"><%= title %> </a>
-                                                    [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resourceIsidore%>" target="_blank" id="<%=resourceIsidore%>" style="cursor: pointer;">Linked Data</a>]</li>
+                                                    (<a href="<%=LodLiveEndPoint%>/?<%=resourceIsidore%>" target="_blank" id="<%=resourceIsidore%>" style="cursor: pointer;">Linked Data</a>)</li>
 
                                                     <%
                                                                                                        }
@@ -1565,7 +1555,7 @@
                                                        
                                                     %>
                                                     <li><%= title %>
-                                                    [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resourceIsidore%>" target="_blank" id="<%=resourceIsidore%>" style="cursor: pointer;" >Linked Data</a>]</li>
+                                                    (<a href="<%=LodLiveEndPoint%>/?<%=resourceIsidore%>" target="_blank" id="<%=resourceIsidore%>" style="cursor: pointer;" >Linked Data</a>)</li>
                                                     <%}
                                                     }
                                                   }%>
@@ -1589,6 +1579,7 @@
                                                 %>
                                                 <h5 class="klios">Author</h5>
                                                 <%
+                                                
                                                     String authors=arrayIsidoreAuthor.get(i).toString();
                                                     String authors1=authors.substring(2);
                                                     String authorsFinal=authors1.replace("##","; ");
@@ -1676,7 +1667,7 @@
                         <div class="showpageArea">
 
 
-                            <span  >Records found. Displaying  1 to <%=arrayIsidoreResource.size()%>
+                            <span> Records found. Displaying  1 to <%=arrayIsidoreResource.size()%>
 
                                 <% if(arrayIsidoreResource.size()==limitMaxIsidore) {%>
 
@@ -1697,7 +1688,7 @@
 
                     <!-- CODICE PUBMED**************** -->
                     <% if (Pubmed.equals("true")) { %>
-                    <div id="notabactive" class="tabbertab" title="Pubmed" >         
+                    <div id="notabactive" class="tabbertab" title="PUBMED" >         
 
                         <%
                            String [] sArrayPubmed=(String[])request.getParameterValues("arrayPubmedResource");
@@ -1713,13 +1704,12 @@
                            String [] sArrayPubmedDescription=(String[])request.getParameterValues("arrayPubmedDescription");
                            ArrayList arrayPubmedDescription =new ArrayList(Arrays.asList(sArrayPubmedDescription)); 
                         
-                           //String [] sArrayIsidoreIdentifier=(String[])request.getParameterValues("arrayIsidoreIdentifier");
-                          // ArrayList arrayIsidoreIdentifier =new ArrayList(Arrays.asList(sArrayIsidoreIdentifier)); 
+                           String [] sArrayPubmedURL=(String[])request.getParameterValues("arrayPubmedURL");
+                           ArrayList arrayPubmedURL =new ArrayList(Arrays.asList(sArrayPubmedURL)); 
+                           
+                         //  String [] sArrayPubmedURI=(String[])request.getParameterValues("arrayPubmedURI");
 
-                       
-    
-
-                       
+                           
                     
                         
                         %>
@@ -1731,12 +1721,12 @@
                             <span>The service is temporarily unavailable!</span>
                             <% }
                                 else{%>
-                            <span>Records found. Displaying  1 to <%=arrayPubmedResource.size()%></span>
+                            <span> Records found. Displaying  1 to <%=arrayPubmedResource.size()%></span>
                             <% }
 
                             } else {
                             %>
-                            <span>Records not found for "<%=searched_word%>".</span>
+                            <span> Records not found for "<%=searched_word%>".</span>
                             <%} %>
                         </div>
                         <table>   
@@ -1757,12 +1747,18 @@
                                             <td>
                                                 <% if(arrayPubmedTitle.size()>0 ){
                                                      
-   
-                                                    ArrayList id_stringPubmed=new ArrayList();
-                                                    ArrayList id_httpPubmed=new ArrayList();
-                        
-                        
-                        
+                                                    String URL="";
+                                                    if(arrayPubmedURL.size()>0){
+                                                        String url_=arrayPubmedURL.get(i).toString();
+                                                        String [] surl=  url_.split("##");
+                                                        
+                                                        for(int j=0;j<surl.length;j++)    
+                                                         {
+                                                            if(surl[j]!="")
+                                                                URL =surl[j];
+                                                           
+                                                        }
+                                                       }
    
                                                 %>
 
@@ -1782,18 +1778,36 @@
                                                      {
                                                               
                                                        String title=stitles[j];
+                                                       
+                                                       if(URL!="" && URL!="---")
+                                                       {
+                                                            if(!title.equals("")){
                                                     %>
-                                                    <li><%= title %></li>
+                                                    <li><a href="<%= URL %>" target="_blank" title="<%=URL%>"><%= title %> </a>
+                                                    [<a href="<%=LodLiveEndPoint%>/?<%=resourcePubmed%>" target="_blank" id="<%=resourcePubmed%>" style="cursor: pointer;">Linked Data</a>]</li>
+                                                    
                                                     <%
+                                                       
+                                                       }
+                                                       }
+                                                     else{
+                                                           if(!title.equals("")){
+                                                    %>
+                                                    <li><%= title %>
+                                                     [<a href="<%=LodLiveEndPoint%>/?<%=resourcePubmed%>" target="_blank" id="<%=resourcePubmed%>" style="cursor: pointer;">Linked Data</a>]
+                                                    </li>
                                                      
+                                                    <%
+                                                     }
                                                      }%>
-                                                </ul> 
+                                                
                                                 <%}%>
-
+                                                 </ul>
 
                                                 <% 
-                                             
-                                                 }//chiudo Title%>
+                                                                                               
+                                                 }
+                                               }//chiudo Title%>
                                             </td>
                                         </tr> <!-- chiudo riga title --> 
 
@@ -1869,13 +1883,15 @@
 
                                         <tr>
                                             <td>
-                                                <form id="searchDetailPubmed" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_GET_MORE_INFO_PUBMED"/></portlet:actionURL>" method="post">
+                                               <!-- <form id="searchDetailPubmed" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_GET_MORE_INFO_PUBMED"/></portlet:actionURL>" method="post">
                                                     <input id="idResourcePubmed" name="idResourcePubmed" value="<%= resourcePubmed%>" hidden="true" />
                                                     <input id="idNumResourcePubmed_<%=resourcePubmed%>" name="numResourcePubmedTemp" value="<%=i%>" hidden="true" />
                                                     <p id="counterResourcePubmed_<%=resourcePubmed%>" style="cursor: pointer;color: red;" onclick="GoDetailsPubmed(this.id)">More Info</p>    
                                                     <input id="numResourcePubmed" name="numResourcePubmed" value="" hidden="true" />
                                                     <input id="id_search_word2" name="search_word" value="<%=searched_word%>" hidden="true" />
-                                                </form>
+                                                </form> -->
+                                                <a href="http://clinicaltrials.bio2rdf.org/describe/?url=<%=resourcePubmed%>" target="_blank " style="cursor: pointer;color: red;">  More Info</a>
+                                                
                                             </td>
 
                                         </tr>
@@ -1904,7 +1920,7 @@
                         <div class="showpageArea">
 
 
-                            <span  >Records found. Displaying  1 to <%=arrayPubmedResource.size()%>
+                            <span> Records found. Displaying  1 to <%=arrayPubmedResource.size()%>
 
                                 <% if(arrayPubmedResource.size()==limitMaxPubmed) {%>
 
@@ -1925,7 +1941,7 @@
 
                     <!-- CODICE ENGAGE**************** -->
                     <% if (Engage.equals("true")) { %>
-                    <div id="notabactive" class="tabbertab" title="Engage" > 
+                    <div id="notabactive" class="tabbertab" title="ENGAGE" > 
                         <%
                             
 
@@ -1961,12 +1977,12 @@
                             <span>The service is temporarily unavailable!</span>
                             <% }
                                 else{%>
-                            <span>Records found. Displaying  1 to <%=arrayEngageResource.size()%></span>
+                            <span> Records found. Displaying  1 to <%=arrayEngageResource.size()%></span>
                             <% }
 
                             } else {
                             %>
-                            <span>Records not found for "<%=searched_word%>".</span>
+                            <span> Records not found for "<%=searched_word%>".</span>
                             <%} %>
                         </div>
                         <table>   
@@ -2041,7 +2057,7 @@
                                                        String resourceEng=res+""+numResource; 
                                                        System.out.println("RISORSA DI ENGAGE===>>"+resourceEng);
                                                      %>
-                                                        [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=resourceEng%>" target="_blank" id="<%=homepageResourceEngage%>" style="cursor: pointer;">Linked Data</a>]</li>
+                                                        (<a href="<%=LodLiveEndPoint%>/?<%=resourceEng%>" target="_blank" id="<%=homepageResourceEngage%>" style="cursor: pointer;">Linked Data</a>)</li>
 
                                                     <%
                                                        }
@@ -2050,7 +2066,7 @@
                                                        if(!title.equals("")){
                                                     %>
                                                     <li><%= title %>
-                                                     [<a href="http://www.chain-project.eu/LodLiveGraph/?<%=homepageResourceEngage%>" target="_blank" id="<%=homepageResourceEngage%>" style="cursor: pointer;">Linked Data</a>]</li>
+                                                     (<a href="<%=LodLiveEndPoint%>/?<%=homepageResourceEngage%>" target="_blank" id="<%=homepageResourceEngage%>" style="cursor: pointer;">Linked Data</a>)</li>
                                                     <%
                                                         }
                                                        }
@@ -2168,7 +2184,7 @@
                         <div class="showpageArea">
 
 
-                            <span  >Records found. Displaying  1 to <%=arrayEngageResource.size()%>
+                            <span> Records found. Displaying  1 to <%=arrayEngageResource.size()%>
 
                                 <% if(arrayEngageResource.size()==limitMaxEngage) {%>
 
@@ -2196,6 +2212,7 @@
                     <center>
                         <p>Searching...</p>
                         <p>This may take some time</p>
+                        <p>(up to <%=TimeOut%> min.)</p>
                     </center>
                 </div> 
 
@@ -2436,7 +2453,7 @@
                         {
                             var div=listDiv[i];
                             var title=div.getAttribute("title");
-                            if(title=="CHAIN-REDS-KB"){
+                            if(title=="E-INFRA-KB"){
                                 div.id ='tabactive';
                                 // alert("1")
                                 var page=document.getElementById("numberOfPage").value;
@@ -2451,17 +2468,17 @@
                                                                                                                                          
                                     window.scrollTo(x.left,x.top);
                                 }
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
                             }           
                         }
@@ -2479,24 +2496,24 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB"){
+                                if(title=="E-INFRA-KB"){
                                     div.id ='tabactive';
                                
                                     var x=$("#countResource_"+<%=numResourceFromDetails%>).position();
                 
                                     window.scrollTo(x.left,x.top);
                                 }
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
                             }
                             
@@ -2513,19 +2530,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris"){
+                                if(title=="OPENAGRIS"){
                                     div.id='tabactive';
                                     var pageOpenAgris=document.getElementById("numberOfPageOpenAgris").value;
                                     var counterOpenAgris=(pageOpenAgris*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
@@ -2558,7 +2575,7 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="OpenAgris"){
+                                if(title=="OPENAGRIS"){
                                     div.id ='tabactive';
                                     var positionDiv= $("#tabactive").position().top;
                                 
@@ -2570,17 +2587,17 @@
                                               
                                     window.scrollTo(x.left,topFinal);
                                 }
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
                             }
                             
@@ -2599,19 +2616,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia"){
+                                if(title=="CULTURAITALIA"){
                                     div.id='tabactive';
                                     var pageCultura=document.getElementById("numberOfPageCulturaItalia").value;
                            
@@ -2647,19 +2664,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia"){
+                                if(title=="CULTURAITALIA"){
                                     div.id='tabactive';
                                     var positionDiv= $("#tabactive").position().top;
                                     var x=$("#countResourceCulturaItalia_"+<%=numResourceCulturaItaliaFromDetails%>).position();
@@ -2692,19 +2709,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="Europeana"){
+                                if(title=="EUROPEANA"){
                                     div.id='tabactive';
                                     //alert(" Europeana attivo1");
                                     var page=document.getElementById("numberOfPageEuropeana").value;
@@ -2741,19 +2758,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="Europeana"){
+                                if(title=="EUROPEANA"){
                                     div.id='tabactive';
                                
                                     var positionDiv= $("#tabactive").position().top;
@@ -2785,19 +2802,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="Isidore"){
+                                if(title=="ISIDORE"){
                                     div.id='tabactive';
                                     var page=document.getElementById("numberOfPageIsidore").value;
                            
@@ -2833,19 +2850,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="Isidore"){
+                                if(title=="ISIDORE"){
                                     div.id='tabactive';
                                     var positionDiv= $("#tabactive").position().top;
                                     var x=$("#countResourceIsidore_"+<%=numResourceIsidoreFromDetails%>).position();
@@ -2876,19 +2893,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="Pubmed"){
+                                if(title=="PUBMED"){
                                     div.id='tabactive';
                                 
                               
@@ -2927,19 +2944,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Engage")
+                                if(title=="ENGAGE")
                                     div.id ='notabactive';
-                                if(title=="Pubmed"){
+                                if(title=="PUBMED"){
                                     div.id='tabactive';
                                     var positionDiv= $("#tabactive").position().top;
                                     var x=$("#countResourcePubmed_"+<%=numResourcePubmedFromDetails%>).position();
@@ -2970,19 +2987,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage"){
+                                if(title=="ENGAGE"){
                                     div.id='tabactive';
                                 
                               
@@ -3021,19 +3038,19 @@
                             {
                                 var div=listDiv[i];
                                 var title=div.getAttribute("title");
-                                if(title=="CHAIN-REDS-KB")
+                                if(title=="E-INFRA-KB")
                                     div.id ='notabactive';
-                                if(title=="OpenAgris")
+                                if(title=="OPENAGRIS")
                                     div.id ='notabactive';
-                                if(title=="Europeana")
+                                if(title=="EUROPEANA")
                                     div.id ='notabactive';
-                                if(title=="CulturaItalia")
+                                if(title=="CULTURAITALIA")
                                     div.id ='notabactive';
-                                if(title=="Isidore")
+                                if(title=="ISIDORE")
                                     div.id ='notabactive';
-                                if(title=="Pubmed")
+                                if(title=="PUBMED")
                                     div.id ='notabactive';
-                                if(title=="Engage"){
+                                if(title=="ENGAGE"){
                                     div.id='tabactive';
                                     var positionDiv= $("#tabactive").position().top;
                                     var x=$("#countResourceEngage_"+<%=numResourceEngageFromDetails%>).position();
@@ -3059,7 +3076,7 @@
                     function showDialog()
                     {
         
-                        // alert("SHOW DIALOG");
+                         //alert("SHOW DIALOG");
                         $("#dialog2").dialog('open');          
        
        
@@ -3355,19 +3372,20 @@
         //submitSearch();
             
     } 
-    $( "#examplebutton" ).click(function() {
+    
+    /*$( "#examplebutton" ).click(function() {
         $( "#dialogExamples" ).dialog( "open" );
         showDialogExamples();
-    });
+    });*/
+    
+    function examplebutton() {
+        $( "#dialogExamples" ).dialog( "open" );
+        showDialogExamples();
+    }
  
     function showDialogExamples()
-    {
-        
-       
-        document.getElementById("examplebutton").disabled;
-       
-        
-       
+    {      
+        //document.getElementById("examplebutton").disabled;
         $("#dialogExamples").dialog({
             dialogClass: "no-close",
             resizable: false,
@@ -3378,15 +3396,7 @@
             autoOpen: false,
             overlay: { backgroundColor: "#000", opacity: 0.5 },
             buttons: [ { text: "close", click: function() { $( this ).dialog( "close" ); } } ]
-
-    
-              
-
         });
-        
-        
-       
-            
     }            
  </script>                     
 
@@ -3398,6 +3408,4 @@
 
 
     </body>
-
-</html>
 
