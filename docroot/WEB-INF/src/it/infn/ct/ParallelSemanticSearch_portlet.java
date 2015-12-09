@@ -198,7 +198,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         //,ACTION_SUBMIT     // Called after the user press the submit button   
         , ACTION_SEMANTIC_SEARCH_ALL_LANGUAGE, ACTION_GET_MORE_INFO,
         ACTION_GET_MORE_INFO_OPENAGRIS, ACTION_GET_MORE_INFO_CULTURAITALIA, ACTION_GET_MORE_INFO_EUROPEANA,
-        ACTION_GET_MORE_INFO_ISIDORE, ACTION_GET_MORE_INFO_PUBMED, ACTION_GET_MORE_INFO_ENGAGE, ACTION_GET_CITATIONS_GSCHOLAR
+        ACTION_GET_MORE_INFO_ISIDORE, ACTION_GET_MORE_INFO_PUBMED, ACTION_GET_MORE_INFO_ENGAGE, 
+        ACTION_GET_MORE_INFO_DBPEDIA,ACTION_GET_CITATIONS_GSCHOLAR
     }
 
     private enum Views {
@@ -207,7 +208,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         // ,VIEW_SUBMIT     // View reporting the job submission     
         , VIEW_SEMANTIC_SEARCH_ALL_LANGUAGE, VIEW_GET_MORE_INFO,
         VIEW_GET_MORE_INFO_OPENAGRIS, VIEW_GET_MORE_INFO_CULTURAITALIA, VIEW_GET_MORE_INFO_EUROPEANA,
-        VIEW_GET_MORE_INFO_ISIDORE, VIEW_GET_MORE_INFO_PUBMED, VIEW_GET_MORE_INFO_ENGAGE, VIEW_CITATIONS_GSCHOLAR
+        VIEW_GET_MORE_INFO_ISIDORE, VIEW_GET_MORE_INFO_PUBMED,VIEW_GET_MORE_INFO_DBPEDIA,
+        VIEW_GET_MORE_INFO_ENGAGE, VIEW_CITATIONS_GSCHOLAR
     }
 
     // The init values will be read form portlet.xml from <init-param> xml tag
@@ -230,6 +232,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         String default_LodLive;
         String default_LodLiveEndPoint;
         String default_TimeOut;
+        String default_DBPedia;
+        String default_DBPediaEndPoint;
 
         public App_Init() {
             default_OpenAgris = "";
@@ -247,6 +251,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             default_LodLive = "";
             default_LodLiveEndPoint = "";
             default_TimeOut = "";
+            default_DBPedia = "";
+            default_DBPediaEndPoint = "";
 
         }
     } // App_Init
@@ -275,12 +281,14 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         String LodLive;
         String LodLiveEndPoint;
         String TimeOut;
+        String DBPedia;
+        String DBPediaEndPoint;
 
         public App_Preferences() {
             OpenAgris = OpenAgrisEndPoint = Europeana = EuropeanaEndPoint = 
             CulturaItalia = CulturaItaliaEndPoint = Isidore = IsidoreEndPoint =
             Pubmed = PubmedEndPoint = Engage = EngageEndPoint = NumberRecordsForPage = 
-            LodLive = LodLiveEndPoint = TimeOut = "";
+            LodLive = LodLiveEndPoint = TimeOut = DBPedia = DBPediaEndPoint="";
         }
     } // App_Preferences
     // Instanciate the App_Preferences object
@@ -348,6 +356,17 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         String moreInfoEngage;
         String numResourceEngage;
         String numResourceEngageFromDetails;
+          //DBPEDIA
+        String idResourceDBPedia;
+        String numberPageDBPedia;
+        String moreResourceDBPedia;
+        String moreInfoDBPedia;
+        String numResourceDBPedia;
+        String numResourceDBPediaFromDetails;
+        
+        
+        
+        
         String title_GS;
         // Some user level information
         // must be stored as well
@@ -402,6 +421,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             moreInfoEngage = "";
             numResourceEngage = "";
             numResourceEngageFromDetails = "";
+            
+            idResourceDBPedia="";
+            numberPageDBPedia="";
+            moreResourceDBPedia="";
+            moreInfoDBPedia="";
+            numResourceDBPedia="";
+            numResourceDBPediaFromDetails="";
 
             title_GS = "";
 
@@ -494,6 +520,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
     String[] sArrayEngageAuthor;
     String[] sArrayEngageDescription;
     String[] sArrayEngageHomepage;
+    
+    //VARIABILI GLOBALI DBPEDIA
+    String[] sArrayDBPedia;
+    String[] sArrayDBPediaTitle;
+    String[] sArrayDBPediaDescription;
+   
+    
     //VARIABILI GLOBALI PER GESTIRE IL BACK DA MORE INFO
     //String search_word;
     String selected_page = "";
@@ -503,6 +536,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
     String selected_pageIsidore = "";
     String selected_pagePubmed = "";
     String selected_pageEngage = "";
+    String selected_pageDBPedia = "";
     String moreResourceCHAIN;
     String moreResourceCulturaItalia = "";
     String moreResourceOpenAgris = "";
@@ -510,6 +544,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
     String moreResourceIsidore = "";
     String moreResourcePubmed = "";
     String moreResourceEngage = "";
+    String moreResourceDBPedia = "";
     // Liferay user data
     // Classes below are used by this portlet code to get information
     // about the current user
@@ -566,10 +601,13 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         appInit.default_PubmedEndPoint = "" + getInitParameter("PubmedEndPoint");
         appInit.default_Engage = "" + getInitParameter("Engage");
         appInit.default_EngageEndPoint = "" + getInitParameter("EngageEndPoint");
+        appInit.default_DBPedia = "" + getInitParameter("DBPedia");
+        appInit.default_DBPediaEndPoint = "" + getInitParameter("DBPediaEndPoint");
         appInit.default_NumberRecordsForPage = "" + getInitParameter("NumberRecordsForPage");
         appInit.default_LodLive = "" + getInitParameter("LodLive");
         appInit.default_LodLiveEndPoint = "" + getInitParameter("LodLiveEndPoint");
         appInit.default_TimeOut = "" + getInitParameter("TimeOut");
+        
         
         // WARNING: Although the pilot script field is considered here it is not
         // Possible to specify a bash script code inside thie init_pilotScript
@@ -592,6 +630,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 + LS + " PubmedEndPoint DEFAULT: " + appInit.default_PubmedEndPoint
                 + LS + " Engage DEFAULT: " + appInit.default_Engage
                 + LS + " EngageEndPoint DEFAULT: " + appInit.default_EngageEndPoint
+                + LS + " DBPedia DEFAULT: " + appInit.default_DBPedia
+                + LS + " DBPediaEndPoint DEFAULT: " + appInit.default_DBPediaEndPoint
                 + LS + " NumberRecordsForPage DEFAULT: " + appInit.default_NumberRecordsForPage
                 + LS + " LodLive DEFAULT: " + appInit.default_LodLive
                 + LS + " LodLiveEndPoint DEFAULT: " + appInit.default_LodLiveEndPoint
@@ -909,6 +949,33 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                     // Send the jobIdentifier and assign the correct view                    
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_GET_MORE_INFO_PUBMED);
                     break;
+                    
+                    
+               case ACTION_GET_MORE_INFO_DBPEDIA:
+                    _log.info("Got action: 'ACTION_GET_MORE_INFO_DBPEDIA'");
+
+                    // Get current preference values
+                    //getPreferences(request, null);
+
+                    // Create the appInput object
+                    appInput = new App_Input();
+
+                    // Stores the user submitting the job
+                    appInput.username = username;
+
+                    // Process input fields and files to upload
+                    getInputForm(request, appInput);
+
+                    //System.out.println("ID-RESOURCEEUROPEANA: " + appInput.idResourceEuropeana);
+                    response.setRenderParameter("idResourceDBPedia", appInput.idResourceDBPedia);
+                    response.setRenderParameter("numResourceDBPedia", appInput.numResourceDBPedia);
+                    response.setRenderParameter("search_word", appInput.search_word);
+
+                    // Send the jobIdentifier and assign the correct view                    
+                    response.setRenderParameter("PortletStatus", "" + Views.VIEW_GET_MORE_INFO_DBPEDIA);
+
+                    break;     
+                    
 
                 case ACTION_GET_MORE_INFO_ENGAGE:
                     _log.info("Got action: 'ACTION_GET_MORE_INFO_ENGAGE'");
@@ -1134,7 +1201,39 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
             response.setRenderParameter("EngageEndPoint", "" + new_EngageEndPoint);
             appPreferences.EngageEndPoint = new_EngageEndPoint;
-            portletPreferences.setValue("EngageEndPoint", new_EngageEndPoint);            
+            portletPreferences.setValue("EngageEndPoint", new_EngageEndPoint); 
+            
+            
+            //**************DBPEDIA*************
+            String new_DBPedia = "";
+            if (request.getParameter("DBPedia") != null) {
+                new_DBPedia = request.getParameter("DBPedia");
+                // System.out.println("ENGAGE1: " + new_Engage);
+            } else {
+                new_DBPedia = "false";
+            }
+            //System.out.println("IN ACTION new_Engage----> " + new_Engage);
+            response.setRenderParameter("new_DBPedia", "" + new_DBPedia);
+            appPreferences.DBPedia = new_DBPedia;
+            // request.setAttribute("pref_value", new_pref_value);
+            portletPreferences.setValue("DBPedia", new_DBPedia);
+            
+            //**************DBPEDIA ENDPOINT*************
+            String new_DBPediaEndPoint = "";
+            if (request.getParameter("DBPediaEndPoint") != null && 
+               !request.getParameter("DBPediaEndPoint")
+                    .equals(appInit.default_DBPediaEndPoint)) {
+                new_DBPediaEndPoint = request.getParameter("DBPediaEndPoint");
+            } else {
+                new_DBPediaEndPoint = appInit.default_DBPediaEndPoint;
+            }
+            //System.out.println("IN ACTION new_OpenAgrisEndPoint----> " + new_OpenAgrisEndPoint);
+            response.setRenderParameter("DBPediaEndPoint", "" + new_DBPediaEndPoint);
+            appPreferences.DBPediaEndPoint = new_DBPediaEndPoint;
+            portletPreferences.setValue("DBPediaEndPoint", new_DBPediaEndPoint);            
+            
+            
+            
 
             //**************NUMBER RECORDS FOR PAGE*************
             String new_NumberRecordsForPage = "";
@@ -1331,6 +1430,19 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 dispatcher.include(request, response);
             }
                 break;
+             
+            case VIEW_GET_MORE_INFO_DBPEDIA: {
+                _log.info("VIEW_GET_MORE_INFO_DBPEDIA Selected ...");
+                //String idResource = request.getParameter("idResource");
+                // request.setAttribute("idResource", idResource);                               
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewDetailsResourceDBPedia.jsp");
+
+                dispatcher.include(request, response);
+            }
+                break;     
+                
+                
             case VIEW_GET_MORE_INFO_ENGAGE: {
                 _log.info("VIEW_GET_MORE_INFO_ENGAGE Selected ...");
                 //String idResource = request.getParameter("idResource");
@@ -1501,6 +1613,28 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             portletPreferences.store();
         }
         
+        String DBPedia = portletPreferences.getValue("DBPedia", "");
+        //System.out.println("appPreferences.Pubmed--->" + Pubmed);
+
+        if (DBPedia == null || DBPedia.equals("")) {
+            //System.out.println("Pubmed null");
+            //System.out.println("DefaultValue Pubmed " + appInit.default_Pubmed);
+            appPreferences.DBPedia = appInit.default_DBPedia;
+            portletPreferences.setValue("DBPedia", appPreferences.DBPedia);
+          //  portletPreferences.store();
+        }
+        
+        String DBPediaEndPoint = portletPreferences.getValue("DBPediaEndPoint", "");
+        //System.out.println("appPreferences.Pubmed--->" + Pubmed);
+
+        if (DBPediaEndPoint == null || DBPediaEndPoint.equals("")) {
+            //System.out.println("Pubmed null");
+            //System.out.println("DefaultValue Pubmed " + appInit.default_Pubmed);
+            appPreferences.DBPediaEndPoint = appInit.default_DBPediaEndPoint;
+            portletPreferences.setValue("DBPediaEndPoint", appPreferences.DBPediaEndPoint);
+            portletPreferences.store();
+        }
+        
         String NumberRecordsForPage = portletPreferences.getValue("NumberRecordsForPage", "");
         //System.out.println("appPreferences.NumberRecordsForPage--->" + NumberRecordsForPage);
 
@@ -1661,6 +1795,14 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             appInput.numResourceEngage = (String) request.getParameter("numResourceEngage");
             appInput.numResourceEngageFromDetails = (String) request.getParameter("numResourceEngageFromDetails");
             appInput.moreInfoEngage = (String) request.getParameter("moreInfoEngage");
+            
+            appInput.idResourceDBPedia = (String) request.getParameter("idResourceDBPedia");
+            appInput.moreResourceDBPedia = (String) request.getParameter("moreResourceDBPedia");
+            appInput.numberPageDBPedia = (String) request.getParameter("numberOfPageDBPedia");
+            appInput.numResourceDBPedia = (String) request.getParameter("numResourceDBPedia");
+            appInput.numResourceDBPediaFromDetails = (String) request.getParameter("numResourceDBPediaFromDetails");
+            appInput.moreInfoDBPedia = (String) request.getParameter("moreInfoDBPedia");
+            
             appInput.title_GS = (String) request.getParameter("title_GS");
 
 
@@ -1693,6 +1835,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
                 + LS + "NumResourceCulturaItalia: '" + appInput.numResourceCulturaItalia + "'"
                 + LS + "NumResourceCulturaItaliaFromDetails: '" + appInput.numResourceCulturaItaliaFromDetails + "'"
                 + LS + "idResourceCulturaItalia: '" + appInput.idResourceCulturaItalia + "'"
+                + LS + "NumResourceDBPedia: '" + appInput.numResourceDBPedia + "'"
+                + LS + "NumResourceDBPediaFromDetails: '" + appInput.numResourceDBPediaFromDetails + "'"
+                + LS + "idResourceCulturaItalia: '" + appInput.idResourceCulturaItalia + "'"
                 + LS + "moreResourceEuropeana: '" + appInput.moreResourceEuropeana + "'"
                 + LS);
     } // getInputForm 
@@ -1709,7 +1854,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
          && !appInput.moreInfoEuropeana.equals("OK")
          && !appInput.moreInfoIsidore.equals("OK") 
          && !appInput.moreInfoPubmed.equals("OK")
-         && !appInput.moreInfoEngage.equals("OK")) 
+         && !appInput.moreInfoEngage.equals("OK")
+          && !appInput.moreInfoDBPedia.equals("OK")) 
         {
 
             SemanticQuery query = new SemanticQuery();
@@ -1837,7 +1983,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
          && !appInput.moreInfoEuropeana.equals("OK")
          && !appInput.moreInfoIsidore.equals("OK") 
          && !appInput.moreInfoPubmed.equals("OK")
-         && !appInput.moreInfoEngage.equals("OK")) 
+         && !appInput.moreInfoEngage.equals("OK")
+         && !appInput.moreInfoDBPedia.equals("OK")) 
         {
 
             String OpenAgrisEndPoint = portletPreferences.getValue("OpenAgrisEndPoint", "");            
@@ -1983,7 +2130,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
          && !appInput.moreInfoEuropeana.equals("OK")
          && !appInput.moreInfoIsidore.equals("OK") 
          && !appInput.moreInfoPubmed.equals("OK")
-         && !appInput.moreInfoEngage.equals("OK")) 
+         && !appInput.moreInfoEngage.equals("OK")
+         && !appInput.moreInfoDBPedia.equals("OK")) 
         {
 
             String CulturaItaliaEndPoint = portletPreferences.getValue("CulturaItaliaEndPoint", "");
@@ -2131,7 +2279,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
          && !appInput.moreInfoEuropeana.equals("OK")
          && !appInput.moreInfoIsidore.equals("OK") 
          && !appInput.moreInfoPubmed.equals("OK")
-         && !appInput.moreInfoEngage.equals("OK")) 
+         && !appInput.moreInfoEngage.equals("OK")
+         && !appInput.moreInfoDBPedia.equals("OK")) 
         {
             
             String EuropeanaEndPoint = portletPreferences.getValue("EuropeanaEndPoint", "");
@@ -2297,7 +2446,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
          && !appInput.moreInfoEuropeana.equals("OK")
          && !appInput.moreInfoIsidore.equals("OK") 
          && !appInput.moreInfoPubmed.equals("OK")
-         && !appInput.moreInfoEngage.equals("OK")) 
+         && !appInput.moreInfoEngage.equals("OK")
+         && !appInput.moreInfoDBPedia.equals("OK")) 
         {
             String IsidoreEndPoint = portletPreferences.getValue("IsidoreEndPoint", "");
             System.out.println("ISIDORE ENDPOINT-->"+IsidoreEndPoint);
@@ -2448,7 +2598,8 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
          && !appInput.moreInfoEuropeana.equals("OK")
          && !appInput.moreInfoIsidore.equals("OK") 
          && !appInput.moreInfoPubmed.equals("OK")
-         && !appInput.moreInfoEngage.equals("OK")) 
+         && !appInput.moreInfoEngage.equals("OK")
+         && !appInput.moreInfoDBPedia.equals("OK")) 
         {
 
              String PubmedEndPoint = portletPreferences.getValue("PubmedEndPoint", "");
@@ -2584,6 +2735,163 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         response.setRenderParameter("moreInfoPubmed", appInput.moreInfoPubmed);
         response.setRenderParameter("numResourcePubmedFromDetails", appInput.numResourcePubmedFromDetails);
     }
+    
+    
+    public void handlerTabDBPedia(
+            ActionRequest request, 
+            ActionResponse response, 
+            App_Input appInput, 
+            int numberRecords,
+            PortletPreferences portletPreferences,
+            int TimeOut) 
+            throws  MalformedQueryException, QueryEvaluationException, 
+                    UnsupportedEncodingException, MalformedURLException, 
+                    RepositoryException, IOException 
+    {
+
+        System.out.println("DBPedia OK");
+
+        if (!appInput.moreInfo.equals("OK") 
+         && !appInput.moreInfoOpenAgris.equals("OK")
+         && !appInput.moreInfoCulturaItalia.equals("OK") 
+         && !appInput.moreInfoEuropeana.equals("OK")
+         && !appInput.moreInfoIsidore.equals("OK") 
+         && !appInput.moreInfoPubmed.equals("OK")
+         && !appInput.moreInfoEngage.equals("OK")
+         && !appInput.moreInfoDBPedia.equals("OK")) 
+        {
+
+             String DBPediaEndPoint = portletPreferences.getValue("DBPediaEndPoint", "");
+             QueryDBPedia.ConnectionToDBPedia(DBPediaEndPoint);
+
+            //se è la prima ricerca quindi siamo a pagina1
+            if ((appInput.numberPageDBPedia == null || 
+                 appInput.numberPageDBPedia == "")) 
+            {
+                selected_pageDBPedia = "1";
+                //eseguo la query per prendere le prime 20 risorse
+
+                /*ArrayList pubmedResourceList = QueryPubMed
+                        .queryPubmedResource(
+                        appInput.search_word, 
+                        selected_pagePubmed, 
+                        numberRecords,
+                        PubmedEndPoint);*/
+                
+                ArrayList dbpediaResourceList = executeCommandQuery(
+                        appInput.search_word, 
+                        selected_pageDBPedia, 
+                        numberRecords,
+                        DBPediaEndPoint,
+                        TimeOut,
+                        "TimeOutDBPedia.jar");
+
+                //istanzio gli arraylist per le proprietà delle risorse (title,author,description...)
+                ArrayList dbPediaTitleList = new ArrayList();
+                
+                ArrayList dbPediaDescriptionList = new ArrayList();
+                
+                
+                
+                for (int i = 0; i < dbpediaResourceList.size(); i++) 
+                {                    
+                    String resource = dbpediaResourceList.get(i).toString();
+                    //per ogni risorsa eseguo le query per le sue prorietà
+
+                    //le proprietà sono una singola stringa perchè i vari titoli vengono concatenati con ##
+                    String listTempTitle = QueryDBPedia.getTitle(resource);
+                    dbPediaTitleList.add(listTempTitle);
+                    //String listTempAuthorsPubmed = QueryPubMed.getPubmedAuthors(resource);
+                    String listTempDescription = QueryDBPedia.getDescription(resource);
+                    dbPediaDescriptionList.add(listTempDescription);
+                    //String listTempURLPubmed = QueryPubMed.getPubmedURL(resource);
+                   // String listTempURIPubmed=QueryPubMed.getPubmedURI(resource);
+                    //aggiungo le proprietà  in appositi ArrayList
+                   
+                    
+                }
+                
+                sArrayDBPedia = (String[]) dbpediaResourceList.toArray(new String[dbpediaResourceList.size()]);
+                System.out.println("DBPEDIA ARRAY-->"+sArrayDBPedia.length);
+                sArrayDBPediaTitle = (String[]) dbPediaTitleList.toArray(new String[dbPediaTitleList.size()]);
+                //sArrayPubmedAuthor = (String[]) pubmedAuthorList.toArray(new String[pubmedAuthorList.size()]);
+                sArrayDBPediaDescription = (String[]) dbPediaDescriptionList.toArray(new String[dbPediaDescriptionList.size()]);
+               // sArrayPubmedURL = (String[]) pubmedURLList.toArray(new String[pubmedURLList.size()]);
+               // sArrayPubmedURI = (String[]) pubmedURIList.toArray(new String[pubmedURIList.size()]);
+
+            } else {
+                // se non siamo a pagina 1 e quindi è stato cliccato More Resource in OpenAgris,
+                //oppure è stato cliccato More Resource in un qualche tab e quindi appInput.numberPageOpenAgris != null
+                selected_pageDBPedia = appInput.numberPageDBPedia;
+                moreResourceDBPedia = appInput.moreResourceDBPedia;
+                //se è non stato cliccato More Resource in CHAIN non devo ricalcolare niente perchè la pagina di OpenAgris deve 
+                //rimanere immutata
+                if (appInput.moreResourceDBPedia.equals("OK")) 
+                {
+                    //Se invece è stato cliccato More Resource in OpenAgris devo calcore il nuovo array dell e risorse 
+                    //in base alla pagina cliccata
+
+                    //ArrayList newArray = QueryPubMed
+                     //       .queryPubmedResource(
+                     //       appInput.search_word, 
+                     //       selected_pagePubmed, 
+                     //       numberRecords,
+                     //       PubmedEndPoint);
+                    
+                    ArrayList newArray = executeCommandQuery(
+                            appInput.search_word, 
+                            selected_pageDBPedia, 
+                            numberRecords,
+                            DBPediaEndPoint,
+                            TimeOut,
+                            "TimeOutDBPedia.jar");
+
+                    ArrayList newArrayTitle = new ArrayList();
+                   
+                    ArrayList newArrayDesc = new ArrayList();
+                   
+
+
+                    for (int i = 0; i < newArray.size(); i++) 
+                    {
+                        //Ogni risorsa di questo nuovo Array  viene aggiunta all'array già definito delle risorse openAgrisResourceList
+                        String resource = newArray.get(i).toString();
+                    
+                        //Per ogni nuova risorsa calcolo le proprietà che verranno aggiunte all'array di quelle già presenti
+                        String listTempTitleDBPedia = QueryDBPedia.getTitle(resource);
+                       
+                        String listTempDescriptionDBPedia = QueryDBPedia.getDescription(resource);
+                      
+
+                        newArrayTitle.add(listTempTitleDBPedia);
+                        
+                        newArrayDesc.add(listTempDescriptionDBPedia);
+                       
+                        
+                    }
+                    sArrayDBPedia = (String[]) newArray.toArray(new String[newArray.size()]);
+                    
+                    System.out.println("DBPEDIA ARRAY-->"+sArrayDBPedia.length);
+                    sArrayDBPediaTitle = (String[]) newArrayTitle.toArray(new String[newArrayTitle.size()]);
+                
+                sArrayDBPediaDescription = (String[]) newArrayDesc.toArray(new String[newArrayDesc.size()]);
+                }
+            }
+            //converto gli ArrayList in String [] in modo da poter passarli come parametri al jsp
+        }
+        response.setRenderParameter("selected_pageDBPedia", selected_pageDBPedia);
+        response.setRenderParameter("arrayDBPediaResource", sArrayDBPedia);
+        response.setRenderParameter("arrayDBPediaTitle", sArrayDBPediaTitle);
+        
+        response.setRenderParameter("arrayDBPediaDescription", sArrayDBPediaDescription);
+       
+        response.setRenderParameter("moreResourceDBPedia", moreResourceDBPedia);
+        response.setRenderParameter("moreInfoDBPedia", appInput.moreInfoDBPedia);
+        response.setRenderParameter("numResourceDBPediaFromDetails", appInput.numResourceDBPediaFromDetails);
+    }
+    
+    
+    
 
     public void handlerTabEngage(
             ActionRequest request, 
@@ -2812,6 +3120,19 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         if (appInput.numResourcePubmedFromDetails == null) {
             appInput.numResourcePubmedFromDetails = "0";
         }
+        
+        //DBPEDIA
+        if (appInput.moreResourceDBPedia == null) {
+            appInput.moreResourceDBPedia = "NO";
+            moreResourceDBPedia = appInput.moreResourceDBPedia;
+        }
+        if (appInput.moreInfoDBPedia == null) {
+            appInput.moreInfoDBPedia = "NO";
+        }
+
+        if (appInput.numResourceDBPediaFromDetails == null) {
+            appInput.numResourceDBPediaFromDetails = "0";
+        }
 
         //ENGAGE
         if (appInput.moreResourceEngage == null) {
@@ -2841,7 +3162,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         int numThread = countTab(portletPreferences);
         System.out.println("About to submit tasks to " + tp);        
         // PortletPreferences portletPreferences = request.getPreferences();
-        
+        System.out.println("PREF DBPEDIA-->"+portletPreferences.getValue("DBPedia", ""));
         final Semaphore s = new Semaphore(0);
         Thread thread_openAgris = null;
         Thread thread_culturaItalia = null;
@@ -2849,6 +3170,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         Thread thread_europeana = null;
         Thread thread_isidore = null;
         Thread thread_pubmed = null;
+        Thread thread_dbpedia = null;
         Thread thread_chain = new Thread("CHAIN_THREAD") {
             @Override
             public void run() {
@@ -3082,6 +3404,40 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             };
         }
         
+        if (portletPreferences.getValue("DBPedia", "").equals("true")) {
+        //if (appPreferences.Pubmed.equals("true")) {
+            thread_dbpedia = new Thread("DBPEDIA_THREAD") {
+
+                @Override
+                public void run() {
+
+                    System.out.println("Executing task in " + Thread.currentThread());
+                    System.out.println("################### init_thread DBPedia");
+                    
+                    try {
+                        handlerTabDBPedia(request, response, appInput, numberRecords,portletPreferences, TimeOut);
+                    } catch (MalformedQueryException ex) {
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (QueryEvaluationException ex) {
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (UnsupportedEncodingException ex) {
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (MalformedURLException ex) {
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (RepositoryException ex) {
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(ParallelSemanticSearch_portlet.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                    s.release();
+
+                    System.out.println("###################### finish thread DBPedia");
+                }
+            };
+        }
+        
+        
         if (tp != null) {
             tp.execute(thread_chain);
             if (thread_openAgris != null) {
@@ -3102,6 +3458,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             }
             if (thread_pubmed != null) {
                 tp.execute(thread_pubmed);
+            }
+             if (thread_dbpedia != null) {
+                tp.execute(thread_dbpedia);
             }
 
 
@@ -3170,6 +3529,11 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         }
 
        if(pref.getValue("Pubmed", "").equals("true")){  
+        //if (appPreferences.Pubmed.equals("true")) {
+            count = count + 1;
+
+        }
+         if(pref.getValue("DBPedia", "").equals("true")){  
         //if (appPreferences.Pubmed.equals("true")) {
             count = count + 1;
 

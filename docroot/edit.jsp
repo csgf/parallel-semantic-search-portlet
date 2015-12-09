@@ -50,6 +50,8 @@ String Pubmed = preferences.getValue("Pubmed", "");
 String PubmedEndPoint = preferences.getValue("PubmedEndPoint", "");
 String Engage = preferences.getValue("Engage", "");
 String EngageEndPoint = preferences.getValue("EngageEndPoint", "");
+String DBPedia = preferences.getValue("DBPedia", "");
+String DBPediaEndPoint = preferences.getValue("DBPediaEndPoint", "");
 String NumberRecordsForPage=preferences.getValue("NumberRecordsForPage", "");
 String LodLive = preferences.getValue("LodLive", "");
 String LodLiveEndPoint=preferences.getValue("LodLiveEndPoint", "");
@@ -67,6 +69,8 @@ System.out.println("VALORE_Pubmed: " + Pubmed);
 System.out.println("VALORE_PubmedEndPoint: " + PubmedEndPoint);
 System.out.println("VALORE_Engage: " + Engage);
 System.out.println("VALORE_EngageEndPoint: " + EngageEndPoint);
+System.out.println("VALORE_DBPedia: " + DBPedia);
+System.out.println("VALORE_DBPediaEndPoint: " + DBPediaEndPoint);
 System.out.println("VALORE_NumberRecordsForPage: " + NumberRecordsForPage);
 System.out.println("VALORE_LodLiveEndPoint: " + LodLiveEndPoint);
 System.out.println("VALORE_TimeOut: " + TimeOut);
@@ -77,6 +81,7 @@ String CulturaItaliaEndPoint_default = ((PortletConfig) request.getAttribute("ja
 String IsidoreEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("IsidoreEndPoint");              
 String PubmedEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("PubmedEndPoint");            
 String EngageEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("EngageEndPoint");  
+String DBPediaEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("DBPediaEndPoint"); 
 String LodLiveEndPoint_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("LodLiveEndPoint");
 String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.config")).getInitParameter("TimeOut");
 %>
@@ -201,6 +206,23 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
                                    size="50px;"
                                    name="EngageEndPoint" 
                                    value="<%=EngageEndPoint%>"/><br/> 
+                        </td>
+                    </tr>
+                    
+                     <tr class="rowList" style="height: 50px;">
+                        <td>
+                            <input type="checkbox" 
+                                   id="8" 
+                                   name="DBPedia" 
+                                   onClick="ckeckDBPedia()"/>DBPedia
+                        </td>
+                        <td>
+                            <input id="idDBPediaEndPoint" disabled 
+                                   class="rounded" 
+                                   type="text" 
+                                   size="50px;"
+                                   name="DBPediaEndPoint" 
+                                   value="<%=DBPediaEndPoint%>"/><br/> 
                         </td>
                     </tr>
 
@@ -338,6 +360,12 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
         document.getElementById("6").checked=true;
         document.getElementById('idEngageEndPoint').disabled = false;
     <%} %>  
+         <%if(DBPedia.equals("true")){%>
+        
+        document.getElementById("8").checked=true;
+        document.getElementById('idDBPediaEndPoint').disabled = false;
+    <%} %>  
+        
     <%if(LodLive.equals("true")){%>
         
         document.getElementById("7").checked=true;
@@ -372,6 +400,8 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
             document.getElementById('idPubmedEndPoint').disabled = true;
             document.getElementById("idEngageEndPoint").value="<%=EngageEndPoint_default%>";
             document.getElementById('idEngageEndPoint').disabled = true;
+            document.getElementById("idDBPediaEndPoint").value="<%=DBPediaEndPoint_default%>";
+            document.getElementById('idDBPediaEndPoint').disabled = true;
             document.getElementById("idNumberRecords").value="10";
             document.getElementById("idTimeOut").value="1";
             document.getElementById("idLodLiveEndPoint").value="<%=LodLiveEndPoint_default%>";
@@ -390,7 +420,7 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
             var timeout=document.getElementById("idTimeOut").value;
             
             //alert("NUMBER: "+number);
-            var rep=new Array("NO","NO","NO","NO","NO","NO", "NO");
+            var rep=new Array("NO","NO","NO","NO","NO","NO", "NO","NO");
        
             if (document.getElementById("1").checked==true)
             {
@@ -460,6 +490,17 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
                 }
             }
             
+            if (document.getElementById("8").checked==true)
+            {
+                rep[7]="DBPedia";
+                document.getElementById("8").value="true"; 
+                
+                if(document.getElementById("idDBPediaEndPoint").value==""){
+                    alert("The EndPoint DBPedia is mandatory!!!");
+                    control=1;
+                }
+            }
+            
             if (document.getElementById("7").checked==true)
             {
                 rep[6]="LodLive";
@@ -472,15 +513,19 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
             }
             
             var size=rep.length;
+            alert("SIZE-->"+size);
             var repChoose="";            
             
             if(control==0)
             {
                 // size-1 to exlude from the list of repositories 
                 // the LodLive Endpoint
-                for(var i=0;i<size-1;i++)
+                for(var i=0;i<size;i++)
                 { 
-                     if (rep[i]!="NO") repChoose+=rep[i]+",";                 
+                     if (rep[i]!="NO") {
+                         
+                         repChoose+=rep[i]+",";}   
+                     alert ("REP: "+repChoose);
                 }
 
                 if(repChoose=="")
@@ -552,6 +597,15 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
                 document.getElementById('idEngageEndPoint').disabled = false;
             else
                document.getElementById('idEngageEndPoint').disabled = true; 
+        }
+        
+         function ckeckDBPedia()
+        {
+            //alert("VALUE: "+document.getElementById("6").checked);            
+            if(document.getElementById("8").checked==true)
+                document.getElementById('idDBPediaEndPoint').disabled = false;
+            else
+               document.getElementById('idDBPediaEndPoint').disabled = true; 
         }
         
         function ckeckLodLive()

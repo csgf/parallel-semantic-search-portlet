@@ -70,6 +70,15 @@
 			<value>http://engagesrv.epu.ntua.gr:8890/sparql</value>
 		</init-param>
                 
+                 <init-param>    
+			<name>DBPedia</name>
+			<value>false</value>
+		</init-param>
+                <init-param>    
+			<name>DBPediaEndPoint</name>
+			<value>http://dbpedia.org/sparql</value>
+		</init-param>
+                
                 
                 <init-param>    
 			<name>NumberRecordsForPage</name>

@@ -36,7 +36,8 @@ public class QueryPubMed {
         // Repository myRepository = new HTTPRepository(EndPointPubmed,"");
         HTTPRepository myRepository = new HTTPRepository(EndPointPubmed, "");
         myRepository.initialize();
-        myRepository.setPreferredTupleQueryResultFormat(TupleQueryResultFormat.SPARQL);
+       myRepository.setPreferredTupleQueryResultFormat(TupleQueryResultFormat.SPARQL);
+         //myRepository.setPreferredTupleQueryResultFormat(TupleQueryResultFormat.JSON);
         PubMedConnection = myRepository.getConnection();
 
         return PubMedConnection;
@@ -64,7 +65,7 @@ public class QueryPubMed {
             //System.out.println("CATCH2");
             statusCode = -1;
         }
-        System.out.println("STATUS  ISIDORE URL--->" + statusCode);
+        System.out.println("STATUS  PUBMED URL--->" + statusCode);
 
         return statusCode;
     }
@@ -182,7 +183,7 @@ public class QueryPubMed {
                     BindingSet bindingSet_authors = result_authors.next();
                     if (bindingSet_authors.getValue("o") != null) {
                         Value name = bindingSet_authors.getValue("o");
-                        System.out.println("NAME PUBMED-->" + name.stringValue());
+                       // System.out.println("NAME PUBMED-->" + name.stringValue());
                         arrayPubMedAuthorsDupl.add(name.stringValue());
                     }
 
@@ -235,7 +236,7 @@ public class QueryPubMed {
                         descriptions = description.stringValue();
                         String descrFinale = new String(description.stringValue().getBytes("iso-8859-1"), "utf-8");
 
-                        System.out.println("DESCR PUBMED-->" + descrFinale);
+                       // System.out.println("DESCR PUBMED-->" + descrFinale);
                         arrayPubMedDescriptionDupl.add(descrFinale);
                     }
                 }
@@ -549,7 +550,7 @@ public class QueryPubMed {
                 + "<" + resource + "> bl:uri ?s.\n"
                 + "}";
 
-        System.out.println("QUERY URI: "+queryString);
+       // System.out.println("QUERY URI: "+queryString);
         TupleQuery tupleQuery = PubMedConnection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 
         TupleQueryResult result = tupleQuery.evaluate();

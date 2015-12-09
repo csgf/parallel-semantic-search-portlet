@@ -90,6 +90,8 @@
         String PubmedEndPoint = preferences.getValue("PubmedEndPoint", "");
         String Engage = preferences.getValue("Engage", "");
         String EngageEndPoint = preferences.getValue("EngageEndPoint", "");
+        String DBPedia = preferences.getValue("DBPedia", "");
+        String DBPediaEndPoint = preferences.getValue("DBPediaEndPoint", "");
         String NumberRecordsForPage = preferences.getValue("NumberRecordsForPage", "");
         String LodLive = preferences.getValue("LodLive", "");
         String LodLiveEndPoint = preferences.getValue("LodLiveEndPoint", "");
@@ -106,6 +108,8 @@
         System.out.println("VALORE_PubmedEndPoint_INPUT: " + PubmedEndPoint);
         System.out.println("VALORE_Engage_INPUT: " + Engage);
         System.out.println("VALORE_EngageEndPoint_INPUT: " + EngageEndPoint);
+        System.out.println("VALORE_DBPedia_INPUT: " + DBPedia);
+        System.out.println("VALORE_DBPediaEndPoint_INPUT: " + DBPediaEndPoint);
         System.out.println("VALORE_LodLive_INPUT: " + LodLive);
         System.out.println("VALORE_LodLiveEndPoint_INPUT: " + LodLiveEndPoint);
         System.out.println("VALORE_NumberRecordsForPage_INPUT: " + NumberRecordsForPage);
