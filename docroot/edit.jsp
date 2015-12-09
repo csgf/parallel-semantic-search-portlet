@@ -513,7 +513,7 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
             }
             
             var size=rep.length;
-            alert("SIZE-->"+size);
+          //  alert("SIZE-->"+size);
             var repChoose="";            
             
             if(control==0)
@@ -525,7 +525,7 @@ String TimeOut_default = ((PortletConfig) request.getAttribute("javax.portlet.co
                      if (rep[i]!="NO") {
                          
                          repChoose+=rep[i]+",";}   
-                     alert ("REP: "+repChoose);
+                     //alert ("REP: "+repChoose);
                 }
 
                 if(repChoose=="")

@@ -31,6 +31,8 @@
 <%@page import="it.infn.ct.QueryIsidore"%>
 <%@page import="it.infn.ct.QueryEngage"%>
 <%@page import="javax.portlet.*"%>
+<%@page import="it.infn.ct.Altmetric"%>
+
 <%@page contentType="text/html; charset=utf-8" %>
 
 <portlet:defineObjects />
@@ -496,6 +498,7 @@
                             if (arrayVirtuosoResource.size() > 0 && !arrayVirtuosoResource.get(0).toString().equals("Exception")) {
                                 for (int i = 0; i < arrayVirtuosoResource.size(); i++) {
                                     String resource = arrayVirtuosoResource.get(i).toString();
+                                    String doi_resource = "";
 
                         %>
 
@@ -519,10 +522,26 @@
                                                 String[] sId = identifiers.split("##");
 
                                                 String url = "";
+                                                String url_almetric="";
                                                 for (int k = 0; k < sId.length; k++) {
                                                     String id = sId[k];
                                                     if (id.length() > 4 && id.substring(0, 4).equals("http")) {
                                                         url = id;
+
+                                                    }
+                                                    if (id.contains("doi")) {
+                                                        if(id.contains("info:"))
+                                                     {
+                                                        doi_resource = id.substring(9).toString();
+                                                      }else{
+                                                         doi_resource = id.substring(5).toString();   
+                                                      }
+                                                        System.out.println("DOI=> "+doi_resource);
+                                                        url_almetric=Altmetric.getLinkAlmetricFromDOI(doi_resource);
+                                                        
+                                                        
+
+
 
                                                     }
 
@@ -554,6 +573,19 @@
                                                         <input id="titleResourceVirtuoso<%=countId + "--" + j%>" name="titleResourceVirtuoso" value="<%= title%>" hidden="true" />
 
                                                         (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
+                                                        
+                                                        <%
+                                                        
+                                                            if (!(url_almetric).equals("no link") && !(url_almetric).equals("")) {
+
+                                                               
+                                                        %>
+                                                        (<a href="<%=url_almetric%>"  style="cursor: pointer;" target="_blank">Altmetric</a>)
+
+                                                    <%
+                                                        }
+                                                    %>
+                                                        
                                                         (<a href="<%=LodLiveEndPoint%>/?<%=resource%>"  style="cursor: pointer;" target="_blank">Linked Data</a>)</li>
 
                                                     <%
@@ -566,6 +598,20 @@
                                                      <a href="http://localhost:8080/testlodlive/?<%=resource%>" target="_blank"><img id="<%=resource%>" style="cursor: pointer;width:80px;height: 25px;" src="<%=renderRequest.getContextPath()%>/images/lodliveLogo200px.jpg" /></a></li>
                                                         <input id="titleResourceVirtuoso<%=countId + "--" + j%>" name="titleResourceVirtuoso" value="<%= title%>" hidden="true" />-->
                                                         (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
+                                                       
+                                                        
+                                                        <%
+                                                            if (!(url_almetric).equals("no link")&& !(url_almetric).equals("")) {
+
+                                                              
+                                                        %>
+                                                        (<a href="<%=url_almetric%>"  style="cursor: pointer;" target="_blank">Altmetric</a>)
+
+                                                    <%
+                                                        }%>
+                                                        
+                                                        
+                                                        
                                                         (<a href="<%=LodLiveEndPoint%>/?<%=resource%>" style="cursor: pointer;" target="_blank">Linked Data</a>)</li>
 
                                                     <input id="titleResourceVirtuoso<%=countId + "--" + j%>" name="titleResourceVirtuoso" value="<%= title%>" hidden="true" />

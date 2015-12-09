@@ -6,6 +6,7 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="it.infn.ct.SemanticQueryMoreInfo"%>
 <%@page import="it.infn.ct.SemanticQuery"%>
+<%@page import="it.infn.ct.Altmetric"%>
 <jsp:useBean id="idResource" class="java.lang.String" scope="request"/>
 
 
@@ -38,26 +39,26 @@
 
         <div id="conteinerRecord" style="">
             <%
-                            
+
                 String LodLiveEndPoint = renderRequest.getParameter("LodLiveEndPoint");
-                
+
                 SemanticQueryMoreInfo moreInfo = new SemanticQueryMoreInfo();
                 //idResource = "http://openDocuments/resource/oai:eprints.bbk.ac.uk.oai2:244";
-                
-                 
-                
-                
-                
-                 String numResource = renderRequest.getParameter("numResource");
-                 String searched_word = renderRequest.getParameter("search_word");
-                 
-                
-                System.out.println("L'idresource e "+idResource+" numResource--->"+numResource+" search_word: "+searched_word);
-                
-                
+
+                ArrayList arrayAltmetric = new ArrayList();
+
+
+
+                String numResource = renderRequest.getParameter("numResource");
+                String searched_word = renderRequest.getParameter("search_word");
+
+
+                System.out.println("L'idresource e " + idResource + " numResource--->" + numResource + " search_word: " + searched_word);
+
+
                 String[] infoElem = (String[]) moreInfo.getInfoResource(idResource);
                 String title = infoElem[1];
-                
+
                 String authors = infoElem[2];//.replace(","," ");
                 String datestamp = infoElem[3];
                 String description = infoElem[4];
@@ -67,8 +68,20 @@
                 String identifierURL = "#";
                 for (int k = 0; k < listIdentifier.length; k++) {
                     String id = listIdentifier[k];
-                    if (id.length()>4 && id.substring(0, 4).equals("http")) {
+                    if (id.length() > 4 && id.substring(0, 4).equals("http")) {
                         identifierURL = id;
+                    }
+                    String doi_resource = "";
+                    if (id.contains("doi")) {
+                        if (id.contains("info:")) {
+                            doi_resource = id.substring(9).toString();
+                        } else {
+                            doi_resource = id.substring(4).toString();
+                        }
+
+                        System.out.println("dentro details" + doi_resource);
+                        arrayAltmetric = Altmetric.QueryApi(doi_resource);
+
                     }
                 }
 
@@ -79,280 +92,273 @@
                 String contributor = infoElem[11];
                 String coverage = infoElem[12];
                 String right = infoElem[13];
-                
-                String DOI="NODOI";
-                String DOIRelation="NODOI";
-                
-                String []info_GS=(String[])request.getParameterValues("info_GS");
-                
-                ArrayList accessRights=moreInfo.getAccessRightResource(idResource);
-                ArrayList alternativeTitle=moreInfo.getAlternativeTitle(idResource);
-                ArrayList audience=moreInfo.getAudience(idResource);
-                ArrayList bCitation=moreInfo.getBibliographicCitation(idResource);
-                ArrayList extent=moreInfo.getExtent(idResource);
-                ArrayList medium=moreInfo.getMedium(idResource);                                
-                
-              //  System.out.println("AUTHOR="+authors+" Datastamp="+datestamp+" Description="+description+" Publisher= "+publisher+" Id= "+identifiers);
-               // System.out.println("sources="+sources+" subject="+subject+" language="+language+" date="+date+" contributor="+contributor);
+
+                String DOI = "NODOI";
+                String DOIRelation = "NODOI";
+
+                String[] info_GS = (String[]) request.getParameterValues("info_GS");
+
+                ArrayList accessRights = moreInfo.getAccessRightResource(idResource);
+                ArrayList alternativeTitle = moreInfo.getAlternativeTitle(idResource);
+                ArrayList audience = moreInfo.getAudience(idResource);
+                ArrayList bCitation = moreInfo.getBibliographicCitation(idResource);
+                ArrayList extent = moreInfo.getExtent(idResource);
+                ArrayList medium = moreInfo.getMedium(idResource);
+
+                //  System.out.println("AUTHOR="+authors+" Datastamp="+datestamp+" Description="+description+" Publisher= "+publisher+" Id= "+identifiers);
+                // System.out.println("sources="+sources+" subject="+subject+" language="+language+" date="+date+" contributor="+contributor);
                 //System.out.println("coverage="+coverage+" right="+right);
 
             %>
 
             <br>
             <%
-              if(title.length()!=0){
-                String[] listTitle = title.split("##");
-                for (int j = 0; j < listTitle.length; j++) {
-                    if (listTitle.length > 1) {
-                        if (!identifierURL.equals("#")) {
+                if (title.length() != 0) {
+                    String[] listTitle = title.split("##");
+                    for (int j = 0; j < listTitle.length; j++) {
+                        if (listTitle.length > 1) {
+                            if (!identifierURL.equals("#")) {
             %>
             <a id="Title" href="<%=identifierURL%>" target="_blank" style="color:black"><h1>(<%=(j + 1)%>)<u><%=listTitle[j]%></u></h1></a> 
-            <%}
-              else 
-               {%>
+            <%} else {%>
             <h1><u><%=listTitle[j]%></u></h1>
-            <% } 
-                    }
-                    else {
-         if (!listTitle[j].equals("")) {
+            <% }
+            } else {
+                if (!listTitle[j].equals("")) {
                     if (!identifierURL.equals("#")) {
             %><a id="Title" href="<%=identifierURL%>" target="_blank" style="color:black"><h1><u><%=listTitle[j]%></u></h1></a> 
             <% } else {
             %><h1 id="Title"><u><%=listTitle[j]%></u></h1>
-            <% }} }
+            <% }
+                            }
                         }
-                               }
-                
-              
-                
-                        
+                    }
+                }
+
+
+
+
             %>
 
             <fieldset class="fieldsetInformations" >
                 <legend class="legendFieldset" >General Information</legend>
                 <p class="klios_p"><b>Authors: </b><%=authors%></p>
-                
+
                 <%
                     //ALTERNATIVE TITLE
-              if(alternativeTitle.size()!=0){
-                    
-                    for (int j = 0; j < alternativeTitle.size(); j++) {
-                       
+                    if (alternativeTitle.size() != 0) {
+
+                        for (int j = 0; j < alternativeTitle.size(); j++) {
+
                 %><p class="klios_p"><b>Alternative Title : </b><%=alternativeTitle.get(j).toString()%></p>  
                 <%
                         }
-                                       }
-                
-                
-                
-                
+                    }
+
+
+
+
                     //DESCRIPTION
-                 if(description.length()!=0){
-                    String[] listDescrition = description.split("##");
-                    for (int j = 0; j < listDescrition.length; j++) {
-                        if (listDescrition.length > 0 && !listDescrition[j].equals("")) {
+                    if (description.length() != 0) {
+                        String[] listDescrition = description.split("##");
+                        for (int j = 0; j < listDescrition.length; j++) {
+                            if (listDescrition.length > 0 && !listDescrition[j].equals("")) {
                 %><p class="klios_p"><b>Description : </b><%=listDescrition[j]%></p>  
-                <%} 
+                <%}
                         }
-                                       }
-                
+                    }
+
                     //PUBLISHER
-                if(publisher.length()!=0){
-                    String[] listPublisher = publisher.split("##");
-                    for (int j = 0; j < listPublisher.length; j++) {
-                        if (listPublisher.length > 0 && !listPublisher[j].equals("")) {
+                    if (publisher.length() != 0) {
+                        String[] listPublisher = publisher.split("##");
+                        for (int j = 0; j < listPublisher.length; j++) {
+                            if (listPublisher.length > 0 && !listPublisher[j].equals("")) {
                 %><p class="klios_p"><b>Publisher : </b><%=listPublisher[j]%></p>  
-                <%} 
+                <%}
                         }
-                                       }
+                    }
                     //IDENTIFIER
-                    
-                 for (int j = 0; j < listIdentifier.length; j++) {
+
+                    for (int j = 0; j < listIdentifier.length; j++) {
                         String identifierResource = listIdentifier[j];
 
                         if (listIdentifier.length > 0 && !identifierResource.equals("")) {
-                            if (identifierResource.length()>4 && identifierResource.substring(0, 4).equals("http")) {
+                            if (identifierResource.length() > 4 && identifierResource.substring(0, 4).equals("http")) {
                 %><p class="klios_p"><b>Identifier  : </b><a href="<%=identifierResource%>" target="_blank"><u><%=identifierResource%></u> </a></p> 
                 <%} else {
-                                
-                                //CONTROLLO SE E' UN DOI:
-                                
-                  if (identifierResource.length()>3 && identifierResource.substring(0, 3).equals("doi")) {
-                      DOI=identifierResource.substring(4);
-                      //System.out.println("CODE DOI:"+DOI);
-                  }
-                
-                
-                
+
+                    //CONTROLLO SE E' UN DOI:
+
+                    if (identifierResource.length() > 3 && identifierResource.substring(0, 3).equals("doi")) {
+                        DOI = identifierResource.substring(4);
+                        //System.out.println("CODE DOI:"+DOI);
+                    }
+
+
+
                 %>
                 <p class="klios_p"><b>Identifier  : </b><%=identifierResource%></p> 
 
                 <%}
-                            
-                  
-                            
-                } 
+
+
+
+                        }
                     }
 
                     //SOURCE
-                if(sources.length()!=0){
-                    String[] listSource = sources.split("##");
-                    for (int j = 0; j < listSource.length; j++) {
-                        if (listSource.length > 0 && !listSource[j].equals("")) {
+                    if (sources.length() != 0) {
+                        String[] listSource = sources.split("##");
+                        for (int j = 0; j < listSource.length; j++) {
+                            if (listSource.length > 0 && !listSource[j].equals("")) {
                 %><p class="klios_p"><b>Source  : </b><%=listSource[j]%></p>  
-                <%} 
+                <%}
                         }
-                                       }
+                    }
                     //SUBJECT
-                 if(subject.length()!=0){
-                    String[] listSubject = subject.split("##");
-                    for (int j = 0; j < listSubject.length; j++) {
-                        if (listSubject.length > 0 && !listSubject[j].equals("")) {
+                    if (subject.length() != 0) {
+                        String[] listSubject = subject.split("##");
+                        for (int j = 0; j < listSubject.length; j++) {
+                            if (listSubject.length > 0 && !listSubject[j].equals("")) {
                 %><p class="klios_p"><b>Subject : </b><%=listSubject[j]%></p>  
-                <%} 
+                <%}
                         }
-                                       }
-                
-                    //LANGUAGE
-                 if(language.length()!=0){
-                    String[] listLanguage = language.split("##");
-                    for (int j = 0; j < listLanguage.length; j++) {
-                        if (listLanguage.length > 0 && !listLanguage[j].equals("")) {
-                %><p class="klios_p"><b>Language  : </b><%=listLanguage[j]%></p>  
-                <%} 
-                        }
-                                       }
-                    
-                        
-                    //CONTRIBUTOR
-                 if(contributor.length()!=0){
-                    String[] listContributor = contributor.split("##");
-                    for (int j = 0; j < listContributor.length; j++) {
-                        if (listContributor.length > 0 && !listContributor[j].equals("")) {
-                %><p class="klios_p"><b>Contributor : </b><%=listContributor[j]%></p>  
-                <%} 
-                        }
-                                       }
-                  //COVERAGE
-                
-                 if(coverage.length()!=0){
+                    }
 
-                    String[] listConverage = coverage.split("##");
-                    for (int j = 0; j < listConverage.length; j++) {
-                        if (listConverage.length > 0 && !listConverage[j].equals("")) {
+                    //LANGUAGE
+                    if (language.length() != 0) {
+                        String[] listLanguage = language.split("##");
+                        for (int j = 0; j < listLanguage.length; j++) {
+                            if (listLanguage.length > 0 && !listLanguage[j].equals("")) {
+                %><p class="klios_p"><b>Language  : </b><%=listLanguage[j]%></p>  
+                <%}
+                        }
+                    }
+
+
+                    //CONTRIBUTOR
+                    if (contributor.length() != 0) {
+                        String[] listContributor = contributor.split("##");
+                        for (int j = 0; j < listContributor.length; j++) {
+                            if (listContributor.length > 0 && !listContributor[j].equals("")) {
+                %><p class="klios_p"><b>Contributor : </b><%=listContributor[j]%></p>  
+                <%}
+                        }
+                    }
+                    //COVERAGE
+
+                    if (coverage.length() != 0) {
+
+                        String[] listConverage = coverage.split("##");
+                        for (int j = 0; j < listConverage.length; j++) {
+                            if (listConverage.length > 0 && !listConverage[j].equals("")) {
                 %><p class="klios_p"><b>Coverage : </b><%=listConverage[j]%></p>  
-                <%} 
+                <%}
                         }
-                                       }
-                
-                 //RIGHT
-                 if(right.length()!=0){
-                    
-                    String[] listRight = right.split("##");
-                    for (int j = 0; j < listRight.length; j++) {
-                        if (listRight.length > 0 && !listRight[j].equals("")) {
+                    }
+
+                    //RIGHT
+                    if (right.length() != 0) {
+
+                        String[] listRight = right.split("##");
+                        for (int j = 0; j < listRight.length; j++) {
+                            if (listRight.length > 0 && !listRight[j].equals("")) {
                 %><p class="klios_p"><b>Rights : </b><%=listRight[j]%></p>  
-                <%} 
+                <%}
                         }
-                                       }
-                
-                if(accessRights.size()!=0){
-                    
-                    for (int j = 0; j < accessRights.size(); j++) {
-                       
+                    }
+
+                    if (accessRights.size() != 0) {
+
+                        for (int j = 0; j < accessRights.size(); j++) {
+
                 %><p class="klios_p"><b>Access Rights : </b><%=accessRights.get(j).toString()%></p>  
                 <%
                         }
-                                       }
-                
-                   //AUDIANCE
-              if(audience.size()!=0){
-                    
-                    for (int j = 0; j < audience.size(); j++) {
-                       
+                    }
+
+                    //AUDIANCE
+                    if (audience.size() != 0) {
+
+                        for (int j = 0; j < audience.size(); j++) {
+
                 %><p class="klios_p"><b>Audience : </b><%=audience.get(j).toString()%></p>  
                 <%
                         }
-                                       }
-                
-                //BCitation
-              if(bCitation.size()!=0){
-                    
-                    for (int j = 0; j < bCitation.size(); j++) {
-                       
+                    }
+
+                    //BCitation
+                    if (bCitation.size() != 0) {
+
+                        for (int j = 0; j < bCitation.size(); j++) {
+
                 %><p class="klios_p"><b>Bibliographic Citation : </b><%=bCitation.get(j).toString()%></p>  
                 <%
                         }
-                                       }
-                
-                
-               
-                    
+                    }
+
+
+
+
                 %>
 
             </fieldset>
-            
+
             <br>
             <a id="LinkedData" class="Link" href="<%=LodLiveEndPoint%>/?<%=idResource%>" target="_blank">Linked Data </a>
-           
+
             <br>    
             <br>
             <a id="GScholarLink" class="Link" href="#" onClick="showFieldSetGScholar(); return false;">Information from Google Scholar <img id="ImageAnimationGScholar" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
             <br>
             <fieldset class="fieldsetInformations" id="IdFieldSetGScholar" style="display: none;">
-                
+
                 <%
-                    if(info_GS[0].equals(" ") || info_GS[0].equals("No Information available") || info_GS[0].equals("None") || info_GS[0].equals("No Available Service"))
-                    {%>
+                    if (info_GS[0].equals(" ") || info_GS[0].equals("No Information available") || info_GS[0].equals("None") || info_GS[0].equals("No Available Service")) {%>
                 <p><b>Resource location: </b><%=info_GS[0]%></p>
-                <%}
-                   else{%>
+                <%} else {%>
                 <p><b>Resource location: </b><a href="<%=info_GS[0]%>" target="_blank"><%=info_GS[0]%></a></p>
                 <%}%>
 
                 <p><b>No. of versions: </b><%=info_GS[1]%></p>
                 <%
-                if(info_GS[2].equals(" ") || info_GS[2].equals("No Information available") || info_GS[2].equals("None") || info_GS[2].equals("No Available Service"))
-                    {%>
+                    if (info_GS[2].equals(" ") || info_GS[2].equals("No Information available") || info_GS[2].equals("None") || info_GS[2].equals("No Available Service")) {%>
                 <p><b>List of versions: </b><%=info_GS[2]%></p>
-                <%}
-                   else{%>
+                <%} else {%>
                 <p><b>List of versions: </b><a href="<%=info_GS[2]%>" target="_blank"><%=info_GS[2]%></a></p>
                 <%}%>
 
                 <p><b>No. of citations: </b><%=info_GS[3]%></p>
 
                 <%
-               if(info_GS[4].equals(" ") || info_GS[4].equals("No Information available") || info_GS[4].equals("None") || info_GS[4].equals("No Available Service"))
-                   {%>
+                    if (info_GS[4].equals(" ") || info_GS[4].equals("No Information available") || info_GS[4].equals("None") || info_GS[4].equals("No Available Service")) {%>
                 <p><b>List of citations: </b><%=info_GS[4]%></p>
-                <%}
-                   else{%>
+                <%} else {%>
                 <p><b>List of citations: </b><a href="<%=info_GS[4]%>" target="_blank"><%=info_GS[4]%></a></p>
                 <%}%>              
                 <p><b>Year: </b><%=info_GS[5]%></p>
             </fieldset>     
-                
-                
+
+
             <br> 
             <a id="DateLink" class="Link" href="#" onClick="showFieldSetDate(); return false;">Date Information <img id="ImageAnimationDate" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
             <br>
             <fieldset class="fieldsetInformations" id="IdFieldSetDate" style="display: none;">
                 <p class="klios_p"><b>DateStamp: </b><%=datestamp%></p>
                 <%
-                //DATE
-                if(date.length()!=0){
-                    String[] listDate = date.split("##");
-                    for (int j = 0; j < listDate.length; j++) {
-                        if (listDate.length > 0 && !listDate[j].equals("")) {
+                    //DATE
+                    if (date.length() != 0) {
+                        String[] listDate = date.split("##");
+                        for (int j = 0; j < listDate.length; j++) {
+                            if (listDate.length > 0 && !listDate[j].equals("")) {
                 %><p class="klios_p"><b>Date : </b><%=listDate[j]%></p>  
-                <%} 
+                <%}
                         }
-                                       }
-                  %>      
+                    }
+                %>      
             </fieldset>    
-                
-                
+
+
             <br> 
             <a id="DataSetLink" class="Link" href="#" onClick="showFieldSetDataSet(); return false;">Dataset Information <img id="ImageAnimationDataSet" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
             <br>
@@ -360,100 +366,96 @@
                 <!-- <legend class="legendFieldset" >Dataset Information</legend> -->
                 <%String[] dataSet = (String[]) moreInfo.getDataSetFromResource(idResource);
                     String identifierDataSet = dataSet[1];
-                    
+
                     String typeDataSet = dataSet[2];
-                    
+
                     String formatDataSet = dataSet[3];
-                    
+
                     String relationDataSet = dataSet[4];
-                    
-                    
-                    
-                    
-                    if(!DOI.equals("NODOI"))
-                    {
+
+
+
+
+                    if (!DOI.equals("NODOI")) {
                 %><p class="klios_p"><b>Identifier DOI : </b><a href="http://dx.doi.org/<%=DOI%>" target="_blank"><u><%=DOI%></u></a></p> 
                                  <%}
-                    
-                                   //IDENTIFIER DATA SET
-                                   String[] listIdentifierDataSet = identifierDataSet.split("##");
-                     
-                                   for (int j = 0; j < listIdentifierDataSet.length; j++) {
-                                       if (listIdentifierDataSet.length > 0 && !listIdentifierDataSet[j].equals("")) {
+
+                    //IDENTIFIER DATA SET
+                    String[] listIdentifierDataSet = identifierDataSet.split("##");
+
+                    for (int j = 0; j < listIdentifierDataSet.length; j++) {
+                        if (listIdentifierDataSet.length > 0 && !listIdentifierDataSet[j].equals("")) {
                 %><p class="klios_p"><b>Identifier  : </b><a href="<%=listIdentifierDataSet[j]%>" target="_blank"><u><%=listIdentifierDataSet[j]%></u></a></p>  
-                <%} 
+                <%}
                     }
 
                     //TYPE DATA SET
-                    
-                    if(typeDataSet.length()!=0){
-                        
-                    String[] listTypeDataSet = typeDataSet.split("##");
-                    for (int j = 0; j < listTypeDataSet.length; j++) {
-                        if (listTypeDataSet.length > 0 && !listTypeDataSet[j].equals("")) {
+
+                    if (typeDataSet.length() != 0) {
+
+                        String[] listTypeDataSet = typeDataSet.split("##");
+                        for (int j = 0; j < listTypeDataSet.length; j++) {
+                            if (listTypeDataSet.length > 0 && !listTypeDataSet[j].equals("")) {
                 %><p class="klios_p"><b>Dataset Type : </b><%=listTypeDataSet[j]%></p>  
-                <%} 
-                        }
-                                       }
-                    //FORMAT DATA SET
-                    if(formatDataSet.length()!=0){
-                        
-                    String[] listFormatDataSet = formatDataSet.split("##");
-                    for (int j = 0; j < listFormatDataSet.length; j++) {
-                        if (listFormatDataSet.length > 0 && !listFormatDataSet[j].equals("")) {
-                %><p class="klios_p"><b>Format : </b><%=listFormatDataSet[j]%></p>  
-                <%} 
-                        }
-                                       }
-                    
-                    //RELATION DATA SET
-                    if(relationDataSet.length()!=0){
-                       
-                    String[] listRelationDataSet = relationDataSet.split("##");
-                    for (int j = 0; j < listRelationDataSet.length; j++) {
-                        if (listRelationDataSet.length > 0 && !listRelationDataSet[j].equals("")) {
-                           if (listRelationDataSet[j].length()>4 && listRelationDataSet[j].substring(0, 4).equals("http")) {
-                %><p class="klios_p"><b>Relation : </b><a href="<%=listRelationDataSet[j]%>" target="_blank"><u><%=listRelationDataSet[j]%></u></a></p>
                 <%}
-                   else {
-                                
-                                //CONTROLLO SE E' UN DOI:
-                                
-                  if (listRelationDataSet[j].length()>3 && listRelationDataSet[j].substring(0, 3).equals("doi")) {
-                      DOIRelation=listRelationDataSet[j].substring(4);
-                      //System.out.println("CODE DOI:"+DOIRelation);
-                %><p class="klios_p"><b>Relation DOI : </b><a href="http://dx.doi.org/<%=DOIRelation%>" target="_blank"><u><%=DOIRelation%></u></a></p> <%
-                  }
-                  else
-                    { %><p class="klios_p"><b>Relation : </b><u><%=listRelationDataSet[j]%></u></p>    
-
-                <%} 
-                   }                         
-                }
-
-   
+                        }
                     }
-               }
-                                   
-                      //Extent
-              if(extent.size()!=0){
-                    
-                    for (int j = 0; j < extent.size(); j++) {
-                       
+                    //FORMAT DATA SET
+                    if (formatDataSet.length() != 0) {
+
+                        String[] listFormatDataSet = formatDataSet.split("##");
+                        for (int j = 0; j < listFormatDataSet.length; j++) {
+                            if (listFormatDataSet.length > 0 && !listFormatDataSet[j].equals("")) {
+                %><p class="klios_p"><b>Format : </b><%=listFormatDataSet[j]%></p>  
+                <%}
+                        }
+                    }
+
+                    //RELATION DATA SET
+                    if (relationDataSet.length() != 0) {
+
+                        String[] listRelationDataSet = relationDataSet.split("##");
+                        for (int j = 0; j < listRelationDataSet.length; j++) {
+                            if (listRelationDataSet.length > 0 && !listRelationDataSet[j].equals("")) {
+                                if (listRelationDataSet[j].length() > 4 && listRelationDataSet[j].substring(0, 4).equals("http")) {
+                %><p class="klios_p"><b>Relation : </b><a href="<%=listRelationDataSet[j]%>" target="_blank"><u><%=listRelationDataSet[j]%></u></a></p>
+                <%} else {
+
+                    //CONTROLLO SE E' UN DOI:
+
+                    if (listRelationDataSet[j].length() > 3 && listRelationDataSet[j].substring(0, 3).equals("doi")) {
+                        DOIRelation = listRelationDataSet[j].substring(4);
+                        //System.out.println("CODE DOI:"+DOIRelation);
+%><p class="klios_p"><b>Relation DOI : </b><a href="http://dx.doi.org/<%=DOIRelation%>" target="_blank"><u><%=DOIRelation%></u></a></p> <%
+                } else {%><p class="klios_p"><b>Relation : </b><u><%=listRelationDataSet[j]%></u></p>    
+
+                <%}
+                                }
+                            }
+
+
+                        }
+                    }
+
+                    //Extent
+                    if (extent.size() != 0) {
+
+                        for (int j = 0; j < extent.size(); j++) {
+
                 %><p class="klios_p"><b>Extent : </b><%=extent.get(j).toString()%></p>  
                 <%
                         }
-                                       }
+                    }
 
-                   //Medium
-              if(medium.size()!=0){
-                    
-                    for (int j = 0; j < medium.size(); j++) {
-                       
+                    //Medium
+                    if (medium.size() != 0) {
+
+                        for (int j = 0; j < medium.size(); j++) {
+
                 %><p class="klios_p"><b>Medium : </b><%=medium.get(j).toString()%></p>  
                 <%
                         }
-                                       }                     
+                    }
 
 
                 %>
@@ -463,40 +465,42 @@
             <br>
             <fieldset class="fieldsetInformations" id="IdFieldSetRepository" style="display: none;">
                 <%
-                   ArrayList arrayRepository=SemanticQueryMoreInfo.getRepository(idResource);
-                 //  System.out.println("repository size "+arrayRepository.size());
-                   if(arrayRepository.size()>0){
-                   
-                       // for(int d=0; d<arrayDescriptions.size(); d++){
-                    
-                    String nameRep=arrayRepository.get(0).toString();
-                    String countryCodeRep=arrayRepository.get(1).toString();
-                    String longitudeRep=arrayRepository.get(2).toString();
-                    String latitudeRep=arrayRepository.get(3).toString();
-                    String urlRep="";
-                    String addressOAIPMHRep=arrayRepository.get(5).toString();
-                    String addressRep=arrayRepository.get(6).toString();
-                    String acronimRep="";
-                   // System.out.println("ACRONIM "+arrayRepository.get(7).toString());
-                    if(!(arrayRepository.get(7).toString()).equals(""))
-                        acronimRep="( "+arrayRepository.get(7).toString()+" )";
-                   
-                    String domainRep=arrayRepository.get(8).toString();
-                    String projectRep=arrayRepository.get(9).toString();
-                    String organization=arrayRepository.get(10).toString();
-                   
-                    //if(arrayRepository.get(4).toString()!=""){
-                    // urlRep=arrayRepository.get(4).toString();
-                        if(arrayRepository.get(4).toString().length()>4 && arrayRepository.get(4).toString().substring(0,4).equals("http"))
-                           urlRep=arrayRepository.get(4).toString();
-                        else
-                            urlRep="http://"+arrayRepository.get(4).toString();
+                    ArrayList arrayRepository = SemanticQueryMoreInfo.getRepository(idResource);
+                    //  System.out.println("repository size "+arrayRepository.size());
+                    if (arrayRepository.size() > 0) {
+
+                        // for(int d=0; d<arrayDescriptions.size(); d++){
+
+                        String nameRep = arrayRepository.get(0).toString();
+                        String countryCodeRep = arrayRepository.get(1).toString();
+                        String longitudeRep = arrayRepository.get(2).toString();
+                        String latitudeRep = arrayRepository.get(3).toString();
+                        String urlRep = "";
+                        String addressOAIPMHRep = arrayRepository.get(5).toString();
+                        String addressRep = arrayRepository.get(6).toString();
+                        String acronimRep = "";
+                        // System.out.println("ACRONIM "+arrayRepository.get(7).toString());
+                        if (!(arrayRepository.get(7).toString()).equals("")) {
+                            acronimRep = "( " + arrayRepository.get(7).toString() + " )";
+                        }
+
+                        String domainRep = arrayRepository.get(8).toString();
+                        String projectRep = arrayRepository.get(9).toString();
+                        String organization = arrayRepository.get(10).toString();
+
+                        //if(arrayRepository.get(4).toString()!=""){
+                        // urlRep=arrayRepository.get(4).toString();
+                        if (arrayRepository.get(4).toString().length() > 4 && arrayRepository.get(4).toString().substring(0, 4).equals("http")) {
+                            urlRep = arrayRepository.get(4).toString();
+                        } else {
+                            urlRep = "http://" + arrayRepository.get(4).toString();
+                        }
 
                         //System.out.println("URL REP "+urlRep);
 
                 %>
                 <p class="klios_p"><b>Name: </b> <%=nameRep%> <%=acronimRep%>  </p> 
-                <p class="klios_p"><b>URL : </b> <a href="<%= urlRep %>" target="_blank" title="<%= urlRep%>"><u> <%= urlRep %></u> </a></p>
+                <p class="klios_p"><b>URL : </b> <a href="<%= urlRep%>" target="_blank" title="<%= urlRep%>"><u> <%= urlRep%></u> </a></p>
                 <p class="klios_p"><b>OAI-PMH : </b><a href="<%=addressOAIPMHRep%>" target="_blank"><u><%=addressOAIPMHRep%></u></a></p>
                 <p class="klios_p"><b>Country Code : </b><%=countryCodeRep%></p>
                 <p class="klios_p"><b>Address : </b><%=addressRep%></p>
@@ -509,13 +513,95 @@
 
 
                 <%
-                // }
-                 }
+                        // }
+                    }
                 %>
             </fieldset>
 
-            
 
+            <br>
+            <a id="AltmetricLink" class="Link" href="#" onClick="showFieldSetAltmetric(); return false;">Altmetric<img id="ImageAnimationAltmetric" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
+            <br>
+            <fieldset class="fieldsetInformations" id="IdFieldSetAltmetric" style="display: none;">
+                <%
+
+
+
+
+                    //  System.out.println("repository size "+arrayRepository.size());
+                    if (arrayAltmetric.size() > 0) {
+
+                        // for(int i=0; i<arrayAlmetric.size(); i++){
+
+                        String title_altmetric = arrayAltmetric.get(0).toString();
+                        String doi_altmetric = arrayAltmetric.get(1).toString();
+                        String issns_altmetric = arrayAltmetric.get(2).toString();
+                        String journal_altmetric = arrayAltmetric.get(3).toString();
+                        String cohorts_pub_altmetric = arrayAltmetric.get(4).toString();
+                        String type_altmetric = arrayAltmetric.get(5).toString();
+                        String id_altmetric = arrayAltmetric.get(6).toString();
+                        String schema_altmetric = arrayAltmetric.get(7).toString();
+                        String cited_by_posts_count_altmetric = arrayAltmetric.get(8).toString();
+                        String cited_by_tweeters_count_altmetric = arrayAltmetric.get(9).toString();
+                        String cited_by_accounts_count_altmetric = arrayAltmetric.get(10).toString();
+                        String last_updated_altmetric = arrayAltmetric.get(11).toString();
+                        String score_altmetric = arrayAltmetric.get(12).toString();
+                        String history_altmetric = arrayAltmetric.get(13).toString();
+                        String url_altmetric = arrayAltmetric.get(14).toString();
+
+
+                        String added_on_altmetric = arrayAltmetric.get(15).toString();
+
+                        String published_on_altmetric = arrayAltmetric.get(16).toString();
+
+                        String readers_altmetric = arrayAltmetric.get(17).toString();
+
+
+                        String readers_count_altmetric = arrayAltmetric.get(18).toString();
+
+
+
+                        String images_altmetric = arrayAltmetric.get(19).toString();
+
+                        String details_url_altmetric = arrayAltmetric.get(20).toString();
+                        System.out.println("URLLLLLL" + details_url_altmetric);
+
+
+
+
+
+                        //System.out.println("URL REP "+urlRep);
+
+                %>
+                <p class="klios_p"><b>Title: </b> <%=title_altmetric%></p> 
+                <p class="klios_p"><b>DOI: </b> <%=doi_altmetric%></p>
+                <p class="klios_p"><b>ISSNS: </b> <%=issns_altmetric%></p>
+                <p class="klios_p"><b>JOURNAL: </b> <%=journal_altmetric%></p>
+                <p class="klios_p"><b>COHORTS PUB: </b> <%=cohorts_pub_altmetric%></p>
+                <p class="klios_p"><b>TYPE: </b> <%=type_altmetric%></p>
+                <p class="klios_p"><b>ID: </b> <%=id_altmetric%></p>
+                <p class="klios_p"><b>SCHEMA: </b> <%=schema_altmetric%></p>
+                <p class="klios_p"><b>CITED BY POSTS COUNT: </b> <%=cited_by_posts_count_altmetric%></p>
+                <p class="klios_p"><b>CITED BY TWEETERS COUNT: </b> <%=cited_by_tweeters_count_altmetric%></p>
+                <p class="klios_p"><b>CITED BY ACCOUNTS COUNT: </b> <%=cited_by_accounts_count_altmetric%></p>
+                <p class="klios_p"><b>LAST UPDATED: </b> <%=last_updated_altmetric%></p>
+                <p class="klios_p"><b>SCORE: </b> <%=score_altmetric%></p>
+                <p class="klios_p"><b>HISTORY: </b> <%=history_altmetric%></p>
+                <p class="klios_p"><b>URL: </b><a href="<%=url_altmetric%>" target="_blank"> <%=url_altmetric%></a></p>
+                <p class="klios_p"><b>ADDED ON: </b> <%=added_on_altmetric%></p>
+                <p class="klios_p"><b>PUBLISHED ON: </b> <%=published_on_altmetric%></p>
+                <p class="klios_p"><b>READERS: </b> <%=readers_altmetric%></p>
+                <p class="klios_p"><b>READERS COUNT: </b> <%=readers_count_altmetric%></p>
+                <p class="klios_p"><b>IMAGES: </b><img src="<%=images_altmetric%>"> </p>
+                <p class="klios_p"><b>DETAILS URL: </b> <a href="<%=details_url_altmetric%>"  target="_blank"><%=details_url_altmetric%></a></p>
+
+
+
+                <%
+                        // }
+                    }
+                %>
+            </fieldset>
 
 
 
@@ -553,6 +639,7 @@
             var controlRepository=true;
             var controlGScholar=true;
             var controlDate=true;
+            var controlAltmetric=true;
             
             function showFieldSetDataSet(){
                 $("#IdFieldSetDataSet").animate({"height": "toggle"});
@@ -563,11 +650,11 @@
                 if( controlDataSet==true ) {
                     $("#ImageAnimationDataSet").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_214_resize_small.png" );
                     
-                   controlDataSet=false;
+                    controlDataSet=false;
                 }
                 else {
                     $("#ImageAnimationDataSet").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" );
-                     controlDataSet=true;
+                    controlDataSet=true;
                 }
                 
             }
@@ -581,11 +668,11 @@
                 if( controlRepository==true ) {
                     $("#ImageAnimationRepository").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_214_resize_small.png" );
                     
-                   controlRepository=false;
+                    controlRepository=false;
                 }
                 else {
                     $("#ImageAnimationRepository").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" );
-                     controlRepository=true;
+                    controlRepository=true;
                 }
                 
             }
@@ -598,16 +685,16 @@
                 if( controlGScholar==true ) {
                     $("#ImageAnimationGScholar").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_214_resize_small.png" );
                     
-                   controlGScholar=false;
+                    controlGScholar=false;
                 }
                 else {
                     $("#ImageAnimationGScholar").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" );
-                     controlGScholar=true;
+                    controlGScholar=true;
                 }
                 
             }
             
-          function showFieldSetDate(){
+            function showFieldSetDate(){
                 $("#IdFieldSetDate").animate({"height": "toggle"});
                 
                 
@@ -616,11 +703,28 @@
                 if( controlDate==true ) {
                     $("#ImageAnimationDate").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_214_resize_small.png" );
                     
-                   controlDate=false;
+                    controlDate=false;
                 }
                 else {
                     $("#ImageAnimationDate").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" );
-                     controlDate=true;
+                    controlDate=true;
+                }
+                
+            }  
+            function showFieldSetAltmetric(){
+                $("#IdFieldSetAltmetric").animate({"height": "toggle"});
+                
+                
+                
+                
+                if( controlAltmetric==true ) {
+                    $("#ImageAnimationAltmetric").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_214_resize_small.png" );
+                    
+                    controlAltmetric=false;
+                }
+                else {
+                    $("#ImageAnimationAltmetric").attr("src","<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" );
+                    controlAltmetric=true;
                 }
                 
             }  
