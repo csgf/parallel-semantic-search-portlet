@@ -54,7 +54,7 @@ public class Altmetric {
 
         response = convertStreamToString(method.getResponseBodyAsStream());
 
-        System.out.println("Pagina di risposta" + response);
+        //System.out.println("Pagina di risposta" + response);
        }
 
         method.releaseConnection();
@@ -80,15 +80,15 @@ public class Altmetric {
                 JSONObject objectJ = (JSONObject) obj;
 
                 url_details_almetric = (String) objectJ.get("details_url");
-                System.out.println("details_url=>" + url_details_almetric);
+                //System.out.println("details_url=>" + url_details_almetric);
                 
                 doi_selected= (String) objectJ.get("doi");
-                System.out.println("doi selected=>" +doi_selected );
+                //System.out.println("doi selected=>" +doi_selected );
                 }
                 else{
                 url_details_almetric="no link";
         
-                  System.out.println("NO almetric=>"+url_details_almetric);
+                  //System.out.println("NO almetric=>"+url_details_almetric);
                 }
             
             
@@ -111,11 +111,11 @@ public class Altmetric {
         String responseJson=Almetric(doi);
         
         
-        System.out.println("Sono qua e il doi =>"+doi);
+      //  System.out.println("Sono qua e il doi =>"+doi);
         
         if(!responseJson.equals("Not Found") && !responseJson.equals("")){
             
-           System.out.println("responseJson=>>>"+responseJson);
+           System.out.println("responseJson Altmetrics=>>>"+responseJson);
 
             
         Object obj = JSONValue.parse(responseJson);
@@ -124,104 +124,104 @@ public class Altmetric {
         JSONObject objectJ = (JSONObject) obj;
 
         String title = (String) objectJ.get("title");
-        System.out.println("titolo=>" + title);
+        //System.out.println("titolo=>" + title);
 
         info_almetric.add(title);
         
         
         String _doi = (String) objectJ.get("doi");
-        System.out.println("doi=>" + _doi +"è uguale a= "+doi_selected);
+        //System.out.println("doi=>" + _doi +"è uguale a= "+doi_selected);
         info_almetric.add(_doi);
         
         
         JSONArray issns = (JSONArray) objectJ.get("issns");
-        System.out.println("issns=>" + issns.size());
+        //System.out.println("issns=>" + issns.size());
         info_almetric.add(issns);
         
         String journal = (String) objectJ.get("journal");
-        System.out.println("journal=>" + journal);
+        //System.out.println("journal=>" + journal);
         info_almetric.add(journal);
         
         JSONObject cohortsOBJ = (JSONObject) objectJ.get("cohorts");
-        System.out.println("cohorts=>" + cohortsOBJ);
+        //System.out.println("cohorts=>" + cohortsOBJ);
         String cohorts_pub = (String) cohortsOBJ.get("pub").toString();
-        System.out.println("cohorts_pub=>" + cohorts_pub);
+        //System.out.println("cohorts_pub=>" + cohorts_pub);
         info_almetric.add(cohorts_pub);
 
         
         String type = (String) objectJ.get("type");
-        System.out.println("type=>" + type);
+        //System.out.println("type=>" + type);
         info_almetric.add(type);
         
         String altmetric_id = (String) objectJ.get("altmetric_id").toString();
-        System.out.println("altmetric_id=>" + altmetric_id);
+        //System.out.println("altmetric_id=>" + altmetric_id);
         info_almetric.add(altmetric_id);
         
         String schema = (String) objectJ.get("schema");
-        System.out.println("schema=>" + schema);
+        //System.out.println("schema=>" + schema);
 
         String is_oa = (String) objectJ.get("is_oa").toString();
-        System.out.println("is_oa=>" + is_oa);
+        //System.out.println("is_oa=>" + is_oa);
         info_almetric.add(schema);
         
         String cited_by_posts_count = (String) objectJ.get("cited_by_posts_count").toString();
-        System.out.println("cited_by_posts_count=>" + cited_by_posts_count);
+        //System.out.println("cited_by_posts_count=>" + cited_by_posts_count);
         info_almetric.add(cited_by_posts_count);
         
         
 
         String cited_by_tweeters_count = (String) objectJ.get("cited_by_tweeters_count").toString();
-        System.out.println("cited_by_tweeters_count=>" + cited_by_tweeters_count);
+        //System.out.println("cited_by_tweeters_count=>" + cited_by_tweeters_count);
         info_almetric.add(cited_by_tweeters_count);
         
         String cited_by_accounts_count = (String) objectJ.get("cited_by_accounts_count").toString();
-        System.out.println("cited_by_accounts_count=>" + cited_by_accounts_count);
+        //System.out.println("cited_by_accounts_count=>" + cited_by_accounts_count);
         info_almetric.add(cited_by_accounts_count);
         
         String last_updated = (String) objectJ.get("last_updated").toString();
-        System.out.println("last_updated=>" + last_updated);
+        //System.out.println("last_updated=>" + last_updated);
         info_almetric.add(last_updated);
         
         String score = (String) objectJ.get("score").toString();
-        System.out.println("score=>" + score);
+       // System.out.println("score=>" + score);
         info_almetric.add(score);
         
         String history = (String) objectJ.get("history").toString();
-        System.out.println("history=>" + history);
+       // System.out.println("history=>" + history);
         info_almetric.add(history);
         
         String url = (String) objectJ.get("url").toString();
-        System.out.println("url=>" + url);
+        //System.out.println("url=>" + url);
         info_almetric.add(url);
         
         
         String added_on = (String) objectJ.get("added_on").toString();
-        System.out.println("added_on=>" + added_on);
+        //System.out.println("added_on=>" + added_on);
         info_almetric.add(added_on);
         
         String published_on = (String) objectJ.get("published_on").toString();
-        System.out.println("published_on=>" + published_on);
+       // System.out.println("published_on=>" + published_on);
         info_almetric.add(published_on);
         
         String readers = (String) objectJ.get("readers").toString();
-        System.out.println("readers=>" + readers);
+        //System.out.println("readers=>" + readers);
         info_almetric.add(readers);
         
         String readers_count = (String) objectJ.get("readers_count").toString();
-        System.out.println("readers_count=>" + readers_count);
+        //System.out.println("readers_count=>" + readers_count);
         info_almetric.add(readers_count);
                
         
          JSONObject imagesOBJ = (JSONObject) objectJ.get("images");
         
         String images = (String) imagesOBJ.get("small").toString();
-        System.out.println("images=>" + images);
+       // System.out.println("images=>" + images);
         info_almetric.add(images);
         
         
         
          String details_url = (String) objectJ.get("details_url").toString();
-        System.out.println("details_url=>" + details_url);
+        //System.out.println("details_url=>" + details_url);
         info_almetric.add(details_url);
         
         

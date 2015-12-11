@@ -159,7 +159,7 @@
 
             <br>
 
-            <a id="AllInformationLink" class="Link" href="#" onClick="showFieldAllInformation(); return false;">All Informations<img id="ImageAnimationDate" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
+            <a id="AllInformationLink" class="Link" href="#" onClick="showFieldAllInformation(); return false;">Detailed Information<img id="ImageAnimationDate" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
             <br>
             <fieldset class="fieldsetInformations" id="IdFieldSetAllInformation" style="display: none;">
 

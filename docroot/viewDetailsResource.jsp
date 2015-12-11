@@ -520,7 +520,7 @@
 
 
             <br>
-            <a id="AltmetricLink" class="Link" href="#" onClick="showFieldSetAltmetric(); return false;">Altmetric<img id="ImageAnimationAltmetric" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
+            <a id="AltmetricLink" class="Link" href="#" onClick="showFieldSetAltmetric(); return false;">Altmetrics<img id="ImageAnimationAltmetric" class="ImageAnimation" src="<%=renderRequest.getContextPath()%>/images/glyphicons_215_resize_full.png" /></a>
             <br>
             <fieldset class="fieldsetInformations" id="IdFieldSetAltmetric" style="display: none;">
                 <%

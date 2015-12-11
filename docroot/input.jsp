@@ -147,16 +147,17 @@
 
                 <ol type="1">
                     <li>The e-Infrastructure Knowledge Base (KB) containing more than 30 million resources belonging to thousands of 
-                        semantically enriched <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/oadr-map/">Open Access Document Repositories</a> 
-                        and <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/data-repositories-map/">Data Repositories</a>.
-                        Search results are ranked according to the <a href="http://repositories.webometrics.info/">Ranking Web of Repositories</a>.
+                        semantically enriched <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/oadr-map/" target="_blank">Open Access Document Repositories</a> 
+                        and <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/data-repositories-map/" target="_blank">Data Repositories</a>.
+                        Search results are ranked according to the <a href="http://repositories.webometrics.info/" target="_blank">Ranking Web of Repositories</a>.
                     </li>
                     <li>
-                        <a href="http://www.europeana.eu/portal/">Europeana</a>, 
-                        <a href="http://dati.culturaitalia.it/?locale=it">Cultura Italia</a>,
-                        <a href="http://www.rechercheisidore.fr/">Isidore</a>,
-                        <a href="http://agris.fao.org/openagris/index.do">OpenAgris</a> and
-                        <a href="http://pubmed.bio2rdf.org/">PubMed</a> (Note: Cultura Italia only allows 1-keyword searches).
+                        <a href="http://www.europeana.eu/portal/" target="_blank">Europeana</a>, 
+                        <a href="http://dati.culturaitalia.it/?locale=it" target="_blank">Cultura Italia</a>,
+                        <a href="http://www.rechercheisidore.fr/" target="_blank">Isidore</a>,
+                        <a href="http://agris.fao.org/openagris/index.do" target="_blank">OpenAgris</a>,
+                        <a href="http://www.ncbi.nlm.nih.gov/pubmed" target="_blank">PubMed</a> and
+                        <a href="http://wiki.dbpedia.org/" target="_blank">DBPedia</a> (Note: Cultura Italia only allows 1-keyword searches).
                     </li>
                 </ol>
 
@@ -223,6 +224,7 @@
                                 <input hidden="true" id="id_graph"  name="graph" type="text" value="http://CHAIN-Reds_Test"/>
                                 <input id="buttonSearchImg "  type="button" onclick="submitSearch()" style="text-align: right;font-size: 12px;" value="Search"/>
                             </td>
+                            
                         </tr>
                         <!--tr>
                             <td colspan="4" align="center" style=" padding-top:0px; padding-bottom: 14px">Enter a keyword </td>
@@ -233,6 +235,10 @@
                     </table>
 
                 </form>
+                  <!--   <form id="search_form_islex" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_ISLEX"/></portlet:actionURL>" method="post">         
+                        <input id="id_search_word2" name="search_word" value="" hidden="true" />
+                         <input id="buttonSearchIslex "  type="button" onclick="submitSearchIslex()" style="text-align: right;font-size: 12px;" value="Search ISLEX"/>
+                     </form> -->
             </div>
 
 
@@ -383,15 +389,51 @@
 
 </body>                        
 <script>
+    
+    
+    function controlSearchWord(){
+        
+        var key=document.getElementById("id_search_word").value;
+        
+        if(key=="" || key.trim()=="" )
+        {
+            
+               return false;
+            }
+         else{
+             
+              return true;   
+         }
+             
+           
+        
+    }
+    
 
     function submitSearch()
     {
-           
-        document.body.style.cursor = "wait";
+        
+        var control=controlSearchWord();
+        
+        
+        if(control){
+            document.body.style.cursor = "wait";
             
         document.forms["search_form"].submit();
       
         showDialog();
+            
+        }
+        else
+            alert("Insert a keyword in the input text!!!");
+           
+       
+    }
+    
+    function submitSearchIslex(){
+         var value_search_word=document.getElementById("id_search_word").value;
+         document.getElementById("id_search_word2").value=value_search_word;
+         document.forms["search_form_islex"].submit();
     }
     
     function showDialog()

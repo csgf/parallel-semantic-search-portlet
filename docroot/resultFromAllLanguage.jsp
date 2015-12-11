@@ -202,16 +202,17 @@
                  </ul> -->
                 <ol>
                     <li>The e-Infrastructure Knowledge Base (KB) containing more than 30 million resources belonging to thousands of 
-                        semantically enriched <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/oadr-map/">Open Access Document Repositories</a> 
-                        and <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/data-repositories-map/">Data Repositories</a>.
-                        Search results are ranked according to the <a href="http://repositories.webometrics.info/">Ranking Web of Repositories</a>.
+                        semantically enriched <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/oadr-map/" target="_blank">Open Access Document Repositories</a> 
+                        and <a href="http://www.sci-gaia.eu/e-infrastructures/knowledge-base/data-repositories-map/" target="_blank">Data Repositories</a>.
+                        Search results are ranked according to the <a href="http://repositories.webometrics.info/" target="_blank">Ranking Web of Repositories</a>.
                     </li>
                     <li>
-                        <a href="http://www.europeana.eu/portal/">Europeana</a>, 
-                        <a href="http://dati.culturaitalia.it/?locale=it">Cultura Italia</a>,
-                        <a href="http://www.rechercheisidore.fr/">Isidore</a>,
-                        <a href="http://agris.fao.org/openagris/index.do">OpenAgris</a> and
-                        <a href="http://pubmed.bio2rdf.org/">PubMed</a> (Note: Cultura Italia only allows 1-keyword searches).
+                        <a href="http://www.europeana.eu/portal/" target="_blank">Europeana</a>, 
+                        <a href="http://dati.culturaitalia.it/?locale=it" target="_blank">Cultura Italia</a>,
+                        <a href="http://www.rechercheisidore.fr/" target="_blank">Isidore</a>,
+                        <a href="http://agris.fao.org/openagris/index.do" target="_blank">OpenAgris</a>,
+                        <a href="http://www.ncbi.nlm.nih.gov/pubmed" target="_blank">PubMed</a> and
+                        <a href=" http://wiki.dbpedia.org/" target="_blank">DBPedia</a> (Note: Cultura Italia only allows 1-keyword searches).
                     </li>
                 </ol>
 
@@ -229,10 +230,10 @@
 
             <div id="divSearchBar"> 
                 <form id="search_form" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_SEMANTIC_SEARCH_ALL_LANGUAGE"/></portlet:actionURL>" method="post">         
-                    <table>
-                        <tr>
-                            <td align="center" style=" padding: 5px;" >
-                                <img href="http://klios.ct.infn.it" src="<%=renderRequest.getContextPath()%>/images/logo_klios.png" />
+                        <table>
+                            <tr>
+                                <td align="center" style=" padding: 5px;" >
+                                    <img href="http://klios.ct.infn.it" src="<%=renderRequest.getContextPath()%>/images/logo_klios.png" />
                             </td>
 
                             <!--td>
@@ -522,7 +523,7 @@
                                                 String[] sId = identifiers.split("##");
 
                                                 String url = "";
-                                                String url_almetric="";
+                                                String url_altmetric="no link";
                                                 for (int k = 0; k < sId.length; k++) {
                                                     String id = sId[k];
                                                     if (id.length() > 4 && id.substring(0, 4).equals("http")) {
@@ -537,22 +538,30 @@
                                                          doi_resource = id.substring(5).toString();   
                                                       }
                                                         System.out.println("DOI=> "+doi_resource);
-                                                        url_almetric=Altmetric.getLinkAlmetricFromDOI(doi_resource);
+                                                        url_altmetric=Altmetric.getLinkAlmetricFromDOI(doi_resource);
                                                         
-                                                        
+                                                       // System.out.println("URL_ALMETRIC"+url_almetric);
 
 
 
                                                     }
 
                                                 }
+                                                // System.out.println("URL_ALMETRIC---->"+url_altmetric);
 
                                             %>
 
                                             <ul class="klios_list"> 
                                                 <form id="checkCitations" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_GET_CITATIONS_GSCHOLAR"/></portlet:actionURL>" method="post">
 
-                                                        <input id="title_GS" name="title_GS" value="" hidden="true" />   
+                                                    <input id="title_GS" name="title_GS" value="" hidden="true" />
+
+                                                    <input id="chek_altmetric" name="chek_altmetric" value="" hidden="true" />
+                                                    <input id="url_altmetric" name="url_altmetric" value="" hidden="true" />
+                                                    <input id="doi_altmetric" name="doi_altmetric" value="" hidden="true" />
+
+                                                    <input id="url_altmetric_<%=countId%>" name="url_altmetric" value="<%=url_altmetric%>" hidden="true" />
+                                                    <input id="doi_altmetric_<%=countId%>" name="doi_altmetric" value="<%=doi_resource%>" hidden="true" />
                                                     <%
 
                                                         //System.out.println("NUM-TITLE_CHAIN: "+stitles.length);
@@ -572,20 +581,13 @@
 
                                                         <input id="titleResourceVirtuoso<%=countId + "--" + j%>" name="titleResourceVirtuoso" value="<%= title%>" hidden="true" />
 
-                                                        (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
-                                                        
-                                                        <%
-                                                        
-                                                            if (!(url_almetric).equals("no link") && !(url_almetric).equals("")) {
+                                                        (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;"  onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
 
-                                                               
-                                                        %>
-                                                        (<a href="<%=url_almetric%>"  style="cursor: pointer;" target="_blank">Altmetric</a>)
 
-                                                    <%
-                                                        }
-                                                    %>
-                                                        
+                                                        (<a id ="counterResoureAlt_<%=countId%>" href="#"  style="cursor: pointer;" onclick="CheckAltmetrics(<%=countId%>,<%=j%>,'<%=url_altmetric%>','<%=doi_resource%>')" >Altmetrics</a>)
+
+
+
                                                         (<a href="<%=LodLiveEndPoint%>/?<%=resource%>"  style="cursor: pointer;" target="_blank">Linked Data</a>)</li>
 
                                                     <%
@@ -597,21 +599,15 @@
                                                     <!-- <img id="counterResoureGS_<%=countId%>" style="cursor: pointer;width:20px;height: 20px;" src="<%=renderRequest.getContextPath()%>/images/gscholar_icon.png" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)" />
                                                      <a href="http://localhost:8080/testlodlive/?<%=resource%>" target="_blank"><img id="<%=resource%>" style="cursor: pointer;width:80px;height: 25px;" src="<%=renderRequest.getContextPath()%>/images/lodliveLogo200px.jpg" /></a></li>
                                                         <input id="titleResourceVirtuoso<%=countId + "--" + j%>" name="titleResourceVirtuoso" value="<%= title%>" hidden="true" />-->
-                                                        (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" target="_blank" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
-                                                       
-                                                        
-                                                        <%
-                                                            if (!(url_almetric).equals("no link")&& !(url_almetric).equals("")) {
+                                                        (<a id="counterResoureGS_<%=countId%>" href="#" style="cursor: pointer;" onclick="CheckCitationsImage(<%=countId%>,<%=j%>)">Citations</a>)
 
-                                                              
-                                                        %>
-                                                        (<a href="<%=url_almetric%>"  style="cursor: pointer;" target="_blank">Altmetric</a>)
 
-                                                    <%
-                                                        }%>
-                                                        
-                                                        
-                                                        
+                                                        (<a id ="counterResoureAlt_<%=countId%>" href="#"  style="cursor: pointer;" onclick="CheckAltmetrics(<%=countId%>,<%=j%>,'<%=url_altmetric%>','<%=doi_resource%>')">Altmetrics</a>)
+
+
+
+
+
                                                         (<a href="<%=LodLiveEndPoint%>/?<%=resource%>" style="cursor: pointer;" target="_blank">Linked Data</a>)</li>
 
                                                     <input id="titleResourceVirtuoso<%=countId + "--" + j%>" name="titleResourceVirtuoso" value="<%= title%>" hidden="true" />
@@ -641,7 +637,7 @@
                                                 String authors = arrayChainAuthor.get(i).toString();
                                                 //String authors1=authors.substring(2);
                                                 //String authorsFinal=authors1.replace("##","; ");
-%>
+                                            %>
                                             <i> <%= authors%></i>
                                             <%}%>
 
@@ -701,16 +697,21 @@
                                     <tr>
                                         <td>
                                             <form id="checkCitations" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_GET_CITATIONS_GSCHOLAR"/></portlet:actionURL>" method="post">
-                                                    <br>
+                                                <br>
 
-                                                    <input id="title_GS" name="title_GS" value="" hidden="true" />
-                                                    <!-- <input id="control_GS" name="control_GS" value="" hidden="true" />-->
+                                                <input id="title_GS" name="title_GS" value="" hidden="true" />
+                                                <input id="chek_altmetric" name="chek_altmetric" value="" hidden="true" />
+                                                <input id="url_altmetric" name="url_altmetric" value="" hidden="true" />
+                                                <input id="doi_altmetric" name="doi_altmetric" value="" hidden="true" />
 
-                                                    <p id="counterResoureGS_<%=countId%>" style="cursor: pointer;color: green;" onclick="CheckCitations(this.id)">Check citations on Google Scholar</p>    
+                                                <p id="counterResoureGS_<%=countId%>" style="cursor: pointer;color: green;" onclick="CheckCitations(this.id)">Check citations on Google Scholar</p>  
+                                                <p id ="counterResoureAlt_<%=countId%>" style="cursor: pointer;color: green;" onclick="CheckAltmetrics2(this.id)">Check altmetrics on Altmetric</p>    
                                             </form>
                                         </td> 
 
                                     </tr>  
+
+
 
 
 
@@ -2033,7 +2034,7 @@
                                                     }//chiudo Title%>
                                         </td>
                                     </tr> <!-- chiudo riga title --> 
-                                    
+
                                     <tr> <!-- riga description -->
                                         <td>
                                             <%
@@ -2085,8 +2086,8 @@
 
 
                                     </tr> <!-- chiudo riga description --> 
-                                    
-                                      <tr>
+
+                                    <tr>
                                         <td>
                                             <form id="searchDetailDBPedia" action="<portlet:actionURL portletMode="view"><portlet:param name="PortletStatus" value="ACTION_GET_MORE_INFO_DBPEDIA"/></portlet:actionURL>" method="post">
                                                 <input id="idResourceDBPedia" name="idResourceDBPedia" value="<%= resourceDBPedia%>" hidden="true" />
@@ -2100,21 +2101,21 @@
                                     </tr>
 
                                     <tr><td> <hr class="endRecordAll" noshade="noshade"></td></tr>  
-                                    
-                                    
+
+
                                 </table> 
                             </td>
                         </tr>
-<%            } //chiudo il  for (int i = 0; i < arrayDBPediaResource.size(); i++)
+                        <%            } //chiudo il  for (int i = 0; i < arrayDBPediaResource.size(); i++)
 
-                                }%> <!-- chiudo if DBPedia -->
+                                                        }%> <!-- chiudo if DBPedia -->
                     </table>
-                               <%
+                    <%
 
-                        //System.out.println("selected_pageIsidore jspppp "+selected_pageIsidore);
-                        int limitMaxDBPedia = Integer.parseInt(selected_pageDBPedia) * n;
+             //System.out.println("selected_pageIsidore jspppp "+selected_pageIsidore);
+             int limitMaxDBPedia = Integer.parseInt(selected_pageDBPedia) * n;
 
-                        if (arrayDBPediaResource.size() > 0 && !arrayDBPediaResource.get(0).toString().equals("Exception")) {%>
+             if (arrayDBPediaResource.size() > 0 && !arrayDBPediaResource.get(0).toString().equals("Exception")) {%>
                     <div class="showpageArea">
 
 
@@ -2251,7 +2252,7 @@
                                                             if (!title.equals("")) {
 
                                                                     //System.out.println("linkkkkkkkkkk "+link);
-%>
+                                                %>
                                                 <li><a href="<%= id_httpEngage%>" target="_blank" title="<%= id_httpEngage%>"><%= title%> </a>
                                                     <%
 
@@ -2539,1285 +2540,1348 @@
                                     
             }
                 
-            function moreResourcesEuropeana()
-            {
+        function moreResourcesEuropeana()
+        {
                                   
-                var nvalue=parseInt(document.getElementById("numberOfPageEuropeana").value);
-                var page=document.getElementById("numberOfPageEuropeana").value=nvalue+1;
+            var nvalue=parseInt(document.getElementById("numberOfPageEuropeana").value);
+            var page=document.getElementById("numberOfPageEuropeana").value=nvalue+1;
                    
-                document.getElementById("idMoreResourceEuropeana").value="OK";
-                document.getElementById("idMoreInfoEuropeana").value="NO";
-                document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceOpenAgris").value="NO";
-                document.getElementById("idMoreInfoOpenAgris").value="NO";
-                document.getElementById("idMoreResourceCHAIN").value="NO";
-                document.getElementById("idMoreInfo").value="NO";
-                document.getElementById("idMoreResourceIsidore").value="NO";
-                document.getElementById("idMoreInfoIsidore").value="NO";
-                document.getElementById("idMoreResourcePubmed").value="NO";
-                document.getElementById("idMoreInfoPubmed").value="NO";
-                document.getElementById("idMoreResourceDBPedia").value="NO";
-                document.getElementById("idMoreInfoDBPedia").value="NO";
-                document.getElementById("idMoreResourceEngage").value="NO";
-                document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="OK";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfo").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                     
-                document.forms["search_form"].submit();
-                document.body.style.cursor = "wait";
-                showDialog();
+            document.forms["search_form"].submit();
+            document.body.style.cursor = "wait";
+            showDialog();
                                     
-            }
+        }
                 
-            function moreResourcesIsidore()
-            {
+        function moreResourcesIsidore()
+        {
                                   
-                var nvalue=parseInt(document.getElementById("numberOfPageIsidore").value);
-                var page=document.getElementById("numberOfPageIsidore").value=nvalue+1;
+            var nvalue=parseInt(document.getElementById("numberOfPageIsidore").value);
+            var page=document.getElementById("numberOfPageIsidore").value=nvalue+1;
                    
-                document.getElementById("idMoreResourceEuropeana").value="NO";
-                document.getElementById("idMoreInfoEuropeana").value="NO";
-                document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceOpenAgris").value="NO";
-                document.getElementById("idMoreInfoOpenAgris").value="NO";
-                document.getElementById("idMoreResourceCHAIN").value="NO";
-                document.getElementById("idMoreInfo").value="NO";
-                document.getElementById("idMoreResourceIsidore").value="OK";
-                document.getElementById("idMoreInfoIsidore").value="NO";
-                document.getElementById("idMoreResourcePubmed").value="NO";
-                document.getElementById("idMoreInfoPubmed").value="NO";
-                document.getElementById("idMoreResourceDBPedia").value="NO";
-                document.getElementById("idMoreInfoDBPedia").value="NO";
-                document.getElementById("idMoreResourceEngage").value="NO";
-                document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfo").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="OK";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                     
-                document.forms["search_form"].submit();
-                document.body.style.cursor = "wait";
-                showDialog();
+            document.forms["search_form"].submit();
+            document.body.style.cursor = "wait";
+            showDialog();
                                     
-            }
-            function moreResourcesPubmed()
-            {
+        }
+        function moreResourcesPubmed()
+        {
                                
-                var nvalue=parseInt(document.getElementById("numberOfPagePubmed").value);
+            var nvalue=parseInt(document.getElementById("numberOfPagePubmed").value);
                     
-                var page=document.getElementById("numberOfPagePubmed").value=nvalue+1;
+            var page=document.getElementById("numberOfPagePubmed").value=nvalue+1;
                    
-                document.getElementById("idMoreResourceEuropeana").value="NO";
-                document.getElementById("idMoreInfoEuropeana").value="NO";
-                document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceOpenAgris").value="NO";
-                document.getElementById("idMoreInfoOpenAgris").value="NO";
-                document.getElementById("idMoreResourceCHAIN").value="NO";
-                document.getElementById("idMoreInfo").value="NO";
-                document.getElementById("idMoreResourceIsidore").value="NO";
-                document.getElementById("idMoreInfoIsidore").value="NO";
-                document.getElementById("idMoreResourcePubmed").value="OK";
-                document.getElementById("idMoreInfoPubmed").value="NO";
-                document.getElementById("idMoreResourceDBPedia").value="NO";
-                document.getElementById("idMoreInfoDBPedia").value="NO";
-                document.getElementById("idMoreResourceEngage").value="NO";
-                document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfo").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="OK";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                     
-                document.forms["search_form"].submit();
-                document.body.style.cursor = "wait";
-                showDialog();
-            }
+            document.forms["search_form"].submit();
+            document.body.style.cursor = "wait";
+            showDialog();
+        }
             
-            function moreResourcesDBPedia()
-            {
+        function moreResourcesDBPedia()
+        {
                                
-                var nvalue=parseInt(document.getElementById("numberOfPageDBPedia").value);
+            var nvalue=parseInt(document.getElementById("numberOfPageDBPedia").value);
                     
-                var page=document.getElementById("numberOfPageDBPedia").value=nvalue+1;
+            var page=document.getElementById("numberOfPageDBPedia").value=nvalue+1;
                   
-                document.getElementById("idMoreResourceEuropeana").value="NO";
-                document.getElementById("idMoreInfoEuropeana").value="NO";
-                document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceOpenAgris").value="NO";
-                document.getElementById("idMoreInfoOpenAgris").value="NO";
-                document.getElementById("idMoreResourceCHAIN").value="NO";
-                document.getElementById("idMoreInfo").value="NO";
-                document.getElementById("idMoreResourceIsidore").value="NO";
-                document.getElementById("idMoreInfoIsidore").value="NO";
-                document.getElementById("idMoreResourcePubmed").value="NO";
-                document.getElementById("idMoreInfoPubmed").value="NO";
-                document.getElementById("idMoreResourceDBPedia").value="OK";
-                document.getElementById("idMoreInfoDBPedia").value="NO";
-                document.getElementById("idMoreResourceEngage").value="NO";
-                document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfo").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="OK";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                     
-                document.forms["search_form"].submit();
-                document.body.style.cursor = "wait";
-                showDialog();
-            }
+            document.forms["search_form"].submit();
+            document.body.style.cursor = "wait";
+            showDialog();
+        }
                 
-            function moreResourcesEngage()
-            {
+        function moreResourcesEngage()
+        {
                                
-                var nvalue=parseInt(document.getElementById("numberOfPageEngage").value);
+            var nvalue=parseInt(document.getElementById("numberOfPageEngage").value);
                     
-                var page=document.getElementById("numberOfPageEngage").value=nvalue+1;
+            var page=document.getElementById("numberOfPageEngage").value=nvalue+1;
                    
-                document.getElementById("idMoreResourceEuropeana").value="NO";
-                document.getElementById("idMoreInfoEuropeana").value="NO";
-                document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                document.getElementById("idMoreResourceOpenAgris").value="NO";
-                document.getElementById("idMoreInfoOpenAgris").value="NO";
-                document.getElementById("idMoreResourceCHAIN").value="NO";
-                document.getElementById("idMoreInfo").value="NO";
-                document.getElementById("idMoreResourceIsidore").value="NO";
-                document.getElementById("idMoreInfoIsidore").value="NO";
-                document.getElementById("idMoreResourcePubmed").value="NO";
-                document.getElementById("idMoreInfoPubmed").value="NO";
-                document.getElementById("idMoreResourceDBPedia").value="NO";
-                document.getElementById("idMoreInfoDBPedia").value="NO";
-                document.getElementById("idMoreResourceEngage").value="OK";
-                document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfo").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="OK";
+            document.getElementById("idMoreInfoEngage").value="NO";
                     
-                document.forms["search_form"].submit();
-                document.body.style.cursor = "wait";
-                showDialog();
-            }
+            document.forms["search_form"].submit();
+            document.body.style.cursor = "wait";
+            showDialog();
+        }
                 
              
                 
 
 
 
-            function activeChainAfterMoreResource()
-            {
+        function activeChainAfterMoreResource()
+        {
                      
-                //******** tab CHAIN attivo dopo MoreResource***********  
-                if(document.getElementById("idMoreResourceCHAIN").value=="OK") 
+            //******** tab CHAIN attivo dopo MoreResource***********  
+            if(document.getElementById("idMoreResourceCHAIN").value=="OK") 
+            {
+                //alert("CHAIN attivo");
+                document.getElementById("idMoreResourceCHAIN").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
                 {
-                    //alert("CHAIN attivo");
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    var listDiv=document.getElementsByTagName("div");
-                    for (var i=0;i<listDiv.length;i++)
-                    {
-                        var div=listDiv[i];
-                        var title=div.getAttribute("title");
-                        if(title=="E-INFRA-KB"){
-                            div.id ='tabactive';
-                            // alert("1")
-                            var page=document.getElementById("numberOfPage").value;
-                            // alert("Page"+page);
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB"){
+                        div.id ='tabactive';
+                        // alert("1")
+                        var page=document.getElementById("numberOfPage").value;
+                        // alert("Page"+page);
             <% int limit = Integer.parseInt(numberRecordsForPage) + 1;%>
                                
-                                var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
-                                //alert ("COUNTER--->"+counter);
+                            var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                            //alert ("COUNTER--->"+counter);
                             
-                                var x=$("#countResource_"+counter).position();
-                                // alert(counter+"-->TOP-->"+x.top+" --->"+x.left);
+                            var x=$("#countResource_"+counter).position();
+                            // alert(counter+"-->TOP-->"+x.top+" --->"+x.left);
                                                                                                                                          
-                                window.scrollTo(x.left,x.top);
-                            }
-                            if(title=="OPENAGRIS")
-                                div.id='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                        }           
-                    }
-                    
-                }
-                
-                function activeChainAfterMoreInfo(){
-                    //******** tab CHAIN attivo dopo MoreInfo***********  
-                    if(document.getElementById("idMoreInfo").value=="OK") 
-                    {
-                        //alert("CHAIN attivo");
-                        document.getElementById("idMoreInfo").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB"){
-                                div.id ='tabactive';
-                               
-                                var x=$("#countResource_"+<%=numResourceFromDetails%>).position();
-                
-                                window.scrollTo(x.left,x.top);
-                            }
-                            if(title=="OPENAGRIS")
-                                div.id='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
+                            window.scrollTo(x.left,x.top);
                         }
-                            
-                    }
+                        if(title=="OPENAGRIS")
+                            div.id='notabactive';
+                        if(title=="CULTURAITALIA")
+                            div.id='notabactive';
+                        if(title=="ISIDORE")
+                            div.id ='notabactive';
+                        if(title=="EUROPEANA")
+                            div.id ='notabactive';
+                        if(title=="PUBMED")
+                            div.id ='notabactive';
+                        if(title=="DBPEDIA")
+                            div.id ='notabactive';
+                        if(title=="ENGAGE")
+                            div.id ='notabactive';
+                    }           
                 }
+                    
+            }
                 
-                function activeOpenAgrisAfterMoreResource(){
-                    //******** tab OpenAgris attivo dopo MoreResource************    
-                    if(document.getElementById("idMoreResourceOpenAgris").value=="OK"){
-                        //alert("OPENAGRIS attivo");
-                        document.getElementById("idMoreResourceOpenAgris").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS"){
-                                div.id='tabactive';
-                                var pageOpenAgris=document.getElementById("numberOfPageOpenAgris").value;
-                                var counterOpenAgris=(pageOpenAgris*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
-                                // var counterOpenAgris=(pageOpenAgris*20)-21; 
-                                //alert ("COUNTER OpenAgris--->"+counterOpenAgris);
-                                var positionDiv=$("#tabactive").position().top;
-                                var s=$("#countResourceOpenAgris_"+counterOpenAgris).position();
-                                var topFinal=s.top-positionDiv;
+        function activeChainAfterMoreInfo(){
+            //******** tab CHAIN attivo dopo MoreInfo***********  
+            if(document.getElementById("idMoreInfo").value=="OK") 
+            {
+                //alert("CHAIN attivo");
+                document.getElementById("idMoreInfo").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB"){
+                        div.id ='tabactive';
+                               
+                        var x=$("#countResource_"+<%=numResourceFromDetails%>).position();
+                
+                        window.scrollTo(x.left,x.top);
+                    }
+                    if(title=="OPENAGRIS")
+                        div.id='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                }
+                            
+            }
+        }
+                
+        function activeOpenAgrisAfterMoreResource(){
+            //******** tab OpenAgris attivo dopo MoreResource************    
+            if(document.getElementById("idMoreResourceOpenAgris").value=="OK"){
+                //alert("OPENAGRIS attivo");
+                document.getElementById("idMoreResourceOpenAgris").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS"){
+                        div.id='tabactive';
+                        var pageOpenAgris=document.getElementById("numberOfPageOpenAgris").value;
+                        var counterOpenAgris=(pageOpenAgris*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                        // var counterOpenAgris=(pageOpenAgris*20)-21; 
+                        //alert ("COUNTER OpenAgris--->"+counterOpenAgris);
+                        var positionDiv=$("#tabactive").position().top;
+                        var s=$("#countResourceOpenAgris_"+counterOpenAgris).position();
+                        var topFinal=s.top-positionDiv;
                            
-                                var left2= s.left;
+                        var left2= s.left;
                            
-                                window.scrollTo(left2,(topFinal));
+                        window.scrollTo(left2,(topFinal));
  
-                            }
-                        }
+                    }
+                }
                     
                    
             
+            }
+                
+        }
+                
+        function activeOpenAgrisAfterMoreInfo(){
+            //******** tab OpenAgris attivo dopo MoreInfo***********  
+            if(document.getElementById("idMoreInfoOpenAgris").value=="OK") 
+            {
+                document.getElementById("idMoreInfoOpenAgris").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="OPENAGRIS"){
+                        div.id ='tabactive';
+                        var positionDiv= $("#tabactive").position().top;
+                                
+                               
+                        var x=$("#countResourceOpenAgris_"+<%=numResourceOpenAgrisFromDetails%>).position();
+                               
+                        var topFinal=x.top-positionDiv;
+                           
+                                              
+                        window.scrollTo(x.left,topFinal);
                     }
-                
+                    if(title=="E-INFRA-KB")
+                        div.id='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
                 }
-                
-                function activeOpenAgrisAfterMoreInfo(){
-                    //******** tab OpenAgris attivo dopo MoreInfo***********  
-                    if(document.getElementById("idMoreInfoOpenAgris").value=="OK") 
-                    {
-                        document.getElementById("idMoreInfoOpenAgris").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="OPENAGRIS"){
-                                div.id ='tabactive';
-                                var positionDiv= $("#tabactive").position().top;
-                                
-                               
-                                var x=$("#countResourceOpenAgris_"+<%=numResourceOpenAgrisFromDetails%>).position();
-                               
-                                var topFinal=x.top-positionDiv;
-                           
-                                              
-                                window.scrollTo(x.left,topFinal);
-                            }
-                            if(title=="E-INFRA-KB")
-                                div.id='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                        }
                             
-                    }  
+            }  
                      
-                }
+        }
                 
-                function activeCulturaItaliaAfterMoreResource(){  
+        function activeCulturaItaliaAfterMoreResource(){  
                 
-                    //******** tab Cultura ITalia attivo************    
-                    if(document.getElementById("idMoreResourceCulturaItalia").value=="OK"){
-                        // alert("CULTURA ITALIA attivo");
-                        document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA"){
-                                div.id='tabactive';
-                                var pageCultura=document.getElementById("numberOfPageCulturaItalia").value;
+            //******** tab Cultura ITalia attivo************    
+            if(document.getElementById("idMoreResourceCulturaItalia").value=="OK"){
+                // alert("CULTURA ITALIA attivo");
+                document.getElementById("idMoreResourceCulturaItalia").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA"){
+                        div.id='tabactive';
+                        var pageCultura=document.getElementById("numberOfPageCulturaItalia").value;
                            
-                                //var counterCultura=(pageCultura*20)-21; 
-                                var counterCultura=(pageCultura*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
-                                var positionDiv=$("#tabactive").position().top;
+                        //var counterCultura=(pageCultura*20)-21; 
+                        var counterCultura=(pageCultura*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                        var positionDiv=$("#tabactive").position().top;
   
-                                // alert("CounterCultura--->>"+counterCultura);        
-                                var x2=$("#countResourceCulturaItalia_"+counterCultura).position();
+                        // alert("CounterCultura--->>"+counterCultura);        
+                        var x2=$("#countResourceCulturaItalia_"+counterCultura).position();
                                 
-                                var topFinal=x2.top-positionDiv;
+                        var topFinal=x2.top-positionDiv;
                          
                            
-                                window.scroll(x2.left,topFinal);
+                        window.scroll(x2.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
                 
-                function activeCulturaItaliaAfterMoreInfo(){  
+        }
                 
-                    //******** tab Cultura ITalia attivo************    
-                    if(document.getElementById("idMoreInfoCulturaItalia").value=="OK"){
-                        // alert("CULTURA ITALIA attivo");
-                        document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA"){
-                                div.id='tabactive';
-                                var positionDiv= $("#tabactive").position().top;
-                                var x=$("#countResourceCulturaItalia_"+<%=numResourceCulturaItaliaFromDetails%>).position();
+        function activeCulturaItaliaAfterMoreInfo(){  
+                
+            //******** tab Cultura ITalia attivo************    
+            if(document.getElementById("idMoreInfoCulturaItalia").value=="OK"){
+                // alert("CULTURA ITALIA attivo");
+                document.getElementById("idMoreInfoCulturaItalia").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA"){
+                        div.id='tabactive';
+                        var positionDiv= $("#tabactive").position().top;
+                        var x=$("#countResourceCulturaItalia_"+<%=numResourceCulturaItaliaFromDetails%>).position();
                                
-                                var topFinal=x.top-positionDiv;
+                        var topFinal=x.top-positionDiv;
                            
                                               
-                                window.scrollTo(x.left,topFinal);
+                        window.scrollTo(x.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
+                
+        }
                 
                 
                 
-                function activeEuropeanaAfterMoreResource(){  
+        function activeEuropeanaAfterMoreResource(){  
                 
                      
                    
-                    if(document.getElementById("idMoreResourceEuropeana").value=="OK"){
-                        // alert(" Europeana attivo");
-                        document.getElementById("idMoreResourceEuropeana").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA"){
-                                div.id='tabactive';
-                                //alert(" Europeana attivo1");
-                                var page=document.getElementById("numberOfPageEuropeana").value;
+            if(document.getElementById("idMoreResourceEuropeana").value=="OK"){
+                // alert(" Europeana attivo");
+                document.getElementById("idMoreResourceEuropeana").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA"){
+                        div.id='tabactive';
+                        //alert(" Europeana attivo1");
+                        var page=document.getElementById("numberOfPageEuropeana").value;
                            
-                                //var counterCultura=(pageCultura*20)-21; 
-                                var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
-                                var positionDiv=$("#tabactive").position().top;
+                        //var counterCultura=(pageCultura*20)-21; 
+                        var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                        var positionDiv=$("#tabactive").position().top;
   
-                                //alert("CounterEuropena--->>"+counter);        
-                                var x2=$("#countResourceEuropeana_"+counter).position();
+                        //alert("CounterEuropena--->>"+counter);        
+                        var x2=$("#countResourceEuropeana_"+counter).position();
                                 
-                                var topFinal=x2.top-positionDiv;
+                        var topFinal=x2.top-positionDiv;
                          
                            
-                                window.scroll(x2.left,topFinal);
+                        window.scroll(x2.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
-                   
-                function activeEuropeanaAfterMoreInfo(){  
+
+            }    
                 
-                    //******** tab Cultura ITalia attivo************    
-                    if(document.getElementById("idMoreInfoEuropeana").value=="OK"){
-                        //alert("Europeana attivo");
-                        document.getElementById("idMoreInfoEuropeana").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA"){
-                                div.id='tabactive';
+        }
+                   
+        function activeEuropeanaAfterMoreInfo(){  
+                
+            //******** tab Cultura ITalia attivo************    
+            if(document.getElementById("idMoreInfoEuropeana").value=="OK"){
+                //alert("Europeana attivo");
+                document.getElementById("idMoreInfoEuropeana").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA"){
+                        div.id='tabactive';
                                
-                                var positionDiv= $("#tabactive").position().top;
+                        var positionDiv= $("#tabactive").position().top;
                                 
-                                var x=$("#countResourceEuropeana_"+<%=numResourceEuropeanaFromDetails%>).position();
+                        var x=$("#countResourceEuropeana_"+<%=numResourceEuropeanaFromDetails%>).position();
                               
-                                var topFinal=x.top-positionDiv;
+                        var topFinal=x.top-positionDiv;
                            
                                               
-                                window.scrollTo(x.left,topFinal);
+                        window.scrollTo(x.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
                 
-                function activeIsidoreAfterMoreResource(){  
+        }
                 
-                    //******** tab Cultura ITalia attivo************    
-                    if(document.getElementById("idMoreResourceIsidore").value=="OK"){
-                        // alert("CULTURA ITALIA attivo");
-                        document.getElementById("idMoreResourceIsidore").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE"){
-                                div.id='tabactive';
-                                var page=document.getElementById("numberOfPageIsidore").value;
+        function activeIsidoreAfterMoreResource(){  
+                
+            //******** tab Cultura ITalia attivo************    
+            if(document.getElementById("idMoreResourceIsidore").value=="OK"){
+                // alert("CULTURA ITALIA attivo");
+                document.getElementById("idMoreResourceIsidore").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE"){
+                        div.id='tabactive';
+                        var page=document.getElementById("numberOfPageIsidore").value;
                            
-                                //var counterCultura=(pageCultura*20)-21; 
-                                var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
-                                var positionDiv=$("#tabactive").position().top;
+                        //var counterCultura=(pageCultura*20)-21; 
+                        var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                        var positionDiv=$("#tabactive").position().top;
   
                                
-                                var x2=$("#countResourceIsidore_"+counter).position();
+                        var x2=$("#countResourceIsidore_"+counter).position();
                                 
-                                var topFinal=x2.top-positionDiv;
+                        var topFinal=x2.top-positionDiv;
                          
                            
-                                window.scroll(x2.left,topFinal);
+                        window.scroll(x2.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
-                   
-                function activeIsidoreAfterMoreInfo(){  
+
+            }    
                 
-                    //******** tab Cultura ITalia attivo************    
-                    if(document.getElementById("idMoreInfoIsidore").value=="OK"){
-                        // alert("CULTURA ITALIA attivo");
-                        document.getElementById("idMoreInfoIsidore").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE"){
-                                div.id='tabactive';
-                                var positionDiv= $("#tabactive").position().top;
-                                var x=$("#countResourceIsidore_"+<%=numResourceIsidoreFromDetails%>).position();
+        }
+                   
+        function activeIsidoreAfterMoreInfo(){  
+                
+            //******** tab Cultura ITalia attivo************    
+            if(document.getElementById("idMoreInfoIsidore").value=="OK"){
+                // alert("CULTURA ITALIA attivo");
+                document.getElementById("idMoreInfoIsidore").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE"){
+                        div.id='tabactive';
+                        var positionDiv= $("#tabactive").position().top;
+                        var x=$("#countResourceIsidore_"+<%=numResourceIsidoreFromDetails%>).position();
                                
-                                var topFinal=x.top-positionDiv;
+                        var topFinal=x.top-positionDiv;
                            
                                               
-                                window.scrollTo(x.left,topFinal);
+                        window.scrollTo(x.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
+                
+        }
                 
                 
-                function activePubmedAfterMoreResource(){  
+        function activePubmedAfterMoreResource(){  
                 
-                    //******** tab Pubmed  attivo************    
-                    if(document.getElementById("idMoreResourcePubmed").value=="OK"){
+            //******** tab Pubmed  attivo************    
+            if(document.getElementById("idMoreResourcePubmed").value=="OK"){
                          
-                        document.getElementById("idMoreResourcePubmed").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED"){
-                                div.id='tabactive';
+                document.getElementById("idMoreResourcePubmed").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED"){
+                        div.id='tabactive';
                                 
                               
-                                var page=document.getElementById("numberOfPagePubmed").value;
+                        var page=document.getElementById("numberOfPagePubmed").value;
                              
-                                //var counterCultura=(pageCultura*20)-21; 
-                                var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                        //var counterCultura=(pageCultura*20)-21; 
+                        var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
                                
-                                var positionDiv=$("#tabactive").position().top;
+                        var positionDiv=$("#tabactive").position().top;
   
                                
-                                var x2=$("#countResourcePubmed_"+counter).position();
+                        var x2=$("#countResourcePubmed_"+counter).position();
                                 
-                                var topFinal=x2.top-positionDiv;
+                        var topFinal=x2.top-positionDiv;
                          
                            
-                                window.scroll(x2.left,topFinal);
+                        window.scroll(x2.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
-                   
-                function activePubmedAfterMoreInfo(){  
+
+            }    
                 
-                    //******** tab Cultura ITalia attivo************    
-                    if(document.getElementById("idMoreInfoPubmed").value=="OK"){
-                        // alert("CULTURA ITALIA attivo");
-                        document.getElementById("idMoreInfoPubmed").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="PUBMED"){
-                                div.id='tabactive';
-                                var positionDiv= $("#tabactive").position().top;
-                                var x=$("#countResourcePubmed_"+<%=numResourcePubmedFromDetails%>).position();
+        }
+                   
+        function activePubmedAfterMoreInfo(){  
+                
+            //******** tab Cultura ITalia attivo************    
+            if(document.getElementById("idMoreInfoPubmed").value=="OK"){
+                // alert("CULTURA ITALIA attivo");
+                document.getElementById("idMoreInfoPubmed").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="PUBMED"){
+                        div.id='tabactive';
+                        var positionDiv= $("#tabactive").position().top;
+                        var x=$("#countResourcePubmed_"+<%=numResourcePubmedFromDetails%>).position();
                                
-                                var topFinal=x.top-positionDiv;
+                        var topFinal=x.top-positionDiv;
                            
                                               
-                                window.scrollTo(x.left,topFinal);
+                        window.scrollTo(x.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
                 
-                 function activeDBPediaAfterMoreResource(){  
+        }
                 
-                    //******** tab Pubmed  attivo************    
-                    if(document.getElementById("idMoreResourceDBPedia").value=="OK"){
+        function activeDBPediaAfterMoreResource(){  
+                
+            //******** tab Pubmed  attivo************    
+            if(document.getElementById("idMoreResourceDBPedia").value=="OK"){
                          
-                        document.getElementById("idMoreResourceDBPedia").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA"){
-                                div.id='tabactive';
+                document.getElementById("idMoreResourceDBPedia").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA"){
+                        div.id='tabactive';
                                 
                               
-                                var page=document.getElementById("numberOfPageDBPedia").value;
+                        var page=document.getElementById("numberOfPageDBPedia").value;
                              
-                                //var counterCultura=(pageCultura*20)-21; 
-                                var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                        //var counterCultura=(pageCultura*20)-21; 
+                        var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
                                
-                                var positionDiv=$("#tabactive").position().top;
+                        var positionDiv=$("#tabactive").position().top;
   
                                
-                                var x2=$("#countResourceDBPedia_"+counter).position();
+                        var x2=$("#countResourceDBPedia_"+counter).position();
                                 
-                                var topFinal=x2.top-positionDiv;
+                        var topFinal=x2.top-positionDiv;
                          
                            
-                                window.scroll(x2.left,topFinal);
+                        window.scroll(x2.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
+                
+        }
                    
-                function activeDBPediaAfterMoreInfo(){  
+        function activeDBPediaAfterMoreInfo(){  
               
-                    //******** tab DBPEDIA attivo************    
-                    if(document.getElementById("idMoreInfoDBPedia").value=="OK"){
-                        // alert("DBPEDIA attivo");
-                        document.getElementById("idMoreInfoDBPedia").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA"){
-                                div.id='tabactive';
-                                var positionDiv= $("#tabactive").position().top;
-                                var x=$("#countResourceDBPedia_"+<%=numResourceDBPediaFromDetails%>).position();
+            //******** tab DBPEDIA attivo************    
+            if(document.getElementById("idMoreInfoDBPedia").value=="OK"){
+                // alert("DBPEDIA attivo");
+                document.getElementById("idMoreInfoDBPedia").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA"){
+                        div.id='tabactive';
+                        var positionDiv= $("#tabactive").position().top;
+                        var x=$("#countResourceDBPedia_"+<%=numResourceDBPediaFromDetails%>).position();
                                
-                                var topFinal=x.top-positionDiv;
+                        var topFinal=x.top-positionDiv;
                            
                                               
-                                window.scrollTo(x.left,topFinal);
+                        window.scrollTo(x.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
+                
+        }
                 
                 
                     
                     
-                function activeEngageAfterMoreResource(){  
+        function activeEngageAfterMoreResource(){  
                 
-                    //******** tab Pubmed  attivo************    
-                    if(document.getElementById("idMoreResourceEngage").value=="OK"){
-                        //  alert("ENGAGE attivo");
-                        document.getElementById("idMoreResourceEngage").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE"){
-                                div.id='tabactive';
+            //******** tab Pubmed  attivo************    
+            if(document.getElementById("idMoreResourceEngage").value=="OK"){
+                //  alert("ENGAGE attivo");
+                document.getElementById("idMoreResourceEngage").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE"){
+                        div.id='tabactive';
                                 
                               
-                                var page=document.getElementById("numberOfPageEngage").value;
+                        var page=document.getElementById("numberOfPageEngage").value;
                              
-                                //var counterCultura=(pageCultura*20)-21; 
-                                var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
+                        //var counterCultura=(pageCultura*20)-21; 
+                        var counter=(page*<%=Integer.parseInt(numberRecordsForPage)%>)-<%=limit%>;
                                
-                                var positionDiv=$("#tabactive").position().top;
+                        var positionDiv=$("#tabactive").position().top;
   
                                
-                                var x2=$("#countResourceEngage_"+counter).position();
+                        var x2=$("#countResourceEngage_"+counter).position();
                                 
-                                var topFinal=x2.top-positionDiv;
+                        var topFinal=x2.top-positionDiv;
                          
                            
-                                window.scroll(x2.left,topFinal);
+                        window.scroll(x2.left,topFinal);
                             
                            
                            
-                            }
-                        }
+                    }
+                }
 
-                    }    
+            }    
                 
-                } 
+        } 
                 
-                function activeEngageAfterMoreInfo(){  
+        function activeEngageAfterMoreInfo(){  
                 
-                    //******** tab Cultura ITalia attivo************    
-                    if(document.getElementById("idMoreInfoEngage").value=="OK"){
-                        // alert("CULTURA ITALIA attivo");
-                        document.getElementById("idMoreInfoEngage").value="NO";
-                        var listDiv=document.getElementsByTagName("div");
-                        for (var i=0;i<listDiv.length;i++)
-                        {
-                            var div=listDiv[i];
-                            var title=div.getAttribute("title");
-                            if(title=="E-INFRA-KB")
-                                div.id ='notabactive';
-                            if(title=="OPENAGRIS")
-                                div.id ='notabactive';
-                            if(title=="EUROPEANA")
-                                div.id ='notabactive';
-                            if(title=="CULTURAITALIA")
-                                div.id ='notabactive';
-                            if(title=="ISIDORE")
-                                div.id ='notabactive';
-                            if(title=="PUBMED")
-                                div.id ='notabactive';
-                            if(title=="DBPEDIA")
-                                div.id ='notabactive';
-                            if(title=="ENGAGE"){
-                                div.id='tabactive';
-                                var positionDiv= $("#tabactive").position().top;
-                                var x=$("#countResourceEngage_"+<%=numResourceEngageFromDetails%>).position();
+            //******** tab Cultura ITalia attivo************    
+            if(document.getElementById("idMoreInfoEngage").value=="OK"){
+                // alert("CULTURA ITALIA attivo");
+                document.getElementById("idMoreInfoEngage").value="NO";
+                var listDiv=document.getElementsByTagName("div");
+                for (var i=0;i<listDiv.length;i++)
+                {
+                    var div=listDiv[i];
+                    var title=div.getAttribute("title");
+                    if(title=="E-INFRA-KB")
+                        div.id ='notabactive';
+                    if(title=="OPENAGRIS")
+                        div.id ='notabactive';
+                    if(title=="EUROPEANA")
+                        div.id ='notabactive';
+                    if(title=="CULTURAITALIA")
+                        div.id ='notabactive';
+                    if(title=="ISIDORE")
+                        div.id ='notabactive';
+                    if(title=="PUBMED")
+                        div.id ='notabactive';
+                    if(title=="DBPEDIA")
+                        div.id ='notabactive';
+                    if(title=="ENGAGE"){
+                        div.id='tabactive';
+                        var positionDiv= $("#tabactive").position().top;
+                        var x=$("#countResourceEngage_"+<%=numResourceEngageFromDetails%>).position();
                                
-                                var topFinal=x.top-positionDiv;
+                        var topFinal=x.top-positionDiv;
                            
                                               
-                                window.scrollTo(x.left,topFinal);
+                        window.scrollTo(x.left,topFinal);
                             
                            
                            
-                            }
-                        }
-
-                    }    
-                
+                    }
                 }
+
+            }    
+                
+        }
                     
                     
                    
                    
                      
-                function showDialog()
-                {
+        function showDialog()
+        {
         
-                    //alert("SHOW DIALOG");
-                    $("#dialog2").dialog('open');          
+            //alert("SHOW DIALOG");
+            $("#dialog2").dialog('open');          
        
        
-                    $( "#dialog2" ).dialog({
-                        dialogClass: "no-close",
-                        width: 300, 
-                        height:150,
+            $( "#dialog2" ).dialog({
+                dialogClass: "no-close",
+                width: 300, 
+                height:150,
                                 
                             
-                        resizable: false
+                resizable: false
 
-                    });
+            });
        
             
-                } 
+        } 
                     
                     
-                function GoDetailsOpenAgris(x)
-                {
-                    var resource=x.toString().split("counterResourceOpenAgris_")[1];
+        function GoDetailsOpenAgris(x)
+        {
+            var resource=x.toString().split("counterResourceOpenAgris_")[1];
                         
-                    // alert("Open agris "+resource);
-                    document.getElementById('idResourceOpenAgris').value=resource;
-                    document.getElementById('idMoreInfo').value="NO";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="OK";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="NO";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="NO";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="NO";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="NO";
-                    document.getElementById("idMoreResourceEngage").value="NO";
-                    document.getElementById("idMoreInfoEngage").value="NO";
+            // alert("Open agris "+resource);
+            document.getElementById('idResourceOpenAgris').value=resource;
+            document.getElementById('idMoreInfo').value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="OK";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                    
-                    document.getElementById('numResourceOpenAgris').value=document.getElementById('idNumResourceOpenAgris_'+resource).value;
-                    document.forms["searchDetailOpenAgris"].submit();
+            document.getElementById('numResourceOpenAgris').value=document.getElementById('idNumResourceOpenAgris_'+resource).value;
+            document.forms["searchDetailOpenAgris"].submit();
                             
-                }
+        }
                         
-                function GoDetailsCulturaItalia(x)
-                {
-                    var resource=x.toString().split("counterResourceCulturaItalia_")[1];
+        function GoDetailsCulturaItalia(x)
+        {
+            var resource=x.toString().split("counterResourceCulturaItalia_")[1];
                   
-                    document.getElementById('idResourceCulturaItalia').value=resource;
-                    document.getElementById('idMoreInfo').value="NO";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="OK";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="NO";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="NO";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="NO";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="NO";
-                    document.getElementById("idMoreResourceEngage").value="NO";
-                    document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById('idResourceCulturaItalia').value=resource;
+            document.getElementById('idMoreInfo').value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="OK";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                     
-                    document.getElementById('numResourceCulturaItalia').value=document.getElementById('idNumResourceCulturaItalia_'+resource).value;
-                    //alert("NUM RSOURCE--->"+document.getElementById('numResourceCulturaItalia').value);
-                    document.forms["searchDetailCulturaItalia"].submit();
+            document.getElementById('numResourceCulturaItalia').value=document.getElementById('idNumResourceCulturaItalia_'+resource).value;
+            //alert("NUM RSOURCE--->"+document.getElementById('numResourceCulturaItalia').value);
+            document.forms["searchDetailCulturaItalia"].submit();
                             
-                }
+        }
                 
                 
-                function GoDetailsEuropeana(x)
-                {
-                    var resource=x.toString().split("counterResourceEuropeana_")[1];
+        function GoDetailsEuropeana(x)
+        {
+            var resource=x.toString().split("counterResourceEuropeana_")[1];
                     
-                    document.getElementById('idResourceEuropeana').value=resource;
+            document.getElementById('idResourceEuropeana').value=resource;
                    
-                    document.getElementById('idMoreInfo').value="NO";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="NO";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="OK";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="NO";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="NO";
-                    document.getElementById("idMoreResourceEngage").value="NO";
-                    document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById('idMoreInfo').value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="OK";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                    
-                    document.getElementById('numResourceEuropeana').value=document.getElementById('idNumResourceEuropeana_'+resource).value;
-                    document.forms["searchDetailEuropeana"].submit();
+            document.getElementById('numResourceEuropeana').value=document.getElementById('idNumResourceEuropeana_'+resource).value;
+            document.forms["searchDetailEuropeana"].submit();
                             
-                }
+        }
                 
-                function GoDetailsIsidore(x)
-                {
-                    var resource=x.toString().split("counterResourceIsidore_")[1];
-                    document.getElementById('idResourceIsidore').value=resource;
-                    document.getElementById('idMoreInfo').value="NO";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="OK";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="NO";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="NO";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="NO";
-                    document.getElementById("idMoreResourceEngage").value="NO";
-                    document.getElementById("idMoreInfoEngage").value="NO";
+        function GoDetailsIsidore(x)
+        {
+            var resource=x.toString().split("counterResourceIsidore_")[1];
+            document.getElementById('idResourceIsidore').value=resource;
+            document.getElementById('idMoreInfo').value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="OK";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                    
-                    document.getElementById('numResourceIsidore').value=document.getElementById('idNumResourceIsidore_'+resource).value;
-                    document.forms["searchDetailIsidore"].submit();
+            document.getElementById('numResourceIsidore').value=document.getElementById('idNumResourceIsidore_'+resource).value;
+            document.forms["searchDetailIsidore"].submit();
                             
-                }
+        }
                     
-                function GoDetailsPubmed(x)
-                {
-                    var resource=x.toString().split("counterResourcePubmed_")[1];
-                    document.getElementById('idResourcePubmed').value=resource;
-                    document.getElementById('idMoreInfo').value="NO";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="NO";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="NO";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="OK";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="NO";
-                    document.getElementById("idMoreResourceEngage").value="NO";
-                    document.getElementById("idMoreInfoEngage").value="NO";
+        function GoDetailsPubmed(x)
+        {
+            var resource=x.toString().split("counterResourcePubmed_")[1];
+            document.getElementById('idResourcePubmed').value=resource;
+            document.getElementById('idMoreInfo').value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="OK";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                    
                    
-                    document.getElementById('numResourcePubmed').value=document.getElementById('idNumResourcePubmed_'+resource).value;
-                    document.forms["searchDetailPubmed"].submit();
+            document.getElementById('numResourcePubmed').value=document.getElementById('idNumResourcePubmed_'+resource).value;
+            document.forms["searchDetailPubmed"].submit();
                             
-                }
+        }
                 
-                function GoDetailsDBPedia(x)
-                {
-                    var resource=x.toString().split("counterResourceDBPedia_")[1];
+        function GoDetailsDBPedia(x)
+        {
+            var resource=x.toString().split("counterResourceDBPedia_")[1];
                         
                     
-                    document.getElementById('idResourceDBPedia').value=resource;
-                    document.getElementById('idMoreInfo').value="NO";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="NO";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="NO";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="NO";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="OK";
-                    document.getElementById("idMoreResourceEngage").value="NO";
-                    document.getElementById("idMoreInfoEngage").value="NO";
+            document.getElementById('idResourceDBPedia').value=resource;
+            document.getElementById('idMoreInfo').value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="OK";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="NO";
                    
-                    document.getElementById('numResourceDBPedia').value=document.getElementById('idNumResourceDBPedia_'+resource).value;
-                    document.forms["searchDetailDBPedia"].submit();
+            document.getElementById('numResourceDBPedia').value=document.getElementById('idNumResourceDBPedia_'+resource).value;
+            document.forms["searchDetailDBPedia"].submit();
                             
-                }
+        }
                 
-                function GoDetailsEngage(x)
-                {
-                    var resource=x.toString().split("counterResourceEngage_")[1];
+        function GoDetailsEngage(x)
+        {
+            var resource=x.toString().split("counterResourceEngage_")[1];
                   
-                    document.getElementById('idResourceEngage').value=resource;
-                    document.getElementById('idMoreInfo').value="NO";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="NO";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="NO";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="NO";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="NO";
-                    document.getElementById("idMoreResourceEngage").value="NO";
-                    document.getElementById("idMoreInfoEngage").value="OK";
+            document.getElementById('idResourceEngage').value=resource;
+            document.getElementById('idMoreInfo').value="NO";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById("idMoreResourceEngage").value="NO";
+            document.getElementById("idMoreInfoEngage").value="OK";
                    
                    
-                    document.getElementById('numResourceEngage').value=document.getElementById('idNumResourceEngage_'+resource).value;
-                    document.forms["searchDetailEngage"].submit();
+            document.getElementById('numResourceEngage').value=document.getElementById('idNumResourceEngage_'+resource).value;
+            document.forms["searchDetailEngage"].submit();
                             
-                }
+        }
                         
     
-                function GoDetails(x,countResource)
-                {
-                    cursor_wait();
-                    var resource=x.toString().split("counterResoure_")[1];
+        function GoDetails(x,countResource)
+        {
+            cursor_wait();
+            var resource=x.toString().split("counterResoure_")[1];
                     
-                    var myTitle=document.getElementById("titleResourceVirtuoso"+countResource+"--1").value;
+            var myTitle=document.getElementById("titleResourceVirtuoso"+countResource+"--1").value;
                    
-                    document.getElementById('title_GS2').value=myTitle;
+            document.getElementById('title_GS2').value=myTitle;
                     
-                    //alert("RESOURCE--->"+resource);
-                    document.getElementById('idResource').value=resource;
-                    document.getElementById('idMoreInfo').value="OK";
-                    document.getElementById("idMoreResourceCHAIN").value="NO";
-                    document.getElementById("idMoreInfoOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceOpenAgris").value="NO";
-                    document.getElementById("idMoreResourceCulturaItalia").value="NO";
-                    document.getElementById("idMoreInfoCulturaItalia").value="NO";
-                    document.getElementById("idMoreResourceIsidore").value="NO";
-                    document.getElementById("idMoreInfoIsidore").value="NO";
-                    document.getElementById("idMoreResourceEuropeana").value="NO";
-                    document.getElementById("idMoreInfoEuropeana").value="NO";
-                    document.getElementById("idMoreResourcePubmed").value="NO";
-                    document.getElementById("idMoreInfoPubmed").value="NO";
-                    document.getElementById("idMoreResourceDBPedia").value="NO";
-                    document.getElementById("idMoreInfoDBPedia").value="NO";
-                    document.getElementById('numResource').value=document.getElementById('idNumResource_'+resource).value;                                    
-                    document.forms["searchDetail"].submit();
-                }  
+            //alert("RESOURCE--->"+resource);
+            document.getElementById('idResource').value=resource;
+            document.getElementById('idMoreInfo').value="OK";
+            document.getElementById("idMoreResourceCHAIN").value="NO";
+            document.getElementById("idMoreInfoOpenAgris").value="NO";
+            document.getElementById("idMoreResourceOpenAgris").value="NO";
+            document.getElementById("idMoreResourceCulturaItalia").value="NO";
+            document.getElementById("idMoreInfoCulturaItalia").value="NO";
+            document.getElementById("idMoreResourceIsidore").value="NO";
+            document.getElementById("idMoreInfoIsidore").value="NO";
+            document.getElementById("idMoreResourceEuropeana").value="NO";
+            document.getElementById("idMoreInfoEuropeana").value="NO";
+            document.getElementById("idMoreResourcePubmed").value="NO";
+            document.getElementById("idMoreInfoPubmed").value="NO";
+            document.getElementById("idMoreResourceDBPedia").value="NO";
+            document.getElementById("idMoreInfoDBPedia").value="NO";
+            document.getElementById('numResource').value=document.getElementById('idNumResource_'+resource).value;                                    
+            document.forms["searchDetail"].submit();
+        }  
                 
                 
-                function CheckCitationsImage(countId,j)
-                {
+        function CheckCitationsImage(countId,j)
+        {
                     
                     
-                    var myTitle=document.getElementById("titleResourceVirtuoso"+countId+"--"+j).value; 
+            var myTitle=document.getElementById("titleResourceVirtuoso"+countId+"--"+j).value; 
                     
-                    //alert("OK---->"+myTitle); 
-                    document.getElementById('title_GS').value=myTitle;
-                   
-                    document.forms["checkCitations"].submit();
-                }
+            //alert("OK---->"+myTitle); 
+            document.getElementById('title_GS').value=myTitle;
+            document.getElementById('chek_altmetric').value="NO";
+            document.forms["checkCitations"].submit();
+        }
                 
-                function CheckCitations(x)
-                {
+        function CheckAltmetrics(countId,j,url,doi)
+        {
                     
-                    var countResource=x.toString().split("counterResoureGS_")[1];
+                    
+            var myTitle=document.getElementById("titleResourceVirtuoso"+countId+"--"+j).value; 
+                    
+            // alert("OK---->"+url); 
+            document.getElementById('title_GS').value=myTitle;
+            // alert("OK--2-->");
+            document.getElementById('chek_altmetric').value="SI";
+                     
+            document.getElementById('url_altmetric').value=url;
+            document.getElementById('doi_altmetric').value=doi;
+            // alert("OK--3-->");
+            document.forms["checkCitations"].submit();
+        }
+                
+               
+                
+                
+        function CheckCitations(x)
+        {
+                    
+            var countResource=x.toString().split("counterResoureGS_")[1];
                    
-                    var myTitle=document.getElementById("titleResourceVirtuoso"+countResource+"--1").value;
+            var myTitle=document.getElementById("titleResourceVirtuoso"+countResource+"--1").value;
                    
-                    document.getElementById('title_GS').value=myTitle;
+            document.getElementById('title_GS').value=myTitle;
+            document.getElementById('chek_altmetric').value="NO";
+            // alert("OK---->"+myTitle);
+            document.forms["checkCitations"].submit();
+        }
+                
+        function CheckAltmetrics2(x)
+        {
+                    
+                    
+            var countResource=x.toString().split("counterResoureAlt_")[1];
                    
-                    // alert("OK---->"+myTitle);
-                    document.forms["checkCitations"].submit();
-                }
+            var myTitle=document.getElementById("titleResourceVirtuoso"+countResource+"--1").value;
+            var url=document.getElementById("url_altmetric_"+countResource).value;
+            var doi=document.getElementById("doi_altmetric_"+countResource).value;
+            // alert("DOI--->"+doi);
+            document.getElementById('title_GS').value=myTitle;
+            document.getElementById('chek_altmetric').value="SI";
+            document.getElementById("url_altmetric").value=url;
+            document.getElementById("doi_altmetric").value=doi;
+                     
+            document.forms["checkCitations"].submit();
+        }
     
     
-                function cursor_wait(){
-                    document.body.style.cursor = "wait";
-                }
+        function cursor_wait(){
+            document.body.style.cursor = "wait";
+        }
 
         
-                function submitLanguage(id)
-                {
-                    cursor_wait();
-                    var s=document.getElementById("idLanguage"+id).value;
-                    var e=document.getElementById("selLanguageId").value=s;
-                    document.getElementById("language").innerHTML=e;
+        function submitLanguage(id)
+        {
+            cursor_wait();
+            var s=document.getElementById("idLanguage"+id).value;
+            var e=document.getElementById("selLanguageId").value=s;
+            document.getElementById("language").innerHTML=e;
            
-                    document.forms["form_choose_language"].submit();
-                    showDialog();
+            document.forms["form_choose_language"].submit();
+            showDialog();
           
-                }
-                function submitAllLanguage(){
-                    document.body.style.cursor = "wait";
+        }
+        function submitAllLanguage(){
+            document.body.style.cursor = "wait";
             
-                    document.forms["form_all_language"].submit();
+            document.forms["form_all_language"].submit();
       
-                    //  showDialog();
+            //  showDialog();
    
-                } 
+        } 
+                
+        function controlSearchWord(){
+        
+            var key=document.getElementById("id_search_word").value;
+        
+            if(key=="" || key.trim()=="" )
+            {
+            
+                return false;
+            }
+            else{
+             
+                return true;   
+            }
+ 
+        }
+                
     
-                function submitSearch()
-                {
+        function submitSearch()
+        {
+            
+            var control=controlSearchWord();
+        
+        
+        if(control){
                     
-                    //Gestione Pagine
-                    document.getElementById("numberOfPage").value="";
-                    document.getElementById("numberOfPageOpenAgris").value="";
-                    document.getElementById("numberOfPageCulturaItalia").value="";
-                    document.getElementById("numberOfPageEuropeana").value="";
-                    document.getElementById("numberOfPageIsidore").value="";
-                    document.getElementById("numberOfPagePubmed").value="";
-                    document.getElementById("numberOfPageEngage").value="";
-                    document.getElementById("numberOfPageDBPedia").value="";
-                    document.body.style.cursor = "wait";
+            //Gestione Pagine
+            document.getElementById("numberOfPage").value="";
+            document.getElementById("numberOfPageOpenAgris").value="";
+            document.getElementById("numberOfPageCulturaItalia").value="";
+            document.getElementById("numberOfPageEuropeana").value="";
+            document.getElementById("numberOfPageIsidore").value="";
+            document.getElementById("numberOfPagePubmed").value="";
+            document.getElementById("numberOfPageEngage").value="";
+            document.getElementById("numberOfPageDBPedia").value="";
+            document.body.style.cursor = "wait";
          
-                    // alert("PRIMA-->"+document.getElementById("numberOfPage").value);
+            // alert("PRIMA-->"+document.getElementById("numberOfPage").value);
          
                     
-                    // alert("DOPO-->"+document.getElementById("numberOfPage").value);
-                    document.forms["search_form"].submit();
+            // alert("DOPO-->"+document.getElementById("numberOfPage").value);
+            document.forms["search_form"].submit();
       
-                    showDialog();
-                }
+            showDialog();
+        }
+        else
+            alert("Insert a keyword in the input text!!!");
+        }
                 
 
     
-                $("#id_search_word").bind('keypress', function(e)
-                {   
-                    if(e.which == 13) 
-                    {
-                        submitSearch();
-                    }
-                });     
+        $("#id_search_word").bind('keypress', function(e)
+        {   
+            if(e.which == 13) 
+            {
+                submitSearch();
+            }
+        });     
                      
                      
                      
-                function getExampleValue(id)
-                {
+        function getExampleValue(id)
+        {
           
-                    var s=document.getElementById("idExample"+id).value;
-                    var e=document.getElementById("id_search_word").value=s;
+            var s=document.getElementById("idExample"+id).value;
+            var e=document.getElementById("id_search_word").value=s;
           
-                    $( "#dialogExamples" ).dialog( "close" );
+            $( "#dialogExamples" ).dialog( "close" );
         
        
-                    //submitSearch();
+            //submitSearch();
             
-                } 
+        } 
     
-                /*$( "#examplebutton" ).click(function() {
+        /*$( "#examplebutton" ).click(function() {
     $( "#dialogExamples" ).dialog( "open" );
     showDialogExamples();
 });*/
     
-                function examplebutton() {
-                    $( "#dialogExamples" ).dialog( "open" );
-                    showDialogExamples();
-                }
+        function examplebutton() {
+            $( "#dialogExamples" ).dialog( "open" );
+            showDialogExamples();
+        }
  
-                function showDialogExamples()
-                {      
-                    //document.getElementById("examplebutton").disabled;
-                    $("#dialogExamples").dialog({
-                        dialogClass: "no-close",
-                        resizable: false,
-                        modal: true,
-                        width: 'auto',
-                        height: 'auto',
-                        position:['center','center'],
-                        autoOpen: false,
-                        overlay: { backgroundColor: "#000", opacity: 0.5 },
-                        buttons: [ { text: "close", click: function() { $( this ).dialog( "close" ); } } ]
-                    });
-                }            
+        function showDialogExamples()
+        {      
+            //document.getElementById("examplebutton").disabled;
+            $("#dialogExamples").dialog({
+                dialogClass: "no-close",
+                resizable: false,
+                modal: true,
+                width: 'auto',
+                height: 'auto',
+                position:['center','center'],
+                autoOpen: false,
+                overlay: { backgroundColor: "#000", opacity: 0.5 },
+                buttons: [ { text: "close", click: function() { $( this ).dialog( "close" ); } } ]
+            });
+        }            
         </script>                     
 
 

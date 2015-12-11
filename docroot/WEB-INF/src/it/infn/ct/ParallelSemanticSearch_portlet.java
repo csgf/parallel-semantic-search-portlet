@@ -57,9 +57,9 @@ import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+//import javax.servlet.ServletException;
+//import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServletResponse;
 import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.repository.RepositoryConnection;
@@ -199,7 +199,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         , ACTION_SEMANTIC_SEARCH_ALL_LANGUAGE, ACTION_GET_MORE_INFO,
         ACTION_GET_MORE_INFO_OPENAGRIS, ACTION_GET_MORE_INFO_CULTURAITALIA, ACTION_GET_MORE_INFO_EUROPEANA,
         ACTION_GET_MORE_INFO_ISIDORE, ACTION_GET_MORE_INFO_PUBMED, ACTION_GET_MORE_INFO_ENGAGE, 
-        ACTION_GET_MORE_INFO_DBPEDIA,ACTION_GET_CITATIONS_GSCHOLAR
+        ACTION_GET_MORE_INFO_DBPEDIA,ACTION_GET_CITATIONS_GSCHOLAR,ACTION_ISLEX,ACTION_GET_ALTMETRICS
     }
 
     private enum Views {
@@ -209,7 +209,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         , VIEW_SEMANTIC_SEARCH_ALL_LANGUAGE, VIEW_GET_MORE_INFO,
         VIEW_GET_MORE_INFO_OPENAGRIS, VIEW_GET_MORE_INFO_CULTURAITALIA, VIEW_GET_MORE_INFO_EUROPEANA,
         VIEW_GET_MORE_INFO_ISIDORE, VIEW_GET_MORE_INFO_PUBMED,VIEW_GET_MORE_INFO_DBPEDIA,
-        VIEW_GET_MORE_INFO_ENGAGE, VIEW_CITATIONS_GSCHOLAR
+        VIEW_GET_MORE_INFO_ENGAGE, VIEW_CITATIONS_GSCHOLAR,VIEW_ISLEX,VIEW_ALTMETRICS
     }
 
     // The init values will be read form portlet.xml from <init-param> xml tag
@@ -368,6 +368,12 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
         
         
         String title_GS;
+        
+        //ALTMETRIC
+        String chek_altmetric;
+        String url_altmetric;
+        String doi_altmetric;
+        
         // Some user level information
         // must be stored as well
         String username;
@@ -430,7 +436,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             numResourceDBPediaFromDetails="";
 
             title_GS = "";
-
+            chek_altmetric="";
+            url_altmetric="";
+            doi_altmetric="";
 
             // numberPage=0;
         }
@@ -1015,12 +1023,62 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 
                     // response.setRenderParameter("title_GS", appInput.title_GS);
                     response.setRenderParameter("title_GS", appInput.title_GS);
+                    response.setRenderParameter("chek_altmetric", appInput.chek_altmetric);
+                    
+                   // System.out.println("appInput.chek_altmetric---->"+appInput.chek_altmetric);
+                    if(!appInput.chek_altmetric.equals("SI")){
                     info_GS = executeCommand(appInput.title_GS);
 
                     response.setRenderParameter("info_GS", info_GS);
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_CITATIONS_GSCHOLAR);
+                    }
+                    else
+                    {
+                         _log.info("Got action: 'ACTION_ALTMETRICS'");
+                          System.out.println("appInput.chek_altmetric---->"+appInput.url_altmetric);
+                          System.out.println("appInput.doi_altmetric---->"+appInput.doi_altmetric);
+                         response.setRenderParameter("url_altmetric", appInput.url_altmetric);
+                         response.setRenderParameter("doi_altmetric", appInput.doi_altmetric);
+                         response.setRenderParameter("PortletStatus", "" + Views.VIEW_ALTMETRICS);
+                    }
                     break;
+                    
+                    case ACTION_ISLEX:
+                    // Get current preference values
+                    _log.info("Got action: 'ACTION_ISLEX'");
+                    // Create the appInput object
+                    appInput = new App_Input();
 
+                    // Stores the user submitting the job
+                    appInput.username = username;
+
+                    // Process input fields and files to upload
+                    getInputForm(request, appInput);
+                    
+                    ReadXMLIslex.readFile(appServerPath);
+                    
+                    response.setRenderParameter("search_word", appInput.search_word);
+                    response.setRenderParameter("PortletStatus", "" + Views.VIEW_ISLEX);
+                    break;
+                        
+                    case ACTION_GET_ALTMETRICS:
+                         _log.info("Got action: 'ACTION_ALTMETRICS'");
+                    // Create the appInput object
+                    appInput = new App_Input();
+
+                    // Stores the user submitting the job
+                    appInput.username = username;
+
+                    // Process input fields and files to upload
+                    getInputForm(request, appInput);
+                    
+                    
+                    
+                    response.setRenderParameter("search_word", appInput.search_word);
+                    response.setRenderParameter("PortletStatus", "" + Views.VIEW_ALTMETRICS);
+                    break;
+                        
+                        
                 default:
                     _log.info("Unhandled action: '" + actionStatus + "'");
                     response.setRenderParameter("PortletStatus", "" + Views.VIEW_INPUT);                   
@@ -1459,7 +1517,23 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
 			getPortletContext().getRequestDispatcher("/viewCitationsGS.jsp");
                 dispatcher.include(request, response);
             }
+            
             break;
+            case VIEW_ISLEX: {
+                _log.info("VIEW_ISLEX Selected ...");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewIslex.jsp");
+                dispatcher.include(request, response);
+            }
+            break;    
+            case VIEW_ALTMETRICS: {
+                _log.info("VIEW_ALTMETRICS Selected ...");
+                PortletRequestDispatcher dispatcher = 
+			getPortletContext().getRequestDispatcher("/viewAltmetrics.jsp");
+                dispatcher.include(request, response);
+            }
+            break;
+                
 
             default:
                 _log.info("Unknown view mode: " + currentView.toString());
@@ -1804,7 +1878,9 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
             appInput.moreInfoDBPedia = (String) request.getParameter("moreInfoDBPedia");
             
             appInput.title_GS = (String) request.getParameter("title_GS");
-
+            appInput.chek_altmetric=(String) request.getParameter("chek_altmetric");
+            appInput.url_altmetric=(String) request.getParameter("url_altmetric");
+            appInput.doi_altmetric=(String) request.getParameter("doi_altmetric");
 
         } // ! isMultipartContent
 
@@ -3482,7 +3558,7 @@ public class ParallelSemanticSearch_portlet extends GenericPortlet {
     private void testLookup() {
     //ThreadPoolExecutor tp=null;
         try {
-
+            
              tp = InitialContext.<ThreadPoolExecutor>doLookup("SemanticSearch-Pool");//("concurrency/TP");SemanticSearch-Pool
             // tp = InitialContext.<ThreadPoolExecutor>doLookup("concurrency/TP");
             System.out.println("ThreadPoolExecutor from lookup: " + tp);
